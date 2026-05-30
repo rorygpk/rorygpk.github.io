@@ -1,5 +1,5 @@
 import { Settings, Shield, UserCog, Database } from "lucide-react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 export function Work() {
   const [currentDomain, setCurrentDomain] = useState("Loading...");

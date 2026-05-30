@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "FATSHAN POST",
+  "description": "完整网站系统全功能系统 (FATSHAN POST 核心工作平台与全局邮件网络)",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
