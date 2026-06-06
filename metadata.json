@@ -1,6 +1,6 @@
 {
-  "name": "FATSHAN POST",
-  "description": "完整网站系统全功能系统 (FATSHAN POST 核心工作平台与全局邮件网络)",
+  "name": "Fatshan Post & Mail Console",
+  "description": "An integrated multi-branch platform including an Outlook-inspired mail system, visual custom buttons, and administration panels, incorporating server-side AI filtering and customer service features.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
