@@ -1686,7 +1686,22 @@ export default function App() {
               
               {/* Authenticated OWA Welcome / Login & Register form */}
               {!currentUser ? (
-                <div id="guest-access-panel" className="bg-slate-950/80 backdrop-blur-md rounded-3xl p-6 border border-cyan-500/20 shadow-2xl">
+                <div id="guest-access-panel" className="bg-slate-950/80 backdrop-blur-md rounded-3xl p-6 border border-cyan-500/20 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500"></div>
+                  
+                  {/* 贴心问候模块 (Warm welcome message) */}
+                  <div className="mb-6 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 p-5 rounded-2xl shadow-inner">
+                     <div className="font-bold text-lg text-indigo-300 mb-2 flex items-center gap-2">
+                       <Sparkles className="w-5 h-5 text-amber-400" />
+                       您好呀，欢迎回到您的专属云端工作生态！
+                     </div>
+                     <p className="text-sm text-slate-300 leading-relaxed">
+                       无论是处理繁杂的邮件协作、随时随地的远端守护，还是管理错综复杂的代码与服务，这套专属系统都会始终伴您左右，提供最隐秘、稳定、贴心的保障。
+                       <br/><br/>
+                       💡 <strong className="text-cyan-400">贴心小提示：</strong> 我们已经做了全平台深度响应式优化。不管您现在正拿着手机还是端坐在电脑前，所有内容排版都会完美适配您的屏幕。如果在手机端需要全屏沉浸体验，请随时点击顶部右侧的「<Maximize className="w-3.5 h-3.5 inline-block mx-0.5 text-white" />全屏」按钮。放轻松，接下来的一切交给系统为您打理。
+                     </p>
+                  </div>
+
                   <div className="flex items-center gap-3 mb-6">
                     <Lock className="h-6 w-6 text-cyan-400" />
                     <div>
@@ -2853,9 +2868,20 @@ export default function App() {
                             <li>并在 Environment Variables 标签配置 <code className="text-amber-400">GEMINI_API_KEY</code> 秘钥环境参数。</li>
                           </ul>
                         </li>
-                        <li>
-                          <strong>采用 HF Space 免绑卡部署：</strong>
-                          使用上面打包好的 ZIP，注册 Hugging Face 后直接把里面的文件传进以 <strong>Docker</strong> 模式新建的空白 Space 中即可，全免费不需要信用卡验证（全程手机浏览器点点图搞定）。
+                        <li className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl relative overflow-hidden group">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-amber-500 rounded-l-xl"></div>
+                          <strong className="text-amber-400 text-sm flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 采用 HF Space 免绑卡部署（必看排坑指南）：</strong>
+                          <p className="text-slate-300 leading-relaxed mb-3">
+                            使用上面打包好的 ZIP，注册 Hugging Face 后直接传进以 <strong>Docker</strong> 模式新建的空白 Space 中即可，全免费不需要信用卡验证。
+                          </p>
+                          <div className="bg-slate-900/80 p-3 rounded-lg border border-white/5 shadow-inner">
+                             <div className="font-bold text-rose-400 mb-1 flex items-center gap-1"><ShieldAlert className="w-3.5 h-3.5"/> 致命踩坑预警：必须保持文件夹结构！</div>
+                             <div className="text-slate-400 text-xs leading-relaxed">
+                               如果您是在手机或电脑浏览器点点去上传，<strong className="text-white">切忌一个个文件单独上传！</strong> 这会导致 <code>src</code>、<code>scripts</code> 等关键文件夹缺失及结构错乱，服务器将无法解析配置并直接崩溃。
+                               <br/><br/>
+                               👉 <strong className="text-emerald-400">正确做法（纯网页端）</strong>：先将下载的 ZIP 【解压缩】，然后在 Hugging Face 的上传页面（Files -{'>'} Add file -{'>'} Upload files），<strong className="text-white">把解压后的一整个大文件夹内部的所有文件/文件夹批量拖拽进去</strong>。系统会自动保留树状目录结构！
+                             </div>
+                          </div>
                         </li>
                         <li>
                           <strong>如何在 Hugging Face Space 绑定个人域名：</strong>
