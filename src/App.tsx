@@ -1785,8 +1785,22 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                /* Primary OWA interface when logged in on Home screen! */
-                <div id="outlook-client-app" className="bg-slate-950/90 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col h-[700px]">
+                <div className="flex flex-col gap-6">
+                  {/* Logged in caring banner */}
+                  <div className="bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-transparent border border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-fade-in">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-500/20 rounded-full text-emerald-400 shrink-0">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-emerald-300">欢迎登舰，{currentUser.fullName}！今天也要顺利开心哦～</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">各项系统组件已为您启动完毕。如果您是手机访问，可以通过上方菜单和右侧气泡工具箱呼叫 AI 整理事项。</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Primary OWA interface when logged in on Home screen! */}
+                  <div id="outlook-client-app" className="bg-slate-950/90 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col h-[700px]">
                   
                   {/* OWA Ribbon toolbar */}
                   <div className="bg-slate-900 shrink-0 border-b border-white/10 p-3 flex items-center justify-between gap-4">
@@ -2062,6 +2076,7 @@ export default function App() {
                     </div>
 
                   </div>
+                </div>
                 </div>
               )}
 
@@ -2817,8 +2832,8 @@ export default function App() {
                       </h4>
                       <ol className="list-decimal list-inside space-y-2 leading-relaxed">
                         <li>
-                          <strong>一键导出代码：</strong>
-                          点击页面右上角菜单（或控制台的侧边栏）中的 <strong>Export to GitHub</strong> 或 <strong>Download ZIP</strong> 按钮下载。（这是官方原生方法）<br />
+                          <strong>第一步：一键打包所有源代码：</strong>
+                          点击页面右上角菜单中的 <strong>Export to GitHub</strong> 原生导出，或直接点击下方特设的安全通道下载全站 ZIP 包：<br />
                           <button 
                             type="button"
                             onClick={async (e) => {
@@ -2855,46 +2870,45 @@ export default function App() {
                           <p className="mt-1.5 text-center text-[10px] text-yellow-400">⚠️ 点击后直接保存文件，完美绕过重定向与跨标签页拦截。</p>
                         </li>
                         <li>
-                          <strong>推送至你的 Github Pages 仓库：</strong>
-                          新建/同步到你的个人仓库：<code className="text-cyan-400">rorygpk.github.io</code>
+                          <strong>第二步：将 ZIP 解压后传到个人的 GitHub (GB) 仓库：</strong>
+                          登录你的 GitHub 账号，创建一个新的仓库。将上一步下载的全部压缩包解压后的大文件夹，传到 GitHub 仓库里保存。
                         </li>
-                        <li>
-                          <strong>部署运行后端 Node.js：</strong>
-                          推荐免费的 <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Render</a> (或 Railway)：
-                          <ul className="list-disc list-inside ml-4 mt-1 text-slate-400 space-y-1">
-                            <li>添加新 **Web Service**，关联你刚刚导出的 GitHub 仓库或 ZIP 代码提取内容。</li>
-                            <li>Build Command: <code className="text-slate-200">npm run build</code></li>
-                            <li>Start Command: <code className="text-slate-200">node dist/server.cjs</code></li>
-                            <li>并在 Environment Variables 标签配置 <code className="text-amber-400">GEMINI_API_KEY</code> 秘钥环境参数。</li>
-                          </ul>
+
+                        <li className="bg-cyan-500/10 border border-cyan-500/20 p-4 rounded-xl relative overflow-hidden group mb-4 mt-2">
+                           <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500 rounded-l-xl"></div>
+                           <strong className="text-cyan-400 text-[13px] flex items-center gap-1.5 mb-2"><Share2 className="w-4 h-4" /> 第三步：在 Cloudflare 免费极速部署 (核心前端)</strong>
+                           <p className="text-slate-300 leading-relaxed mb-3 text-[12px]">
+                             按您的要求，采用顶级无服务器平台 <strong>Cloudflare Pages (免信用卡、不翻墙速度极快)</strong>：
+                           </p>
+                           <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
+                             <li>登录或注册 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Cloudflare</a>。</li>
+                             <li>在左侧菜单进入 <strong className="text-white">Workers & Pages</strong>，选择 <strong className="text-white">Pages</strong>，点击 <strong>Connect to Git</strong>。</li>
+                             <li>授权您的 GitHub 账号，并选择您刚刚上传代码的仓库。</li>
+                             <li><strong>配置关键参数：</strong>
+                                <ul className="list-disc list-inside ml-6 mt-1 text-slate-400">
+                                   <li>Framework preset 选择 <strong className="text-white">None</strong>。</li>
+                                   <li>Build command 填入 <code className="bg-slate-900 border border-white/10 px-1.5 rounded text-cyan-300">npm run build</code></li>
+                                   <li>Build output directory 填入 <code className="bg-slate-900 border border-white/10 px-1.5 rounded text-cyan-300">dist</code></li>
+                                </ul>
+                             </li>
+                             <li>点击 <strong>Save and Deploy</strong>。部署成功后，全站前端界面即刻全球极速上线！</li>
+                             <li><strong>给 Cloudflare 绑定专属个人域名：</strong> 点击顶部标签页的 <strong>Custom Domains</strong>（自定义域），一键填入你想用的域名。依靠 Cloudflare 强大的底座系统，自动即刻上锁生效。</li>
+                           </ol>
                         </li>
-                        <li className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl relative overflow-hidden group">
-                          <div className="absolute top-0 left-0 w-1 h-full bg-amber-500 rounded-l-xl"></div>
-                          <strong className="text-amber-400 text-sm flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 采用 HF Space 免绑卡部署（必看排坑指南）：</strong>
-                          <p className="text-slate-300 leading-relaxed mb-3">
-                            使用上面打包好的 ZIP，注册 Hugging Face 后直接传进以 <strong>Docker</strong> 模式新建的空白 Space 中即可，全免费不需要信用卡验证。
+
+                        <li className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl relative overflow-hidden group">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-xl"></div>
+                          <strong className="text-indigo-400 text-[13px] flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 第四步：保留连外网搜索与登录系统 (关键配套)</strong>
+                          <p className="text-slate-400 leading-relaxed mb-3 text-[12px]">
+                            由于 Cloudflare Pages 仅能提供静态页面加速服务，如果想要完整保留系统内置的<strong className="text-emerald-400">“连接外网代理搜索”</strong>和<strong className="text-emerald-400">“安全网关后端登录验证”</strong>功能，请务必在一台原生支持 Node.js 的云主机上执行：
                           </p>
-                          <div className="bg-slate-900/80 p-3 rounded-lg border border-white/5 shadow-inner">
-                             <div className="font-bold text-rose-400 mb-1 flex items-center gap-1"><ShieldAlert className="w-3.5 h-3.5"/> 致命踩坑预警：必须保持文件夹结构！</div>
-                             <div className="text-slate-400 text-xs leading-relaxed">
-                               如果您是在手机或电脑浏览器点点去上传，<strong className="text-white">切忌一个个文件单独上传！</strong> 这会导致 <code>src</code>、<code>scripts</code> 等关键文件夹缺失及结构错乱，服务器将无法解析配置并直接崩溃。
-                               <br/><br/>
-                               👉 <strong className="text-emerald-400">正确做法（纯网页端）</strong>：先将下载的 ZIP 【解压缩】，然后在 Hugging Face 的上传页面（Files -{'>'} Add file -{'>'} Upload files），<strong className="text-white">把解压后的一整个大文件夹内部的所有文件/文件夹批量拖拽进去</strong>。系统会自动保留树状目录结构！
-                             </div>
-                          </div>
-                        </li>
-                        <li>
-                          <strong>如何在 Hugging Face Space 绑定个人域名：</strong>
-                          <ul className="list-disc list-inside ml-4 mt-1 text-slate-400 space-y-1">
-                            <li>1. 在域名注册商（如 Cloudflare / 腾讯云等）处添加一条 <code>CNAME</code> 解析记录，值填写为你的 Space 地址 (例如: <code>username-spacename.hf.space</code>)。</li>
-                            <li>2. 打开 HF Space 项目页，进入 <strong>Settings</strong> 标签面。</li>
-                            <li>3. 向下滚动找到 <strong>Custom Domains</strong> 区块。</li>
-                            <li>4. 点击 <strong>Add Custom Domain</strong>，填入你刚才解析的个人域名，保存即可！(注：后端已加持动态域名探测引擎，绑定新域名后您的专属邮箱后缀会自动无缝变更为该域名，完全免干预极爽体验)</li>
-                          </ul>
-                        </li>
-                        <li>
-                          <strong>绑定远端接口：</strong>
-                          拿到后端专属服务地址（形如 <code>https://xxx.onrender.com</code> 或你绑定的个人自建域名），在本卡片将其填入并点击 `Test Connection` 测试并持久化保存。即使前端部署在静态平台，也能稳定实现通讯！
+                          <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
+                            <li>继续利用 <strong>Render.com</strong> 或 <strong>Zeabur.com</strong>，在一键部署页选中你同一份 Github (GB) 代码库！他们原生支持双端执行。</li>
+                            <li><strong>必填参数：</strong> Build Command：<code className="text-slate-200">npm run build</code>， Start Command：<code className="text-slate-200">node dist/server.cjs</code>。</li>
+                            <li>请在环境变量 Environment Variables 处添加大模型认证秘钥：<code className="bg-slate-900 border border-white/10 px-1 rounded text-amber-400">GEMINI_API_KEY</code>。</li>
+                            <li><strong>打通桥梁链路：</strong> 取到 Zeabur / Render 给你的服务端专属链接地址后，在本网站最上方的<strong>"绑定远端接口"</strong>框内粘贴并测试！</li>
+                            <li className="text-emerald-400 font-bold mt-2 pt-2 border-t border-indigo-500/30">✅ 当你做完这一步，你就同时拥有了 Cloudflare 分发级的高速个人域名体验，并享受了独立强大可控的动态后端搜索引擎网关。整套云架构部署方案完美闭环！</li>
+                          </ol>
                         </li>
                       </ol>
                     </div>
