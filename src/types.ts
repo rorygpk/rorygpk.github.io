@@ -137,6 +137,17 @@ export interface SubPage {
   order: number;
 }
 
+export interface PageBrowserCheck {
+  id: string;
+  pageId: string;
+  requireFullscreen: boolean;
+  minWidth: number;
+  minHeight: number;
+  notMetAction: "warning" | "block_with_message" | "redirect";
+  actionMessage: string;
+  redirectUrl: string;
+}
+
 export interface SystemState {
   activeDomain: string;
   oldDomain: string;
@@ -150,6 +161,7 @@ export interface SystemState {
   chatMessages: ChatMessage[];
   navPages?: SubPage[];
   aiAuthorizedUsers?: string[];
+  pageBrowserChecks?: PageBrowserCheck[];
   settings: {
     knowledgeBase: { question: string; answer: string }[];
   };

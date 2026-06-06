@@ -42,6 +42,7 @@ function readDB() {
     dualDomainDays: db.dualDomainDays ?? 14,
     navPages: db.navPages || [],
     aiAuthorizedUsers: db.aiAuthorizedUsers || ["marvis_zhou2014"],
+    pageBrowserChecks: db.pageBrowserChecks || [],
     settings: db.settings || { knowledgeBase: [] },
     cryptoMessages: db.cryptoMessages || []
   };
@@ -172,6 +173,7 @@ app.get("/api/state", (req, res) => {
     chatMessages: db.chatMessages || [],
     navPages: db.navPages || [],
     aiAuthorizedUsers: db.aiAuthorizedUsers || ["marvis_zhou2014"],
+    pageBrowserChecks: db.pageBrowserChecks || [],
     settings: {
       knowledgeBase: db.settings?.knowledgeBase || [],
     },
@@ -555,10 +557,11 @@ app.post("/api/admin/manage-user", (req, res) => {
 
 // 9b. Save settings (Admin Nav pages and GFW tunnel authorization lists)
 app.post("/api/admin/save-settings", (req, res) => {
-  const { navPages, aiAuthorizedUsers } = req.body;
+  const { navPages, aiAuthorizedUsers, pageBrowserChecks } = req.body;
   const db = readDB();
   if (navPages !== undefined) db.navPages = navPages;
   if (aiAuthorizedUsers !== undefined) db.aiAuthorizedUsers = aiAuthorizedUsers;
+  if (pageBrowserChecks !== undefined) db.pageBrowserChecks = pageBrowserChecks;
   writeDB(db);
   res.json({ success: true });
 });

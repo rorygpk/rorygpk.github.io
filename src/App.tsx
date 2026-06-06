@@ -63,7 +63,7 @@ import {
 } from "lucide-react";
 import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
-import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess } from "./components/AIExtensions";
+import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks } from "./components/AIExtensions";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
 import { encryptData, decryptData } from './lib/encryption';
@@ -270,6 +270,42 @@ export default function App() {
     return localStorage.getItem("gpkos_custom_backend_url") || "";
   });
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [browserCheckBlock, setBrowserCheckBlock] = useState<{message: string, isWarning: boolean} | null>(null);
+
+  useEffect(() => {
+    const handleCheck = () => {
+       const checks = systemState.pageBrowserChecks || [];
+       const applyCheck = checks.find(c => c.pageId === currentHash || currentHash.startsWith(c.pageId));
+       if (applyCheck) {
+          // A somewhat reliable cross-browser check for fullscreen state (API + heuristic fallback)
+          const isFullscreen = document.fullscreenElement != null || (window.innerHeight >= window.screen.height - 10 && window.innerWidth >= window.screen.width - 10);
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          let fail = false;
+          if (applyCheck.requireFullscreen && !isFullscreen) fail = true;
+          if (applyCheck.minWidth && w < applyCheck.minWidth) fail = true;
+          if (applyCheck.minHeight && h < applyCheck.minHeight) fail = true;
+          
+          if (fail) {
+             if (applyCheck.notMetAction === 'redirect') {
+                window.location.hash = applyCheck.redirectUrl || '';
+             } else {
+                setBrowserCheckBlock({
+                  message: applyCheck.actionMessage,
+                  isWarning: applyCheck.notMetAction === 'warning'
+                });
+             }
+          } else {
+             setBrowserCheckBlock(null);
+          }
+       } else {
+          setBrowserCheckBlock(null);
+       }
+    };
+    handleCheck();
+    window.addEventListener('resize', handleCheck);
+    return () => window.removeEventListener('resize', handleCheck);
+  }, [currentHash, systemState.pageBrowserChecks]);
 
   const getApiBase = (): string => {
     return customApiUrl.trim().replace(/\/$/, "");
@@ -1105,7 +1141,44 @@ export default function App() {
   };
 
   return (
-    <div id="app-root" className={`min-h-screen font-sans transition-all duration-300 ${getThemeClass()} flex flex-col`}>
+    <div id="app-root" className={`min-h-screen font-sans transition-all duration-300 ${getThemeClass()} flex flex-col relative`}>
+      {/* Target Browser Checks Visual Execution layer */}
+      {browserCheckBlock && !browserCheckBlock.isWarning && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+           <div className="bg-red-500/10 border border-red-500/20 p-8 rounded-3xl max-w-lg shadow-2xl flex flex-col items-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-red-500 animate-pulse"></div>
+              <ShieldAlert className="w-16 h-16 text-red-500 mb-6 animate-bounce" />
+              <h2 className="text-2xl font-black text-white mb-4 tracking-tight">安全探针拦截 (Safety Blocked)</h2>
+              <p className="text-slate-300 text-sm leading-relaxed mb-8 font-medium">{browserCheckBlock.message}</p>
+              <div className="flex gap-4">
+                 <button onClick={() => {
+                   const el = document.documentElement;
+                   if (el.requestFullscreen) {
+                     el.requestFullscreen();
+                   } else if ((el as any).webkitRequestFullscreen) {
+                     (el as any).webkitRequestFullscreen();
+                   } else if ((el as any).msRequestFullscreen) {
+                     (el as any).msRequestFullscreen();
+                   }
+                 }} className="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-red-900/50 transition flex items-center gap-2">
+                    <Maximize className="w-4 h-4" /> 尝试激活全屏
+                 </button>
+                 <button onClick={() => { window.location.hash = "#home" }} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition">
+                    退回到主页
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {browserCheckBlock && browserCheckBlock.isWarning && (
+        <div className="bg-amber-500 text-amber-950 font-bold px-4 py-3 flex items-center justify-center gap-3 text-xs z-40 relative shadow-md">
+           <ShieldAlert className="w-4 h-4" />
+           {browserCheckBlock.message}
+           <button onClick={() => setBrowserCheckBlock(null)} className="ml-2 bg-amber-600 text-amber-100 hover:bg-amber-700 px-2 py-1 rounded">忽略</button>
+        </div>
+      )}
+
       {/* Top Warning Alert for flight simulator steps */}
       {currentHash === "#msfs" && msfsWarningOpen && (
         <div id="msfs-alert-belt" className="bg-amber-500 text-slate-950 font-semibold px-4 py-2.5 flex items-center justify-between text-sm shadow-md animate-bounce">
@@ -4170,6 +4243,7 @@ export default function App() {
           <>
             <AdminSubpages lang={lang} systemState={systemState} setSystemState={setSystemState} />
             <AdminAIAccess lang={lang} systemState={systemState} setSystemState={setSystemState} />
+            <AdminBrowserChecks lang={lang} systemState={systemState} setSystemState={setSystemState} />
           </>
         )}
 

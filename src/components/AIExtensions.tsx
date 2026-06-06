@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Zap, MessageSquare, FileText, Terminal, Settings, Plus, FilePlus, ChevronRight, Check, Trash2, ArrowRight, UserPlus, Users, Sparkles } from "lucide-react";
+import { Zap, MessageSquare, FileText, Terminal, Settings, Plus, FilePlus, ChevronRight, Check, Trash2, ArrowRight, UserPlus, Users, Sparkles, MonitorSmartphone, Maximize, ShieldAlert } from "lucide-react";
 import { t, Language } from "../i18n";
-import { SubPage, SystemState, User } from "../types";
+import { SubPage, SystemState, User, PageBrowserCheck } from "../types";
 
 export function ToolGeminiAI({ lang, currentUser, systemState }: { lang: Language, currentUser: User | null, systemState: SystemState }) {
   const [prompt, setPrompt] = useState("");
@@ -474,6 +474,129 @@ export function DynamicSubPage({ page, lang }: { page: SubPage, lang: Language }
         {(lang === 'en' ? page.contentEn : page.contentZh).split('\n').map((para, i) => (
           <p key={i} className="mb-4">{para}</p>
         ))}
+      </div>
+    </div>
+  );
+}
+
+export function AdminBrowserChecks({ lang, systemState, setSystemState }: { lang: Language, systemState: SystemState, setSystemState: React.Dispatch<React.SetStateAction<SystemState>> }) {
+  const checks = systemState.pageBrowserChecks || [];
+  
+  const handleAdd = () => {
+    const newCheck: PageBrowserCheck = {
+      id: Math.random().toString(36).substring(2, 9),
+      pageId: "#nav-" + Math.random().toString(36).substring(2, 6),
+      requireFullscreen: true,
+      minWidth: 0,
+      minHeight: 0,
+      notMetAction: "warning",
+      actionMessage: "严重警告：为确保工作区交互完整，请立刻开启浏览器全屏模式 (F11)。",
+      redirectUrl: ""
+    };
+    handleUpdate([...checks, newCheck]);
+  };
+
+  const handleUpdate = async (newChecks: PageBrowserCheck[]) => {
+    try {
+      const res = await fetch("/api/admin/save-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageBrowserChecks: newChecks })
+      });
+      if (res.ok) {
+        setSystemState(prev => ({ ...prev, pageBrowserChecks: newChecks }));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRemove = (id: string) => {
+    if (confirm("Are you sure?")) {
+      handleUpdate(checks.filter(c => c.id !== id));
+    }
+  };
+
+  return (
+    <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col gap-6 mt-6">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-2">
+          <MonitorSmartphone className="w-5 h-5 text-amber-400" />
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            页面合规性与浏览器探针管理 (Admin)
+          </h2>
+        </div>
+        <button onClick={handleAdd} className="bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 px-3 rounded-xl text-xs flex items-center gap-1 transition">
+          <Plus className="w-4 h-4" /> 新增规则
+        </button>
+      </div>
+      <p className="text-xs text-slate-400">配置页面级浏览器验证探针。强制终端访客达到指定分辨率或进入『全屏模式』方可交互，否则进行告警、拦截或强制跳转处理。</p>
+      
+      <div className="space-y-4">
+        {checks.map(c => (
+          <div key={c.id} className="bg-slate-950/50 border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+             <div className="flex items-center justify-between">
+                <div className="text-sm font-bold text-cyan-300 flex items-center gap-2"><ShieldAlert className="w-4 h-4" /> 拦截策略作用域: {c.pageId}</div>
+                <button onClick={() => handleRemove(c.id)} className="text-red-400 hover:text-red-300 transition p-1"><Trash2 className="w-4 h-4" /></button>
+             </div>
+             
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                 <div>
+                    <label className="block text-slate-500 mb-1">拦截触发点 (Hash URL)</label>
+                    <input type="text" value={c.pageId} onChange={(e) => {
+                       const updated = checks.map(x => x.id === c.id ? { ...x, pageId: e.target.value } : x);
+                       setSystemState(prev => ({ ...prev, pageBrowserChecks: updated }));
+                    }} onBlur={() => handleUpdate(checks)} className="w-full bg-slate-900 border border-white/10 px-2 py-1.5 rounded outline-none focus:border-cyan-500" placeholder="#msfs 或 #admin" />
+                 </div>
+                 <div className="flex items-end pb-1.5">
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white transition">
+                      <input type="checkbox" checked={c.requireFullscreen} onChange={(e) => {
+                         const updated = checks.map(x => x.id === c.id ? { ...x, requireFullscreen: e.target.checked } : x);
+                         handleUpdate(updated);
+                      }} className="w-4 h-4 rounded bg-slate-900 border border-white/10" />
+                      强制检查是否为『全屏』
+                    </label>
+                 </div>
+                 <div>
+                    <label className="block text-slate-500 mb-1">最低屏幕宽度 (px)</label>
+                    <input type="number" value={c.minWidth} onChange={(e) => {
+                       const updated = checks.map(x => x.id === c.id ? { ...x, minWidth: Number(e.target.value) } : x);
+                       setSystemState(prev => ({ ...prev, pageBrowserChecks: updated }));
+                    }} onBlur={() => handleUpdate(checks)} className="w-full bg-slate-900 border border-white/10 px-2 py-1.5 rounded outline-none focus:border-cyan-500" />
+                 </div>
+                 <div>
+                    <label className="block text-slate-500 mb-1">最低屏幕高度 (px)</label>
+                    <input type="number" value={c.minHeight} onChange={(e) => {
+                       const updated = checks.map(x => x.id === c.id ? { ...x, minHeight: Number(e.target.value) } : x);
+                       setSystemState(prev => ({ ...prev, pageBrowserChecks: updated }));
+                    }} onBlur={() => handleUpdate(checks)} className="w-full bg-slate-900 border border-white/10 px-2 py-1.5 rounded outline-none focus:border-cyan-500" />
+                 </div>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mt-2 p-3 bg-slate-900/50 rounded-lg">
+                 <div>
+                    <label className="block text-slate-500 mb-1">探测未达标响应行为</label>
+                    <select value={c.notMetAction} onChange={e => {
+                       const updated = checks.map(x => x.id === c.id ? { ...x, notMetAction: e.target.value as any } : x);
+                       handleUpdate(updated);
+                    }} className="w-full bg-slate-900 border border-white/10 px-2 py-1.5 rounded text-white outline-none focus:border-cyan-500">
+                      <option value="warning">非强制警告 (Warning banner)</option>
+                      <option value="block_with_message">强制拦截并锁死屏幕 (Block)</option>
+                      <option value="redirect">强制降级/驱逐跳出 (Redirect)</option>
+                    </select>
+                 </div>
+                 <div className="md:col-span-2">
+                    <label className="block text-slate-500 mb-1">{c.notMetAction === 'redirect' ? '降级跳出 URL / Hash 目标' : '合规拦截通知文案'}</label>
+                    <input type="text" value={c.notMetAction === 'redirect' ? c.redirectUrl : c.actionMessage} onChange={(e) => {
+                       const val = e.target.value;
+                       const updated = checks.map(x => x.id === c.id ? { ...x, [c.notMetAction === 'redirect' ? 'redirectUrl' : 'actionMessage']: val } : x);
+                       setSystemState(prev => ({ ...prev, pageBrowserChecks: updated }));
+                    }} onBlur={() => handleUpdate(checks)} className="w-full bg-slate-900 border border-white/10 px-2 py-1.5 rounded outline-none focus:border-cyan-500 text-amber-200" />
+                 </div>
+             </div>
+          </div>
+        ))}
+        {checks.length === 0 && <div className="text-center text-slate-500 py-6 text-sm bg-slate-900/40 rounded-xl border border-white/5 border-dashed">当前未激活任何客户端合规探针，页面全局呈现不设限状态。</div>}
       </div>
     </div>
   );
