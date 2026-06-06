@@ -59,7 +59,8 @@ import {
   MessageSquare,
   Monitor,
   Share,
-  Download
+  Download,
+  Smartphone
 } from "lucide-react";
 import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
@@ -80,10 +81,14 @@ const defaultCenter = {
 
 function GoogleMapsWrapper() {
   const apiKey = (import.meta as any).env.VITE_GOOGLE_MAPS_API_KEY || "";
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey // Empty to fail gracefully or show dev map
   });
+
+  if (loadError) {
+    return <div className="p-8 text-red-500 font-bold items-center flex flex-col justify-center h-full w-full">Google Maps failed to load. Please check your API key ({loadError.message || 'ApiProjectMapError'}).</div>;
+  }
 
   return isLoaded ? (
     <GoogleMap
@@ -639,7 +644,7 @@ export default function App() {
   };
 
   // Interactive Live terminal code simulator actions
-  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>("desktop"); // "desktop", "terminal", "ide", "maps", "remote"
+  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>("desktop"); // "desktop", "terminal", "ide", "maps", "remote", "mobile-search"
   
   // Remote Support Session State
   const [remoteSessionActive, setRemoteSessionActive] = useState(false);
@@ -3666,6 +3671,177 @@ export default function App() {
                     );
                   })()}
 
+                  {/* Mobile Search Window */}
+                  {gpkosActiveApp === 'mobile-search' && (() => {
+                    const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
+
+                    const handleProxySearchSubmit = async (e: React.FormEvent) => {
+                      e.preventDefault();
+                      if (!proxySearchQueryValue.trim()) return;
+                      setLoadingProxySearch(true);
+                      setActiveBypassUrl(null);
+                      try {
+                        const res = await fetch(`${getApiBase()}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
+                        const data = await res.json();
+                        setProxySearchResultsList(data.results || []);
+                      } catch (err) {
+                        console.error(err);
+                        alert("Secure search failed.");
+                      } finally {
+                        setLoadingProxySearch(false);
+                      }
+                    };
+
+                    const handleOpenBypassUrl = async (url: string) => {
+                      setLoadingBypass(true);
+                      setActiveBypassUrl(url);
+                      setBypassHtmlContent("");
+                      try {
+                        const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
+                        const data = await res.json();
+                        if (data.success && data.content) {
+                          setBypassHtmlContent(data.content);
+                        } else {
+                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
+                        }
+                      } catch (err) {
+                        setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out.</div>`);
+                      } finally {
+                        setLoadingBypass(false);
+                      }
+                    };
+
+                    return (
+                      <div className="bg-black border-[8px] border-slate-800 rounded-[3rem] w-full max-w-[340px] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.8)] flex flex-col h-[650px] animate-fade-in overflow-hidden relative font-sans text-white mx-auto">
+                        {/* Notch */}
+                        <div className="absolute top-0 inset-x-0 h-6 bg-transparent flex justify-center z-[60]">
+                           <div className="w-32 h-6 bg-slate-800 rounded-b-3xl border-b border-x border-white/5 flex justify-center items-center shadow-md">
+                              <div className="w-10 h-1.5 bg-black/50 rounded-full border border-white/5"></div>
+                           </div>
+                        </div>
+                        
+                        {/* Phone Window Header */}
+                        <div className="absolute top-8 left-4 right-4 flex justify-between z-50 items-center">
+                           <button onClick={() => { 
+                             if (activeBypassUrl) {
+                               setActiveBypassUrl(null);
+                             } else {
+                               setGpkosActiveApp('desktop'); 
+                             }
+                           }} className="bg-slate-900/80 hover:bg-slate-800 p-2.5 rounded-full backdrop-blur-md transition border border-white/10 shadow-lg">
+                              <ArrowLeft className="w-4 h-4 text-white" />
+                           </button>
+                           <div className="text-[10px] font-bold text-white/40 tracking-widest bg-slate-900/50 px-3 py-1 rounded-full border border-white/5">RORY_OS</div>
+                           <div className="w-9 h-9"></div>
+                        </div>
+
+                        {!isGoogleHubAuthorized ? (
+                            <div className="flex-grow flex flex-col justify-center p-6 text-center mt-12 overflow-y-auto z-40 bg-slate-950 relative">
+                                 <div className="absolute inset-0 bg-radial-gradient from-fuchsia-950/20 via-transparent to-transparent opacity-30" />
+                                 <div className="bg-fuchsia-500/10 p-5 rounded-3xl mb-6 mx-auto inline-block border border-fuchsia-500/20 shadow-xl shadow-fuchsia-900/20 relative z-10">
+                                   <Lock className="w-10 h-10 text-fuchsia-400 animate-pulse drop-shadow-[0_0_15px_rgba(217,70,239,0.5)]" />
+                                 </div>
+                                 <h3 className="font-black text-rose-400 mb-3 text-xl tracking-tight relative z-10">System Locked</h3>
+                                 <p className="text-slate-400 text-xs text-left bg-slate-900/80 p-5 rounded-2xl mb-8 leading-relaxed font-mono border border-white/5 relative z-10 shadow-inner">
+                                    Mobile Tunnel Auth required.<br/><br/>
+                                    <span className="text-rose-300">Err_Code: 0xPERMISSION_DENIED</span><br/>
+                                    Please contact administrator @marvis_zhou2014 to grant access.
+                                 </p>
+                            </div>
+                        ) : (
+                            <div className="flex-grow flex flex-col overflow-y-auto mt-[4.5rem] bg-slate-950 relative z-40">
+                               {activeBypassUrl ? (
+                                  <div className="flex flex-col h-full bg-slate-50 relative top-0 z-[55]">
+                                     <div className="bg-slate-100/90 backdrop-blur-md border-b border-slate-300 px-4 pt-4 pb-3 flex flex-col gap-2 shrink-0 shadow-[0_5px_15px_-3px_rgba(0,0,0,0.1)] top-0 sticky">
+                                       <div className="font-mono text-slate-800 text-[10px] text-center px-4 py-2 bg-slate-200/80 rounded-lg truncate border border-slate-300/50 shadow-inner">
+                                         <Lock className="inline-block w-3 h-3 mr-1 text-slate-400"/>
+                                         {activeBypassUrl}
+                                       </div>
+                                       <div className="flex justify-between items-center px-1">
+                                         <button onClick={() => window.open(activeBypassUrl, '_blank')} className="text-slate-500 hover:text-cyan-600 transition flex border border-slate-300 bg-white shadow-sm p-1.5 rounded-lg items-center gap-1.5 text-[10px] font-bold"><Share2 className="w-3.5 h-3.5" /> External</button>
+                                       </div>
+                                     </div>
+                                     <div className="flex-grow overflow-y-auto overflow-x-hidden text-slate-800 break-all p-0 selection:bg-cyan-200 selection:text-cyan-900 isolate">
+                                       {loadingBypass ? (
+                                          <div className="flex flex-col items-center justify-center p-10 h-full gap-4">
+                                            <RefreshCw className="w-8 h-8 text-cyan-600 animate-spin" />
+                                            <div className="text-xs font-bold text-slate-500 font-mono text-center">Parsing payload<br/><span className="text-[10px] text-slate-400 mt-1">Decrypting stream...</span></div>
+                                          </div>
+                                       ) : (
+                                          <div className="gpk-bypass-render scale-[0.85] origin-top-left w-[117.6%] p-4 min-h-full bg-white" dangerouslySetInnerHTML={{ __html: bypassHtmlContent }} />
+                                       )}
+                                     </div>
+                                  </div>
+                               ) : (
+                                  <div className="px-5 pt-2 pb-8 flex flex-col">
+                                     <div className="text-center mb-10 mt-2 animate-fade-in-up">
+                                        <div className="bg-gradient-to-br from-indigo-400 via-purple-400 to-fuchsia-400 bg-clip-text text-transparent text-3xl font-black mb-1.5">Mobile Hub</div>
+                                        <div className="text-[9px] text-slate-500 font-mono tracking-[0.2em] bg-slate-900 inline-block px-3 py-1 rounded-full border border-white/5 shadow-inner">ENCRYPTED TUNNEL</div>
+                                     </div>
+
+                                     <form onSubmit={handleProxySearchSubmit} className="relative group mb-10">
+                                        <input 
+                                          type="text" 
+                                          value={proxySearchQueryValue} 
+                                          onChange={e => setProxySearchQueryValue(e.target.value)}
+                                          placeholder="Search anything..."
+                                          disabled={loadingProxySearch}
+                                          className="w-full bg-slate-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 focus:bg-slate-800 transition-all shadow-inner disabled:opacity-50 z-20 relative"
+                                        />
+                                        <Search className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors z-30" />
+                                        <div className="absolute inset-x-0 -bottom-3 -z-10 bg-cyan-500/10 blur-xl h-10 group-focus-within:bg-cyan-500/20 transition-colors rounded-full opacity-0 group-focus-within:opacity-100"></div>
+                                     </form>
+
+                                     {loadingProxySearch ? (
+                                        <div className="flex flex-col items-center justify-center p-8 gap-4 mt-6 bg-slate-900/30 rounded-3xl border border-white/5">
+                                          <div className="relative">
+                                            <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full animate-pulse"></div>
+                                            <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin relative z-10" />
+                                          </div>
+                                          <div className="text-[10px] text-cyan-500/70 font-mono tracking-widest uppercase">Routing Request...</div>
+                                        </div>
+                                     ) : (
+                                        proxySearchResultsList.length > 0 ? (
+                                           <div className="space-y-4">
+                                              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between mb-4 px-2">
+                                                 <span>Results Index</span>
+                                                 <span className="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-white/5">{proxySearchResultsList.length} Found</span>
+                                              </div>
+                                              {proxySearchResultsList.map((r, idx) => (
+                                                 <div key={idx} className="bg-slate-900/60 border border-white/5 hover:border-white/10 rounded-2xl p-4 active:scale-[0.98] transition-all cursor-pointer shadow-sm relative overflow-hidden group" onClick={() => handleOpenBypassUrl(r.link)}>
+                                                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500/0 group-hover:bg-cyan-500/50 transition-colors"></div>
+                                                   <h4 className="text-sm font-bold text-slate-100 mb-1.5 leading-snug group-hover:text-cyan-300 transition-colors">{r.title}</h4>
+                                                   <div className="text-[10px] text-cyan-500/80 truncate mb-2 font-mono flex items-center gap-1.5"><Globe className="w-3 h-3 shrink-0"/> {r.link}</div>
+                                                   <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">{r.snippet}</p>
+                                                 </div>
+                                              ))}
+                                           </div>
+                                        ) : (
+                                           <div>
+                                             <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-2">Quick Actions</div>
+                                             <div className="grid grid-cols-2 gap-3">
+                                               <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 hover:from-indigo-500/20 hover:to-purple-500/10 border border-indigo-500/20 p-5 rounded-[1.5rem] flex flex-col items-center justify-center aspect-square active:scale-95 transition-all cursor-pointer shadow-inner" onClick={() => { setProxySearchQueryValue("Github"); handleProxySearchSubmit({preventDefault: () => {}} as any); }}>
+                                                  <div className="bg-indigo-500/20 p-3 rounded-full text-indigo-400 mb-3 shadow-[0_0_15px_rgba(99,102,241,0.2)]"><Globe className="w-6 h-6 gap-2" /></div>
+                                                  <span className="font-bold text-xs text-indigo-200 tracking-wide">Developer</span>
+                                                  <span className="text-[9px] text-indigo-400/60 mt-1 font-mono">GLOBAL</span>
+                                               </div>
+                                               <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 hover:from-cyan-500/20 hover:to-teal-500/10 border border-cyan-500/20 p-5 rounded-[1.5rem] flex flex-col items-center justify-center aspect-square active:scale-95 transition-all cursor-pointer shadow-inner" onClick={() => { setProxySearchQueryValue("react documentation"); handleProxySearchSubmit({preventDefault: () => {}} as any); }}>
+                                                  <div className="bg-cyan-500/20 p-3 rounded-full text-cyan-400 mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]"><FileCode2 className="w-6 h-6 gap-2" /></div>
+                                                  <span className="font-bold text-xs text-cyan-200 tracking-wide">Docs Base</span>
+                                                  <span className="text-[9px] text-cyan-400/60 mt-1 font-mono">REACT</span>
+                                               </div>
+                                             </div>
+                                           </div>
+                                        )
+                                     )}
+                                  </div>
+                               )}
+                            </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
                 </div>
 
                 {/* macOS styled Dock bottom */}
@@ -3682,6 +3858,10 @@ export default function App() {
                     <button onClick={() => setGpkosActiveApp('ide')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'ide' ? 'scale-110' : ''}`}>
                        <div className="bg-cyan-900/60 p-2.5 rounded-xl shadow border border-cyan-500/30"><FileCode2 className="h-6 w-6 text-cyan-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Compiler</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('mobile-search')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'mobile-search' ? 'scale-110' : ''}`}>
+                       <div className="bg-purple-900/60 p-2.5 rounded-xl shadow border border-purple-500/30"><Smartphone className="h-6 w-6 text-purple-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mobile Hub</span>
                     </button>
                     <button onClick={() => setGpkosActiveApp('maps')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'maps' ? 'scale-110' : ''}`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10"><Chrome className="h-6 w-6 text-cyan-400" /></div>
