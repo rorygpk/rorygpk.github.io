@@ -60,7 +60,9 @@ import {
   Monitor,
   Share,
   Download,
-  Smartphone
+  Smartphone,
+  Maximize,
+  ShieldAlert
 } from "lucide-react";
 import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
@@ -1221,7 +1223,28 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex md:hidden">
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => {
+                   const el = document.documentElement;
+                   if (!document.fullscreenElement) {
+                     if (el.requestFullscreen) {
+                       el.requestFullscreen();
+                     } else if ((el as any).webkitRequestFullscreen) {
+                       (el as any).webkitRequestFullscreen();
+                     } else if ((el as any).msRequestFullscreen) {
+                       (el as any).msRequestFullscreen();
+                     }
+                   } else {
+                     if (document.exitFullscreen) {
+                       document.exitFullscreen();
+                     }
+                   }
+              }}
+              className="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded font-bold text-xs flex items-center justify-center border border-white/20 title='全屏模式'"
+            >
+              <Maximize className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded font-bold text-xs flex items-center gap-2 border border-white/20"
@@ -1332,6 +1355,27 @@ export default function App() {
 
           {/* Right Corner Identity Info & Mini session widget */}
           <div className="hidden md:flex items-center gap-3">
+            <button
+               onClick={() => {
+                   const el = document.documentElement;
+                   if (!document.fullscreenElement) {
+                     if (el.requestFullscreen) {
+                       el.requestFullscreen();
+                     } else if ((el as any).webkitRequestFullscreen) {
+                       (el as any).webkitRequestFullscreen();
+                     } else if ((el as any).msRequestFullscreen) {
+                       (el as any).msRequestFullscreen();
+                     }
+                   } else {
+                     if (document.exitFullscreen) {
+                       document.exitFullscreen();
+                     }
+                   }
+               }}
+               className="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold text-xs flex items-center justify-center border border-white/20 transition"
+            >
+               <Maximize className="w-4 h-4" />
+            </button>
             {currentUser ? (
               <div id="active-session-chip" className="bg-white/10 text-white pl-3 pr-2 py-1.5 rounded-full flex items-center gap-2 text-xs border border-white/10">
                 <span className="font-semibold">{currentUser.fullName}</span>
