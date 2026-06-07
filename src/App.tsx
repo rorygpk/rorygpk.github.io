@@ -2916,18 +2916,27 @@ export default function App() {
 
                         <li className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl relative overflow-hidden group">
                           <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-xl"></div>
-                          <strong className="text-indigo-400 text-[13px] flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 第四步：部署动态后端网关 (开启无限制搜索与登录)</strong>
+                          <strong className="text-indigo-400 text-[13px] flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 第四步：部署动态后端网关 (Back4App 免绑卡容器)</strong>
                           <p className="text-slate-400 leading-relaxed mb-3 text-[12px]">
-                            ⚠️ <strong>为什么不能纯用 Cloudflare？</strong><br/>当前网站包含真实数据库（存放在本地 json 以供演示）和邮件发送功能。纯 Cloudflare 只支持边缘无服务器函数（无法写入本地文件和持久保存账号）。因此，我们需要一个原生的 Node 服务环境。
-                            <br/><br/>既然您不想用 Render 或 Zeabur，我为您推荐以下<strong>完全免费且更小白化</strong>的平台来托管这个后端接口：
+                            ⚠️ <strong>太棒了，就用 Back4App 配合 Cloudflare！</strong><br/>我们采用当前最先进的微服务分离架构：<strong>前端使用 Cloudflare Pages 全球 CDN 秒开，后端使用 Back4App 免费容器处理数据库与发信</strong>。两者完美组合，零成本且免绑卡。
                           </p>
                           <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
-                             <li><strong>方案A - Hugging Face Spaces（彻底永久免费/免绑卡）：</strong> 访问 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Hugging Face Spaces</a> (全球最大的开源 AI 社区)，注册后在右上方点击【Create new Space】。Space name随便填，<strong>Space SDK 必定选择【Docker】</strong>里面的【Blank】。创建好后，把你的代码文件上传过去（由于我已为您配置好了完美的 <code>Dockerfile</code>，它会自动构建并跑起来，连命令都不用你配置）！</li>
-                             <li><strong>方案B - Back4App Containers（免费送容器/免绑卡）：</strong> 访问 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Back4App.com</a>，使用 GitHub 登录。进入控制台选择 【New App】 → <strong>【BaaS / Containers】中的 Containers</strong>。选择你刚刚在 GitHub 上传的代码库，名称随便填，点击 Deploy（部署） 即可！它会自动识别 Dockerfile 部署，不需要你操心。</li>
-                             <li><strong>配置大模型秘钥 (可选)：</strong> 选定平台后，在它们各自的平台设置里的环境变量标签页（Variables 或 Secrets）里，加个名为 <code className="bg-slate-900 border border-white/10 px-1 rounded text-amber-400">GEMINI_API_KEY</code> 的密钥变量，填入您的 API 即可开启智能体验。</li>
-                             <li><strong>最后终极穿透：</strong> 部署完毕后复制它们分发给您的那个公开域名，回到部署在 <strong>Cloudflare</strong> 分发上的那个极速个人网站，在页面顶部的 <strong className="text-white">“绑定远端接口”</strong> 区域里粘贴那个域名，点击保存测试完成心跳握手！</li>
+                             <li><strong>打开 Back4App 平台：</strong> 访问 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Back4App.com</a>，点击右上角的 【Sign Up】使用 GitHub 一键授权登录。</li>
+                             <li><strong>新建免费容器服务：</strong> 进入控制台 (Dashboard) 之后，点击页面右上角的 <strong className="text-white bg-blue-600/50 px-1 rounded">Build new app</strong>。</li>
+                             <li><strong>选择 Containers 模式：</strong> 在弹出的两个核心选项卡中，一定要选择右侧绿色的 <strong>【Containers（容器，又叫 CaaS）】</strong>，不要选它的默认数据库 BaaS。</li>
+                             <li><strong>绑定您的代码仓库：</strong> 在列表中找到你刚刚在 GitHub 上传的这套网站源代码仓库，点击右侧的 <strong className="text-white bg-green-600/50 px-1 rounded">Select</strong>。</li>
+                             <li><strong>部署参数（超级简单）：</strong>
+                                <ul className="list-disc list-inside ml-6 mt-1 text-slate-400 bg-slate-900 border border-white/5 rounded-lg p-3 max-w-sm">
+                                   <li><strong>App Name:</strong> 随便填写一个纯英文字母的名字。</li>
+                                   <li><strong>Branch:</strong> 默认的 <code>main</code>。</li>
+                                   <li><strong>Root Directory:</strong> 留空。</li>
+                                   <li><strong>Auto-Deploy:</strong> 保持勾选即可。</li>
+                                </ul>
+                             </li>
+                             <li><strong>核心秘钥注入：</strong> 划到最底下的 <strong className="text-white">Environment Variables</strong> (环境变量)，添加你的 AI 大模型密钥。填键名 <code className="bg-slate-800 border border-white/10 text-cyan-300 px-1.5 rounded">GEMINI_API_KEY</code>，值就是你的真实密钥。加完后点击巨大按钮 <strong>Create App</strong> 开始部署！（由于我已为您写好了 Dockerfile，它会自动识别并执行无服务器构建，大概需要 2~3 分钟）</li>
+                             <li><strong>最后终极跨域对接：</strong> 部署条跑完变绿后，在此控制台页面左侧边栏找到类似 <code className="text-emerald-400 bg-emerald-400/10 px-1 rounded">https://xxxx.b4a.run</code> 的公开后端地址并复制。回到部署在 <strong className="text-white">Cloudflare</strong> 上的那个极速个人前端网站，在页面顶部的 <strong className="text-white">“绑定远端接口”</strong> 区域里粘贴这个串地址，点击保存测试！</li>
                              <li className="text-emerald-400 font-bold mt-2 pt-2 border-t border-indigo-500/30 leading-relaxed">
-                               ✅ 收官！前端由 Cloudflare 提供全球节点光速秒开与防御，后端由您的免费容器接管验证和搜索代理转发。这套零成本完美闭环方案随时享用！
+                               ✅ 前端 Cloudflare 全球加速 + 后端 Back4App 原生节点调度！整套工业级完美闭环方案彻底打通，随时随地享受顶级系统体验！
                              </li>
                           </ol>
                         </li>
