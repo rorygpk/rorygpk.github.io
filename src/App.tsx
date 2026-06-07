@@ -410,6 +410,10 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contact: authEmail, password: authPassword })
       });
+      const contentType = res.headers.get("content-type");
+      if (!contentType || contentType.indexOf("application/json") === -1) {
+        throw new Error("前端部署成功！\n\n请注意：由于当前的 Cloudflare 为纯前端托管环境，未检测到动态后端。\n\n解决办法：请按照侧边栏『极速部署指南』中的第4步操作，将您在 Render/Zeabur 获取的女武神网关链接粘贴到主页面【绑定远端接口】中即可正常登录！");
+      }
       const data = await res.json();
       if (data.error) {
         alert("Authentication failed: " + data.error);
@@ -429,7 +433,7 @@ export default function App() {
       }
       refreshSystemData();
     } catch (e: any) {
-      alert("Verification system offline. Reason: " + e.message);
+      alert("Verification system status:\n\n" + e.message);
     }
   };
 
@@ -459,6 +463,10 @@ export default function App() {
           verificationType: regVerifyType
         })
       });
+      const contentType = res.headers.get("content-type");
+      if (!contentType || contentType.indexOf("application/json") === -1) {
+        throw new Error("检测到当前为纯前端站点。\n\n如需启用真实的后台注册校验功能，请至下方绑定您专属的 Render 等含动态 Node 引擎的服务端接口链接。");
+      }
       const data = await res.json();
       if (data.error) {
         alert("Automation engine intercept: " + data.error);
@@ -474,7 +482,7 @@ export default function App() {
       window.location.hash = "#home";
       refreshSystemData();
     } catch (err: any) {
-      alert("Registration gateway dropped: " + err.message);
+      alert("Registration gateway alert:\n\n" + err.message);
     }
   };
 
