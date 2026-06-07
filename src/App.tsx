@@ -2916,20 +2916,18 @@ export default function App() {
 
                         <li className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl relative overflow-hidden group">
                           <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-xl"></div>
-                          <strong className="text-indigo-400 text-[13px] flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 第四步：在 Zeabur 部署云端动态后端 (开启搜索与登录等高级功能)</strong>
+                          <strong className="text-indigo-400 text-[13px] flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 第四步：部署动态后端网关 (开启无限制搜索与登录)</strong>
                           <p className="text-slate-400 leading-relaxed mb-3 text-[12px]">
-                            由于 Cloudflare 仅加速静态界面，想要完整恢复<strong className="text-emerald-400">“连接外网代理搜索”、“安全的暗网登录”</strong>和<strong className="text-emerald-400">“邮箱发件网关”</strong>功能，我们需要部署一个动态后端节点。<strong>强烈推荐 Zeabur（中国大陆直连访问，完全小白化操作）</strong>：
+                            ⚠️ <strong>为什么不能纯用 Cloudflare？</strong><br/>当前网站包含真实数据库（存放在本地 json 以供演示）和邮件发送功能。纯 Cloudflare 只支持边缘无服务器函数（无法写入本地文件和持久保存账号）。因此，我们需要一个原生的 Node 服务环境。
+                            <br/><br/>既然您不想用 Render 或 Zeabur，我为您推荐以下<strong>完全免费且更小白化</strong>的平台来托管这个后端接口：
                           </p>
                           <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
-                             <li><strong>打开 Zeabur：</strong> 浏览器访问 <a href="https://zeabur.com" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Zeabur.com</a>，直接使用 GitHub 账号授权登录。</li>
-                             <li><strong>新建项目：</strong> 在控制台首页，点击巨大的 <strong className="text-white">+ 部署新项目 (Deploy New Project)</strong> 或 <strong className="text-white">创建项目 (Create Project)</strong> 按钮。随便选一个数据中心区（如果在亚洲可以选台湾/新加坡节点）。</li>
-                             <li><strong>部署服务：</strong> 在新建好的项目里，点击 <strong className="text-white">添加服务 (Add Service)</strong>，然后选择 <strong className="text-white">从 GitHub 部署 (Deploy from GitHub)</strong>。</li>
-                             <li><strong>选择仓库：</strong> 点击配置 GitHub 权限，勾选你刚才在第二步上传的那个代码库。选择后它会自动开始识别和构建服务。</li>
-                             <li><strong>挂载域名：</strong> 服务部署时，点击它进入服务详情页，在上方找到 <strong className="text-white">域名 (Domain)</strong> 选项卡，点击 <strong className="text-white">生成域名 (Generate Domain)</strong>。系统会给你分配一个长长的类似 <code>xxxx.zeabur.app</code> 的公网链接。</li>
-                             <li><strong>配置大模型秘钥 (可选)：</strong> 如果你在网站还要用到 AI 处理，在服务详情页的 <strong className="text-white">变量 (Variables)</strong> 里添加一个键为 <code className="bg-slate-900 border border-white/10 px-1 rounded text-amber-400">GEMINI_API_KEY</code> 的变量。修改变量后它会自动帮你重启服务。</li>
-                             <li><strong>最后终极打通：</strong> 复制 Zeabur 给你的那个长长的域名地址。回到你部署在 <strong>Cloudflare</strong> 分发上的那个极速个人网站，在页面顶部的 <strong className="text-white">“绑定远端接口”</strong> 区域里，粘贴这串 Zeabur 地址并点击保存测试。</li>
+                             <li><strong>方案A - Hugging Face Spaces（彻底永久免费/免绑卡）：</strong> 访问 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Hugging Face Spaces</a> (全球最大的开源 AI 社区)，注册后在右上方点击【Create new Space】。Space name随便填，<strong>Space SDK 必定选择【Docker】</strong>里面的【Blank】。创建好后，把你的代码文件上传过去（由于我已为您配置好了完美的 <code>Dockerfile</code>，它会自动构建并跑起来，连命令都不用你配置）！</li>
+                             <li><strong>方案B - Back4App Containers（免费送容器/免绑卡）：</strong> 访问 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Back4App.com</a>，使用 GitHub 登录。进入控制台选择 【New App】 → <strong>【BaaS / Containers】中的 Containers</strong>。选择你刚刚在 GitHub 上传的代码库，名称随便填，点击 Deploy（部署） 即可！它会自动识别 Dockerfile 部署，不需要你操心。</li>
+                             <li><strong>配置大模型秘钥 (可选)：</strong> 选定平台后，在它们各自的平台设置里的环境变量标签页（Variables 或 Secrets）里，加个名为 <code className="bg-slate-900 border border-white/10 px-1 rounded text-amber-400">GEMINI_API_KEY</code> 的密钥变量，填入您的 API 即可开启智能体验。</li>
+                             <li><strong>最后终极穿透：</strong> 部署完毕后复制它们分发给您的那个公开域名，回到部署在 <strong>Cloudflare</strong> 分发上的那个极速个人网站，在页面顶部的 <strong className="text-white">“绑定远端接口”</strong> 区域里粘贴那个域名，点击保存测试完成心跳握手！</li>
                              <li className="text-emerald-400 font-bold mt-2 pt-2 border-t border-indigo-500/30 leading-relaxed">
-                               ✅ 收官！现在你同时拥有了 Cloudflare 前端光速秒开与防御、以及 Zeabur 后台为你稳定转接网络爬虫与数据库存储！整套最先进的云架构部署方案完美闭环，随时随地享受顶级专属协同！
+                               ✅ 收官！前端由 Cloudflare 提供全球节点光速秒开与防御，后端由您的免费容器接管验证和搜索代理转发。这套零成本完美闭环方案随时享用！
                              </li>
                           </ol>
                         </li>
