@@ -2876,23 +2876,33 @@ export default function App() {
 
                         <li className="bg-cyan-500/10 border border-cyan-500/20 p-4 rounded-xl relative overflow-hidden group mb-4 mt-2">
                            <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500 rounded-l-xl"></div>
-                           <strong className="text-cyan-400 text-[13px] flex items-center gap-1.5 mb-2"><Share2 className="w-4 h-4" /> 第三步：在 Cloudflare 免费极速部署 (核心前端)</strong>
+                           <strong className="text-cyan-400 text-[13px] flex items-center gap-1.5 mb-2"><Share2 className="w-4 h-4" /> 第三步：在 Cloudflare 免费极速部署 (核心网站界面部署)</strong>
                            <p className="text-slate-300 leading-relaxed mb-3 text-[12px]">
-                             按您的要求，采用顶级无服务器平台 <strong>Cloudflare Pages (免信用卡、不翻墙速度极快)</strong>：
+                             按您的要求，采用全球顶级无服务器平台 <strong>Cloudflare Pages (无需翻墙跨域、免绑信用卡、中国大陆极速访问)</strong>。步骤非常小白化：
                            </p>
                            <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
-                             <li>登录或注册 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Cloudflare</a>。</li>
-                             <li>在左侧菜单进入 <strong className="text-white">Workers & Pages</strong>，选择 <strong className="text-white">Pages</strong>，点击 <strong>Connect to Git</strong>。</li>
-                             <li>授权您的 GitHub 账号，并选择您刚刚上传代码的仓库。</li>
-                             <li><strong>配置关键参数：</strong>
-                                <ul className="list-disc list-inside ml-6 mt-1 text-slate-400">
-                                   <li>Framework preset 选择 <strong className="text-white">None</strong>。</li>
-                                   <li>Build command 填入 <code className="bg-slate-900 border border-white/10 px-1.5 rounded text-cyan-300">npm run build</code></li>
-                                   <li>Build output directory 填入 <code className="bg-slate-900 border border-white/10 px-1.5 rounded text-cyan-300">dist</code></li>
-                                </ul>
+                             <li><strong>打开官网：</strong> 访问 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Cloudflare 控制台</a>，使用邮箱或直接登录。</li>
+                             <li><strong>进入入口：</strong> 在控制台左侧侧边栏菜单中，点击 <strong className="text-white">【Workers & Pages】</strong>。</li>
+                             <li><strong>新建项目：</strong> 在界面页面右侧附近，点击 <strong className="text-white bg-blue-600/50 px-1 rounded">Create application（创建应用程序）</strong> 蓝色按钮，然后切换到 <strong className="text-white">【Pages】</strong> 选项卡，接着点击里面的 <strong className="text-white bg-blue-600/50 px-1 rounded">Connect to Git（连接到 Git）</strong>。</li>
+                             <li><strong>选对仓库：</strong> 选择 GitHub 账号进行授权登录。授权完毕后，它会列出你的仓库，点选你在第二步上传好的这套系统代码仓库，点击 <strong className="text-white">Begin setup</strong>。</li>
+                             <li><strong>核心参数配置（最重要的一步）：</strong>
+                                <div className="bg-slate-900 border border-white/5 rounded-lg p-3 mt-1.5 ml-4 max-w-sm">
+                                   <div className="grid grid-cols-[160px_1fr] flex-wrap gap-2 items-center mb-1">
+                                     <span className="text-slate-400">Framework preset:</span>
+                                     <strong className="text-white">None</strong>
+                                   </div>
+                                   <div className="grid grid-cols-[160px_1fr] flex-wrap gap-2 items-center mb-1">
+                                     <span className="text-slate-400">Build command:</span>
+                                     <code className="bg-slate-800 border border-white/10 text-cyan-300 px-1.5 rounded">npm run build</code>
+                                   </div>
+                                   <div className="grid grid-cols-[160px_1fr] flex-wrap gap-2 items-center">
+                                     <span className="text-slate-400">Build output directory:</span>
+                                     <code className="bg-slate-800 border border-white/10 text-cyan-300 px-1.5 rounded">dist</code>
+                                   </div>
+                                </div>
                              </li>
-                             <li>点击 <strong>Save and Deploy</strong>。部署成功后，全站前端界面即刻全球极速上线！</li>
-                             <li><strong>给 Cloudflare 绑定专属个人域名：</strong> 点击顶部标签页的 <strong>Custom Domains</strong>（自定义域），一键填入你想用的域名。依靠 Cloudflare 强大的底座系统，自动即刻上锁生效。</li>
+                             <li><strong>立马起飞跑代码：</strong> 配置好上面这三行后，点击最下方的 <strong className="text-white bg-blue-600/50 px-1 rounded border border-blue-500/30">Save and Deploy（保存并部署）</strong>。等1-2分钟进度条跑完，您的个人网站就已经在海外服务器高速构建并全球上线啦！</li>
+                             <li className="mt-2 pt-2 border-t border-cyan-500/20"><strong>挂载您的专属域名：</strong> 部署完成后在这个项目专属面板中，点击顶部的一个叫 <strong className="text-white">【Custom Domains（自定义域）】</strong> 的选项卡。点击 <strong className="text-white bg-blue-600/50 px-1 rounded">Set up a custom domain</strong>，填入你想用的个人域名，系统就会依靠 Cloudflare 强大的底层基础帮你全自动解析连线，直接带安全小锁！</li>
                            </ol>
                         </li>
 
