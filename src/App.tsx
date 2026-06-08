@@ -2878,66 +2878,35 @@ export default function App() {
                           <p className="mt-1.5 text-center text-[10px] text-yellow-400">⚠️ 点击后直接保存文件，完美绕过重定向与跨标签页拦截。</p>
                         </li>
                         <li>
-                          <strong>第二步：将 ZIP 解压后传到个人的 GitHub (GB) 仓库：</strong>
-                          登录你的 GitHub 账号，创建一个新的仓库。将上一步下载的全部压缩包解压后的大文件夹，传到 GitHub 仓库里保存。
-                        </li>
-
-                        <li className="bg-cyan-500/10 border border-cyan-500/20 p-4 rounded-xl relative overflow-hidden group mb-4 mt-2">
-                           <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500 rounded-l-xl"></div>
-                           <strong className="text-cyan-400 text-[13px] flex items-center gap-1.5 mb-2"><Share2 className="w-4 h-4" /> 第三步：在 Cloudflare 免费极速部署 (核心网站界面部署)</strong>
-                           <p className="text-slate-300 leading-relaxed mb-3 text-[12px]">
-                             按您的要求，采用全球顶级无服务器平台 <strong>Cloudflare Pages (无需翻墙跨域、免绑信用卡、中国大陆极速访问)</strong>。步骤非常小白化：
-                           </p>
-                           <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
-                             <li><strong>打开官网：</strong> 访问 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Cloudflare 控制台</a>，使用邮箱或直接登录。</li>
-                             <li><strong>进入入口：</strong> 在控制台左侧侧边栏菜单中，点击 <strong className="text-white">【Workers & Pages】</strong>。</li>
-                             <li><strong>新建项目：</strong> 在界面页面右侧附近，点击 <strong className="text-white bg-blue-600/50 px-1 rounded">Create application（创建应用程序）</strong> 蓝色按钮，然后切换到 <strong className="text-white">【Pages】</strong> 选项卡，接着点击里面的 <strong className="text-white bg-blue-600/50 px-1 rounded">Connect to Git（连接到 Git）</strong>。</li>
-                             <li><strong>选对仓库：</strong> 选择 GitHub 账号进行授权登录。授权完毕后，它会列出你的仓库，点选你在第二步上传好的这套系统代码仓库，点击 <strong className="text-white">Begin setup</strong>。</li>
-                             <li><strong>核心参数配置（最重要的一步）：</strong>
-                                <div className="bg-slate-900 border border-white/5 rounded-lg p-3 mt-1.5 ml-4 max-w-sm">
-                                   <div className="grid grid-cols-[160px_1fr] flex-wrap gap-2 items-center mb-1">
-                                     <span className="text-slate-400">Framework preset:</span>
-                                     <strong className="text-white">None</strong>
-                                   </div>
-                                   <div className="grid grid-cols-[160px_1fr] flex-wrap gap-2 items-center mb-1">
-                                     <span className="text-slate-400">Build command:</span>
-                                     <code className="bg-slate-800 border border-white/10 text-cyan-300 px-1.5 rounded">npm run build</code>
-                                   </div>
-                                   <div className="grid grid-cols-[160px_1fr] flex-wrap gap-2 items-center">
-                                     <span className="text-slate-400">Build output directory:</span>
-                                     <code className="bg-slate-800 border border-white/10 text-cyan-300 px-1.5 rounded">dist</code>
-                                   </div>
-                                </div>
-                             </li>
-                             <li><strong>立马起飞跑代码：</strong> 配置好上面这三行后，点击最下方的 <strong className="text-white bg-blue-600/50 px-1 rounded border border-blue-500/30">Save and Deploy（保存并部署）</strong>。等1-2分钟进度条跑完，您的个人网站就已经在海外服务器高速构建并全球上线啦！</li>
-                             <li className="mt-2 pt-2 border-t border-cyan-500/20"><strong>挂载您的专属域名：</strong> 部署完成后在这个项目专属面板中，点击顶部的一个叫 <strong className="text-white">【Custom Domains（自定义域）】</strong> 的选项卡。点击 <strong className="text-white bg-blue-600/50 px-1 rounded">Set up a custom domain</strong>，填入你想用的个人域名，系统就会依靠 Cloudflare 强大的底层基础帮你全自动解析连线，直接带安全小锁！</li>
-                           </ol>
-                        </li>
-
-                        <li className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl relative overflow-hidden group">
-                          <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-xl"></div>
-                          <strong className="text-indigo-400 text-[13px] flex items-center gap-1.5 mb-2"><Sparkles className="w-4 h-4" /> 第四步：部署动态后端网关 (Back4App 免绑卡容器)</strong>
-                          <p className="text-slate-400 leading-relaxed mb-3 text-[12px]">
-                            ⚠️ <strong>太棒了，就用 Back4App 配合 Cloudflare！</strong><br/>我们采用当前最先进的微服务分离架构：<strong>前端使用 Cloudflare Pages 全球 CDN 秒开，后端使用 Back4App 免费容器处理数据库与发信</strong>。两者完美组合，零成本且免绑卡。
-                          </p>
-                          <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[12px] pl-2">
-                             <li><strong>打开 Back4App 平台：</strong> 访问 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Back4App.com</a>，点击右上角的 【Sign Up】使用 GitHub 一键授权登录。</li>
-                             <li><strong>新建免费容器服务：</strong> 进入控制台 (Dashboard) 之后，点击页面右上角的 <strong className="text-white bg-blue-600/50 px-1 rounded">Build new app</strong>。</li>
-                             <li><strong>选择 Containers 模式：</strong> 在弹出的两个核心选项卡中，一定要选择右侧绿色的 <strong>【Containers（容器，又叫 CaaS）】</strong>，不要选它的默认数据库 BaaS。</li>
-                             <li><strong>绑定您的代码仓库：</strong> 在列表中找到你刚刚在 GitHub 上传的这套网站源代码仓库，点击右侧的 <strong className="text-white bg-green-600/50 px-1 rounded">Select</strong>。</li>
-                             <li><strong>部署参数（超级简单）：</strong>
-                                <ul className="list-disc list-inside ml-6 mt-1 text-slate-400 bg-slate-900 border border-white/5 rounded-lg p-3 max-w-sm">
-                                   <li><strong>App Name:</strong> 随便填写一个纯英文字母的名字。</li>
-                                   <li><strong>Branch:</strong> 默认的 <code>main</code>。</li>
-                                   <li><strong>Root Directory:</strong> 留空。</li>
-                                   <li><strong>Auto-Deploy:</strong> 保持勾选即可。</li>
-                                </ul>
-                             </li>
-                             <li><strong>核心秘钥注入：</strong> 划到最底下的 <strong className="text-white">Environment Variables</strong> (环境变量)，添加你的 AI 大模型密钥。填键名 <code className="bg-slate-800 border border-white/10 text-cyan-300 px-1.5 rounded">GEMINI_API_KEY</code>，值就是你的真实密钥。加完后点击巨大按钮 <strong>Create App</strong> 开始部署！（由于我已为您写好了 Dockerfile，它会自动识别并执行无服务器构建，大概需要 2~3 分钟）</li>
-                             <li><strong>最后终极跨域对接：</strong> 部署条跑完变绿后，在此控制台页面左侧边栏找到类似 <code className="text-emerald-400 bg-emerald-400/10 px-1 rounded">https://xxxx.b4a.run</code> 的公开后端地址并复制。回到部署在 <strong className="text-white">Cloudflare</strong> 上的那个极速个人前端网站，在页面顶部的 <strong className="text-white">“绑定远端接口”</strong> 区域里粘贴这个串地址，点击保存测试！</li>
-                             <li className="text-emerald-400 font-bold mt-2 pt-2 border-t border-indigo-500/30 leading-relaxed">
-                               ✅ 前端 Cloudflare 全球加速 + 后端 Back4App 原生节点调度！整套工业级完美闭环方案彻底打通，随时随地享受顶级系统体验！
-                             </li>
+                          <strong>第二步：将代码无脑推送到全球顶级托管平台（免 GitHub / 免信用卡 / 免配置）：</strong>
+                          <br/><br/>
+                          由于您不想绑定 GitHub 也不想搞各种繁复的 API Key，我们为您精选了目前最简单、最傻瓜化的部署方式 <strong>Hugging Face Spaces (全球最大且免费的开源模型应用发布社区)</strong>，全程只需要鼠标拖拽！
+                          <ol className="list-decimal list-inside mt-3 space-y-3">
+                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
+                              <strong>1. 访问 Hugging Face Spaces：</strong> 打开 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Hugging Face Spaces (点击直达)</a>，注册一个账号并登录。
+                            </li>
+                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
+                              <strong>2. 创建新的 Space 空间容器：</strong> 在右上角点击 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded border border-white/10">Create new Space</strong>。<br/>
+                              <ul className="list-disc list-inside ml-6 mt-1 text-slate-300">
+                                <li><strong>Space name:</strong> 随便起个炫酷的英文名字。</li>
+                                <li><strong>Space SDK:</strong> 非常重要！必须选择 <strong className="text-emerald-400">【Docker】</strong>，然后再点选里面的 <strong className="text-emerald-400">【Blank】</strong> 主题。</li>
+                                <li><strong>Space hardware:</strong> 默认的 Free ($0免费层) 即可。</li>
+                                <li>点击最下方的 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">Create Space</strong> 完成基础容器创建。</li>
+                              </ul>
+                            </li>
+                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
+                              <strong>3. 拖拽上传文件 (零黑客技术)：</strong> 
+                              创建好后进入你新鲜出炉的 Space，点击正上方导航的 <strong className="text-white">Files</strong> 标签页，然后点击右上角的 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">+ Add file</strong> 并选择 <strong>Upload files</strong>。<br/>
+                              接着，把您刚刚在第一步下载的 ZIP 压缩包解压，将解压后出现的文件夹里的 <strong className="text-cyan-300">所有文件和文件夹</strong>（如 src 文件夹、package.json 等所有的杂七杂八的文件）全部拉框拖拽进去！拉完一定要点击网页下方的 <strong className="text-white bg-blue-600 px-1 py-0.5 rounded">Commit changes to main</strong> 按钮保存（这一步非常关键）。
+                            </li>
+                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
+                              <strong>4. 自动起飞：</strong> 
+                              传完之后您可以去泡杯咖啡了！因为整个系统里刚好包含了我给您写好的微服务容器 `Dockerfile`，Hugging Face 的服务器会自动接管一切。它会自动下载依赖、打包前端界面兵配置好微服务。<br/>
+                              等待大约 2 ~ 3 分钟顶部的黄灯变成 <code className="text-emerald-400 font-bold bg-emerald-400/20 px-1 rounded">✅ Running</code> 绿灯！此时这个页面展示的网址，就是您的私人顶级应用啦！<br/>
+                              <span className="text-amber-400 text-[11px] mt-1.5 pt-1.5 border-t border-sky-500/20 block leading-relaxed">
+                                💡 <strong>架构终极优势：</strong> 这个方案等同于将您的前端安全防御罩和动态系统引擎“合二为一”放在了一个高性能云匣子里。<strong>不需要配置任何跨域网关，不需要输入任何谷歌大模型 API Key（除非你要深度使用 AI 功能），甚至不需要用 GitHub。</strong>堪称网络纯小白直指核心的部署天花板！
+                              </span>
+                            </li>
                           </ol>
                         </li>
                       </ol>
