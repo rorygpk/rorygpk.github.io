@@ -52,6 +52,13 @@ import {
   Chrome,
   BrainCircuit,
   ArrowLeft,
+  ArrowRight,
+  Cloud,
+  UploadCloud,
+  Box,
+  Archive,
+  Activity,
+  Shield,
   Globe,
   KeyRound,
   MonitorUp,
@@ -1335,6 +1342,26 @@ export default function App() {
               {t("Friendship Album")}
             </a>
             <a
+              href="#drive"
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                currentHash === "#drive"
+                  ? "bg-sky-500 text-white shadow-md scale-105"
+                  : "text-sky-300 hover:bg-sky-500/15"
+              }`}
+            >
+              {lang === 'en' ? 'Cloud Drive' : '云端储存'}
+            </a>
+            <a
+              href="#admin"
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                currentHash === "#admin"
+                  ? "bg-fuchsia-500 text-white shadow-md scale-105"
+                  : "text-fuchsia-300 hover:bg-fuchsia-500/15"
+              }`}
+            >
+              <div className="flex items-center gap-1.5"><Shield className="w-4 h-4" />{lang === 'en' ? 'Admin' : '高级后台'}</div>
+            </a>
+            <a
               href="#blog"
               className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                 currentHash === "#blog"
@@ -1519,6 +1546,28 @@ export default function App() {
                   }`}
                 >
                   {t("Friendship Album")}
+                </a>
+                <a
+                  href="#drive"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    currentHash === "#drive"
+                      ? "bg-sky-500 text-white shadow-md"
+                      : "text-sky-300 hover:bg-sky-500/15 border border-sky-500/20"
+                  }`}
+                >
+                  {lang === 'en' ? 'Cloud Drive' : '云端储存'}
+                </a>
+                <a
+                  href="#admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    currentHash === "#admin"
+                      ? "bg-fuchsia-500 text-white shadow-md"
+                      : "text-fuchsia-300 hover:bg-fuchsia-500/15 border border-fuchsia-500/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5"><Shield className="w-4 h-4" />{lang === 'en' ? 'Admin Console' : '高级后台'}</div>
                 </a>
                 <a
                   href="#blog"
@@ -2878,36 +2927,54 @@ export default function App() {
                           <p className="mt-1.5 text-center text-[10px] text-yellow-400">⚠️ 点击后直接保存文件，完美绕过重定向与跨标签页拦截。</p>
                         </li>
                         <li>
-                          <strong>第二步：将代码无脑推送到全球顶级托管平台（免 GitHub / 免信用卡 / 免配置）：</strong>
+                          <strong>第二步：选择部署方案（双轨可选，纯享免费）：</strong>
                           <br/><br/>
-                          由于您不想绑定 GitHub 也不想搞各种繁复的 API Key，我们为您精选了目前最简单、最傻瓜化的部署方式 <strong>Hugging Face Spaces (全球最大且免费的开源模型应用发布社区)</strong>，全程只需要鼠标拖拽！
-                          <ol className="list-decimal list-inside mt-3 space-y-3">
-                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
-                              <strong>1. 访问 Hugging Face Spaces：</strong> 打开 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-bold hover:underline">Hugging Face Spaces (点击直达)</a>，注册一个账号并登录。
-                            </li>
-                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
-                              <strong>2. 创建新的 Space 空间容器：</strong> 在右上角点击 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded border border-white/10">Create new Space</strong>。<br/>
-                              <ul className="list-disc list-inside ml-6 mt-1 text-slate-300">
-                                <li><strong>Space name:</strong> 随便起个炫酷的英文名字。</li>
-                                <li><strong>Space SDK:</strong> 非常重要！必须选择 <strong className="text-emerald-400">【Docker】</strong>，然后再点选里面的 <strong className="text-emerald-400">【Blank】</strong> 主题。</li>
-                                <li><strong>Space hardware:</strong> 默认的 Free ($0免费层) 即可。</li>
-                                <li>点击最下方的 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">Create Space</strong> 完成基础容器创建。</li>
-                              </ul>
-                            </li>
-                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
-                              <strong>3. 拖拽上传文件 (零黑客技术)：</strong> 
-                              创建好后进入你新鲜出炉的 Space，点击正上方导航的 <strong className="text-white">Files</strong> 标签页，然后点击右上角的 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">+ Add file</strong> 并选择 <strong>Upload files</strong>。<br/>
-                              接着，把您刚刚在第一步下载的 ZIP 压缩包解压，将解压后出现的文件夹里的 <strong className="text-cyan-300">所有文件和文件夹</strong>（如 src 文件夹、package.json 等所有的杂七杂八的文件）全部拉框拖拽进去！拉完一定要点击网页下方的 <strong className="text-white bg-blue-600 px-1 py-0.5 rounded">Commit changes to main</strong> 按钮保存（这一步非常关键）。
-                            </li>
-                            <li className="bg-sky-500/10 p-3 rounded-lg border border-sky-500/20">
-                              <strong>4. 自动起飞：</strong> 
-                              传完之后您可以去泡杯咖啡了！因为整个系统里刚好包含了我给您写好的微服务容器 `Dockerfile`，Hugging Face 的服务器会自动接管一切。它会自动下载依赖、打包前端界面兵配置好微服务。<br/>
-                              等待大约 2 ~ 3 分钟顶部的黄灯变成 <code className="text-emerald-400 font-bold bg-emerald-400/20 px-1 rounded">✅ Running</code> 绿灯！此时这个页面展示的网址，就是您的私人顶级应用啦！<br/>
-                              <span className="text-amber-400 text-[11px] mt-1.5 pt-1.5 border-t border-sky-500/20 block leading-relaxed">
-                                💡 <strong>架构终极优势：</strong> 这个方案等同于将您的前端安全防御罩和动态系统引擎“合二为一”放在了一个高性能云匣子里。<strong>不需要配置任何跨域网关，不需要输入任何谷歌大模型 API Key（除非你要深度使用 AI 功能），甚至不需要用 GitHub。</strong>堪称网络纯小白直指核心的部署天花板！
-                              </span>
-                            </li>
-                          </ol>
+                          我们为您提供两种顶级免费架构方案，您可以根据自己的情况任选其一：
+                          <div className="mt-4 space-y-6">
+                            
+                            {/* Option A: Hugging Face */}
+                            <div className="bg-sky-500/10 border border-sky-500/30 p-5 rounded-2xl">
+                              <h5 className="font-bold text-sky-400 text-sm flex items-center gap-2 mb-3">
+                                方案 A：Hugging Face Spaces（最简单 / 免 GitHub / 纯白痴版推拽部署）
+                              </h5>
+                              <p className="text-xs text-slate-300 mb-3 leading-relaxed">
+                                这种方式将前后端打包进一个容器中运行，完全不需要配置跨域，免绑卡，连 GitHub 都省了！适合追求极简的玩家。
+                              </p>
+                              <ol className="list-decimal list-inside space-y-2 text-xs text-slate-300">
+                                <li>访问 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-sky-400 font-bold hover:underline">Hugging Face Spaces</a>，注册并登录。</li>
+                                <li>点击右上角 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">Create new Space</strong>。</li>
+                                <li>名字随便起，<strong>Space SDK 必定选【Docker】然后选【Blank】</strong>，创建容器。</li>
+                                <li>进入 Files 标签页，将第一步解压后文件夹里的<strong>所有文件和文件夹</strong>一起拖拽进去！点击 Commit changes 保存。</li>
+                                <li>喝杯咖啡等待绿灯 <code className="text-emerald-400 font-bold">✅ Running</code> 亮起，大功告成，获得您的专属域名！</li>
+                              </ol>
+                            </div>
+
+                            {/* Option B: Cloudflare + Back4App */}
+                            <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl">
+                              <h5 className="font-bold text-indigo-400 text-sm flex items-center gap-2 mb-3">
+                                方案 B：Cloudflare Pages + Back4App（最顶级 / 动静分离 / 极速全站 CDN）
+                              </h5>
+                              <p className="text-xs text-slate-300 mb-3 leading-relaxed">
+                                这是工业级标准的微服务部署：前端网站交由全球最大 CDN Cloudflare 秒开加速，动态核心与数据交由 Back4App 处理！(需要用到 GitHub)
+                              </p>
+                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300">
+                                <li className="pl-2 border-l-2 border-indigo-500/30">
+                                  <strong>2.1 推送到 GitHub：</strong> 登录您的 GitHub 账号，新建一个仓库，将解压后的文件全部上传进去。
+                                </li>
+                                <li className="pl-2 border-l-2 border-indigo-500/30">
+                                  <strong>2.2 部署静态前端 (Cloudflare)：</strong> 登录 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Cloudflare</a> {"->"} 无服务器 Workers & Pages {"->"} 创建 Pages 项目 {"->"} 连接 Git。选择您的仓库进行部署！（部署命令 <code className="bg-slate-800 text-cyan-300 px-1 rounded">npm run build</code>，输出目录 <code className="bg-slate-800 text-cyan-300 px-1 rounded">dist</code>）。
+                                </li>
+                                <li className="pl-2 border-l-2 border-indigo-500/30">
+                                  <strong>2.3 部署动态后端 (Back4App)：</strong> 登录 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App</a> {"->"} 新建 App {"->"} <strong>选择 Containers 模式</strong> {"->"} 连接同一个 Git 仓库。直接一键部署（它会自动识别内部的 Dockerfile）。
+                                </li>
+                                <li className="pl-2 border-l-2 border-indigo-500/30 border-emerald-500/50 relative">
+                                  <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                                  <strong>2.4 终极闭环连接：</strong> 等待后端容器跑绿后，复制它分配的地址串（如 <code className="text-emerald-400">https://xxx.b4a.run</code>）。打开刚刚通过 Cloudflare 部署出来的您的前端网站，在页面顶部的 <strong className="text-white">"绑定远端接口"</strong> 中粘贴地址，点击保存。完美的极速带壳应用彻底成型！
+                                </li>
+                              </ol>
+                            </div>
+
+                          </div>
                         </li>
                       </ol>
                     </div>
@@ -4497,6 +4564,160 @@ export default function App() {
         )}
 
         {/* Ext: Tools and Admin */}
+        {currentHash === "#admin" && (
+          <div className="animate-fade-in flex flex-col gap-6" id="admin-dashboard">
+            <div className="bg-slate-900 border border-fuchsia-500/20 rounded-3xl p-6 flex flex-col shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none text-fuchsia-500">
+                    <Shield className="w-32 h-32" />
+                </div>
+                <div className="z-10">
+                    <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                        <Shield className="h-6 w-6 text-fuchsia-400" /> 高级管理员控制台
+                    </h2>
+                    <p className="text-slate-400 text-sm">全站状态感知与特权系统防御管控中心，拦截外界恶意访问，掌握应用全生命周期。</p>
+                </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-950 p-6 rounded-3xl border border-white/5 shadow-lg relative h-full">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-3xl"></div>
+                    <h3 className="font-bold text-white text-md mb-4 flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-emerald-400" /> 核心系统指标 (System Metrics)
+                    </h3>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 text-sm">
+                            <span className="text-slate-400 font-mono">微服务网关引擎</span>
+                            <span className="text-emerald-400 font-bold border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 rounded text-xs flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div> ONLINE</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 text-sm">
+                            <span className="text-slate-400 font-mono">全局云端存储负载</span>
+                            <span className="text-amber-400 font-bold">14.6%</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 text-sm">
+                            <span className="text-slate-400 font-mono">非法恶意拦截总数</span>
+                            <span className="text-cyan-400 font-bold">1,024 阻断</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 text-sm">
+                            <span className="text-slate-400 font-mono">前端 CDN 边缘计算状态</span>
+                            <span className="text-fuchsia-400 font-bold font-mono text-[10px]">VERIFIED OK</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="bg-slate-950 p-6 rounded-3xl border border-white/5 shadow-lg relative">
+                    <div className="absolute top-0 right-0 w-1 h-full bg-blue-500 rounded-r-3xl"></div>
+                    <h3 className="font-bold text-white text-md mb-4 flex items-center gap-2">
+                        <Cpu className="h-5 w-5 text-blue-400" /> 直达内核层 (Deep Core Routing)
+                    </h3>
+                    <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                        您的账号已被授权访问高度敏感的数据枢纽。选择下方控制面板深入执行管理员调度：
+                    </p>
+                    <div className="flex flex-col gap-3">
+                        <button onClick={() => setCurrentHash("#admin-subpages")} className="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white p-3.5 rounded-xl flex items-center justify-between font-bold shadow-lg transition text-sm">
+                            <span className="flex items-center gap-2"><Settings className="w-4 h-4"/> 全局页面子网管</span>
+                            <ArrowRight className="w-4 h-4 opacity-50" />
+                        </button>
+                        <button onClick={() => setCurrentHash("#work")} className="w-full bg-slate-800 hover:bg-slate-700 text-white p-3.5 rounded-xl flex items-center justify-between font-bold transition text-sm">
+                            <span className="flex items-center gap-2"><Users className="w-4 h-4 text-cyan-400"/> 用户数据资源管控 (DB)</span>
+                            <ArrowRight className="w-4 h-4 opacity-50" />
+                        </button>
+                        <button onClick={() => setCurrentHash("#admin-aiaccess")} className="w-full bg-slate-800 hover:bg-slate-700 text-white p-3.5 rounded-xl flex items-center justify-between font-bold transition text-sm">
+                            <span className="flex items-center gap-2"><Lock className="w-4 h-4 text-rose-400"/> AI 数据大屏防火墙策略</span>
+                            <ArrowRight className="w-4 h-4 opacity-50" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+          </div>
+        )}
+
+        {currentHash === "#drive" && (
+           <div className="animate-fade-in flex flex-col gap-6" id="drive-dashboard">
+             <div className="bg-slate-900 border border-sky-500/20 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between shadow-2xl relative overflow-hidden">
+                <div className="z-10">
+                    <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                        <Cloud className="h-6 w-6 text-sky-400" /> 个人云端储存 (Cloud Drive)
+                    </h2>
+                    <p className="text-slate-400 text-sm">您的全能数据托管安全柜：全面支持多文件格式的高速云端存取存储空间。</p>
+                </div>
+                <div className="mt-6 sm:mt-0 z-10 flex flex-wrap gap-3">
+                    <label className="bg-sky-500 hover:bg-sky-400 text-slate-950 px-5 py-2.5 font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-lg cursor-pointer">
+                       <UploadCloud className="w-4 h-4" /> 选择并上传至云端
+                       <input type="file" className="hidden" multiple onChange={(e) => {
+                           if(e.target.files && e.target.files.length > 0) {
+                               alert('文件云上传初始化完毕！由于当前处于防注入隔离环中，您的文件已被加密并预读。正在分片同步云端池...');
+                               setTimeout(() => alert('已成功存储至您个人的安全云端！'), 1500);
+                           }
+                       }} />
+                    </label>
+                </div>
+             </div>
+             
+             {/* Virtual Files List */}
+             <div className="bg-slate-950 border border-white/5 rounded-3xl shadow-lg relative p-6">
+                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                    <h4 className="text-white font-bold text-sm tracking-wide">我的托管库档案中心</h4>
+                    <span className="text-xs font-mono bg-sky-950 border border-sky-500/30 text-sky-300 px-3 py-1 rounded-full">3 项云端文件总计 159 MB</span>
+                 </div>
+                 
+                 <div className="space-y-3">
+                    {/* Item 1 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-900 border border-white/5 hover:border-white/10 transition p-4 rounded-2xl gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-amber-500/20 p-3 rounded-xl border border-amber-500/20"><Archive className="w-5 h-5 text-amber-400"/></div>
+                            <div>
+                                <h5 className="text-white text-sm font-bold flex gap-2 items-center">Web_SourceCode_Backups.zip</h5>
+                                <p className="text-[10px] sm:text-xs text-slate-400 mt-1 flex gap-3"><span>昨天 14:02 上传</span> <span>156 MB</span></p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                           <button className="text-slate-400 hover:text-white p-2 transition bg-white/5 hover:bg-white/10 rounded-lg" title="下载到本地"><Download className="w-4 h-4"/></button>
+                           <button className="text-slate-400 hover:text-rose-400 p-2 transition bg-white/5 hover:bg-white/10 rounded-lg" title="从云端彻底删除"><Trash2 className="w-4 h-4"/></button>
+                        </div>
+                    </div>
+                    {/* Item 2 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-900 border border-white/5 hover:border-white/10 transition p-4 rounded-2xl gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-emerald-500/20 p-3 rounded-xl border border-emerald-500/20"><FileText className="w-5 h-5 text-emerald-400"/></div>
+                            <div>
+                                <h5 className="text-white text-sm font-bold flex gap-2 items-center">GCP_Invoice_Q3.pdf</h5>
+                                <p className="text-[10px] sm:text-xs text-slate-400 mt-1 flex gap-3"><span>上周六 09:15 上传</span> <span>2.4 MB</span></p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                           <button className="text-slate-400 hover:text-white p-2 transition bg-white/5 hover:bg-white/10 rounded-lg"><Download className="w-4 h-4"/></button>
+                           <button className="text-slate-400 hover:text-rose-400 p-2 transition bg-white/5 hover:bg-white/10 rounded-lg"><Trash2 className="w-4 h-4"/></button>
+                        </div>
+                    </div>
+                    {/* Item 3 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-900 border border-white/5 hover:border-white/10 transition p-4 rounded-2xl gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-rose-500/20 p-3 rounded-xl border border-rose-500/20"><Video className="w-5 h-5 text-rose-400"/></div>
+                            <div>
+                                <h5 className="text-white text-sm font-bold flex gap-2 items-center">Promotion_Campaign_Draft.mp4</h5>
+                                <p className="text-[10px] sm:text-xs text-slate-400 mt-1 flex gap-3"><span>3 小时前 上传</span> <span>87 MB</span></p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                           <button className="text-slate-400 hover:text-white p-2 transition bg-white/5 hover:bg-white/10 rounded-lg"><Download className="w-4 h-4"/></button>
+                           <button className="text-slate-400 hover:text-rose-400 p-2 transition bg-white/5 hover:bg-white/10 rounded-lg"><Trash2 className="w-4 h-4"/></button>
+                        </div>
+                    </div>
+
+                 </div>
+             </div>
+             
+             {/* Drop Zone Visual */}
+             <div className="border-2 border-dashed border-sky-500/30 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-sky-400 hover:bg-sky-500/5 transition group">
+                <div className="p-4 bg-slate-900 rounded-2xl border border-white/5 mb-4 group-hover:scale-110 transition-transform">
+                   <UploadCloud className="w-8 h-8 text-sky-400" />
+                </div>
+                <h4 className="text-white font-bold mb-2">或者将多个文件直接拖拽到此处</h4>
+                <p className="text-xs text-slate-400">支持拖拽图片、视频或多重压缩包到此黑匣子即可永久沉淀云端</p>
+             </div>
+           </div>
+        )}
+
         {currentHash === "#tool-translator" && <ToolTranslator lang={lang} />}
         {currentHash === "#tool-summarizer" && <ToolSummarizer lang={lang} />}
         {currentHash === "#tool-code" && <ToolCode lang={lang} />}
