@@ -7,9 +7,8 @@ WORKDIR /app
 # 复制 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安装所有依赖（清空 NODE_ENV 确保 Vite 和 esbuild 会被装上）
-ENV NODE_ENV=
-RUN npm install
+# 安装所有依赖（确保开发依赖如 Vite, esbuild 也被安装用于构建流程）
+RUN npm install --include=dev
 
 # 复制其余源代码
 COPY . .
@@ -25,4 +24,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # 启动服务
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/server.cjs"]
