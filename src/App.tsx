@@ -1412,7 +1412,12 @@ export default function App() {
                <Maximize className="w-4 h-4" />
             </button>
             {currentUser ? (
-              <div id="active-session-chip" className="bg-white/10 text-white pl-3 pr-2 py-1.5 rounded-full flex items-center gap-2 text-xs border border-white/10">
+              <div id="active-session-chip" className="bg-white/10 text-white pl-1.5 pr-2 py-1.5 rounded-full flex items-center gap-2 text-xs border border-white/10">
+                {currentUser.avatarUrl ? (
+                  <img src={currentUser.avatarUrl} alt="avatar" className="w-6 h-6 rounded-full object-cover border border-white/20" />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-cyan-600 flex items-center justify-center font-bold">{currentUser.fullName.charAt(0)}</div>
+                )}
                 <span className="font-semibold">{currentUser.fullName}</span>
                 <span className="text-slate-400">({currentUser.emailUsername}@{systemState.activeDomain})</span>
                 {currentUser.role === "admin" && (
@@ -1601,8 +1606,17 @@ export default function App() {
               <div className="mt-4 pt-4 px-4 border-t border-white/10 flex flex-col gap-3 shrink-0">
                 {currentUser ? (
                   <div className="flex flex-col gap-2 bg-white/5 p-3 rounded-xl border border-white/10">
-                    <div className="text-white text-sm font-semibold">{currentUser.fullName}</div>
-                    <div className="text-slate-400 text-xs">({currentUser.emailUsername}@{systemState.activeDomain})</div>
+                    <div className="flex items-center gap-3">
+                      {currentUser.avatarUrl ? (
+                         <img src={currentUser.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover border border-white/20" />
+                      ) : (
+                         <div className="w-10 h-10 rounded-full bg-cyan-600 flex items-center justify-center font-bold text-lg text-white">{currentUser.fullName.charAt(0)}</div>
+                      )}
+                      <div>
+                        <div className="text-white text-sm font-semibold">{currentUser.fullName}</div>
+                        <div className="text-slate-400 text-xs">({currentUser.emailUsername}@{systemState.activeDomain})</div>
+                      </div>
+                    </div>
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={toggleLanguage}
@@ -2949,27 +2963,27 @@ export default function App() {
                               </ol>
                             </div>
 
-                            {/* Option B: Cloudflare + Back4App */}
+                            {/* Option B: Back4App Containers */}
                             <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl">
                               <h5 className="font-bold text-indigo-400 text-sm flex items-center gap-2 mb-3">
-                                方案 B：Cloudflare Pages + Back4App（最顶级 / 动静分离 / 极速全站 CDN）
+                                方案 B：Back4App 微服务容器部署（顶级性能 / 高度自定义全栈 / 支持 GitHub）
                               </h5>
                               <p className="text-xs text-slate-300 mb-3 leading-relaxed">
-                                这是工业级标准的微服务部署：前端网站交由全球最大 CDN Cloudflare 秒开加速，动态核心与数据交由 Back4App 处理！(需要用到 GitHub)
+                                这是工业级标准的云端 Docker 容器部署方案！您不再需要分成前后端两次操作，系统内置了强大的 <strong>Dockerfile</strong>，它会自动为您构建一切前端静态文件并在服务端挂载 API！免绑卡、免费且在全球都有极速节点。
                               </p>
                               <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300">
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.1 推送到 GitHub：</strong> 登录您的 GitHub 账号，新建一个仓库，将解压后的文件全部上传进去。
+                                  <strong>2.1 推送到 GitHub：</strong> 登录您的 GitHub 账号，新建一个仓库，将第一步解压后的全部文件（包括 Dockerfile 那些杂文件）上传进去。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.2 部署静态前端 (Cloudflare)：</strong> 登录 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Cloudflare</a> {"->"} 无服务器 Workers & Pages {"->"} 创建 Pages 项目 {"->"} 连接 Git。选择您的仓库进行部署！（部署命令 <code className="bg-slate-800 text-cyan-300 px-1 rounded">npm run build</code>，输出目录 <code className="bg-slate-800 text-cyan-300 px-1 rounded">dist</code>）。
+                                  <strong>2.2 连接云端容器平台：</strong> 登录 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App.com</a>（直接用 GitHub 授权登录） {"->"} 点击右上角 Build new app {"->"} 一定要选择绿色的 <strong>【Containers（容器服务 CaaS）】</strong>。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.3 部署动态后端 (Back4App)：</strong> 登录 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App</a> {"->"} 新建 App {"->"} <strong>选择 Containers 模式</strong> {"->"} 连接同一个 Git 仓库。直接一键部署（它会自动识别内部的 Dockerfile）。
+                                  <strong>2.3 傻瓜级一键部署：</strong> 选择您刚上传的刚才那个 Git 仓库，随便起个 App Name。什么都不用填（不要改 Port，直接留空即可，它会自动识别内部文件的 <code className="bg-slate-800 text-emerald-300 px-1 rounded">EXPOSE 3000</code>） {"->"} 猛击创建大按钮 <strong>Create App</strong>！
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30 border-emerald-500/50 relative">
                                   <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                                  <strong>2.4 终极闭环连接：</strong> 等待后端容器跑绿后，复制它分配的地址串（如 <code className="text-emerald-400">https://xxx.b4a.run</code>）。打开刚刚通过 Cloudflare 部署出来的您的前端网站，在页面顶部的 <strong className="text-white">"绑定远端接口"</strong> 中粘贴地址，点击保存。完美的极速带壳应用彻底成型！
+                                  <strong>2.4 终极闭环跑通：</strong> 左侧菜单切换到 Logs 或者界面盯着日志等待不到3分钟，顶部的进度条变绿！您的私人顶级云端服务器完美上阵工作，它将全栈驱动一切客户端业务连通！
                                 </li>
                               </ol>
                             </div>

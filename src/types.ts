@@ -13,6 +13,7 @@ export interface User {
   emailDomain: string;
   fullName: string;
   contact: string;
+  avatarUrl?: string;
   role: "admin" | "user";
   storageQuota: string;
   storageUsed: string;
@@ -54,6 +55,7 @@ export interface Email {
 export interface BlogComment {
   id: string;
   author: string;
+  authorAvatar?: string;
   content: string;
   timestamp: string;
 }
@@ -62,6 +64,7 @@ export interface Blog {
   id: string;
   author: string;
   authorEmail: string;
+  authorAvatar?: string;
   title: string;
   content: string;
   category: string;
@@ -76,6 +79,9 @@ export interface FriendshipRecord {
   name: string;
   content: string;
   photoUrl: string;
+  fontFamily?: string;
+  opacity?: number;
+  borderStyle?: string;
   timestamp: string;
 }
 
@@ -121,6 +127,7 @@ export interface BackgroundTheme {
 export interface ChatMessage {
   id: string;
   sender: string;
+  senderAvatar?: string;
   content: string;
   timestamp: string;
 }
