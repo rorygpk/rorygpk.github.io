@@ -2947,39 +2947,42 @@ export default function App() {
                           <div className="mt-4 space-y-6">
                             
                             {/* Option A: Hugging Face */}
-                            <div className="bg-sky-500/10 border border-sky-500/30 p-5 rounded-2xl">
-                              <h5 className="font-bold text-sky-400 text-sm flex items-center gap-2 mb-3">
-                                方案 A：Hugging Face Spaces（最极简 / 免绑 GitHub / 纯白痴版拖拽部署）
+                            <div className="bg-sky-500/10 border-2 border-sky-400 p-5 rounded-2xl relative shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                              <div className="absolute -top-3 left-4 bg-sky-500 text-slate-950 font-bold px-3 py-0.5 rounded-full text-xs">
+                                无需 GitHub | 直接拖拽上传
+                              </div>
+                              <h5 className="font-bold text-sky-400 text-sm flex items-center gap-2 mb-3 mt-2">
+                                方案 A：Hugging Face Spaces（纯网页拖拽发布）
                               </h5>
                               <p className="text-xs text-slate-300 mb-3 leading-relaxed">
-                                推荐！如果您连接 GitHub 失败、或者不想繁杂的配置，这是最完美的云端容器发布平台。全程拖拽就能跑起我们的 Dockerfile！完全免费。
+                                <strong>墙裂推荐：</strong>如果您刚才连接 GitHub 失败，或者不想受那个气，直接用本方案！无需任何绑定，全程只需要在网页上拖框拉拽文件，全自动构建我们内置的 Dockerfile，免费而且简单。
                               </p>
                               <ol className="list-decimal list-inside space-y-2 text-xs text-slate-300">
                                 <li>访问 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-sky-400 font-bold hover:underline">Hugging Face Spaces</a>，注册并登录。</li>
                                 <li>点击右上角 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">Create new Space</strong>。</li>
                                 <li>名字随便起，<strong>Space SDK 必定选【Docker】然后选里面的【Blank】</strong>，创建容器。</li>
-                                <li>进入 Files 标签页，将第一步解压后文件夹里的<strong>所有文件和文件夹（包括 Dockerfile, package.json 和 src 文件夹等）</strong>一起拉框拖拽进去！拉完点击 Commit changes 保存。</li>
-                                <li>系统会自动识别 Dockerfile 进行构建，喝杯咖啡等待绿灯 <code className="text-emerald-400 font-bold">✅ Running</code> 亮起即可！</li>
+                                <li>进入 <strong className="text-white">Files</strong> 标签页，将第一步解压后文件夹里的<strong>所有文件和文件夹</strong>（包括 Dockerfile, package.json, src 等）一起拉框拖拽进去！拉完点击页面下部的 <strong className="text-white bg-blue-600 px-1 py-0.5 rounded">Commit changes</strong> 保存。</li>
+                                <li>系统会自动识别 Dockerfile 进行构建，喝杯咖啡等待绿灯 <code className="text-emerald-400 font-bold">✅ Running</code> 亮起即可！显示的链接就是您的专属域名。</li>
                               </ol>
                             </div>
 
                             {/* Option B: Back4App Containers */}
-                            <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl">
+                            <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl relative">
                               <h5 className="font-bold text-indigo-400 text-sm flex items-center gap-2 mb-3">
-                                方案 B：Back4App 微服务容器部署（顶级性能 / 需绑定 GitHub）
+                                方案 B：Back4App 微服务容器部署（需绑定 GitHub）
                               </h5>
                               <p className="text-xs text-slate-300 mb-3 leading-relaxed">
-                                这是也是工业级标准的云端 Docker 容器部署方案！需要绑定 GitHub，同样系统内置的 <strong>Dockerfile</strong>会自动接管。如果您在这个平台连接 GitHub 失败，请果断使用上面的 <strong>方案 A</strong>！
+                                <strong>提示：</strong>Back4App 平台<strong className="text-rose-400">强制要求关联 GitHub 仓库</strong>，如果出现授权白屏或加载失败（如您刚截图的情况），请放弃本方案，直接使用上方的 <strong>方案 A (直接上传)</strong>。
                               </p>
-                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300">
+                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-80">
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.1 推送到 GitHub：</strong> 登录您的 GitHub 账号，新建一个仓库，将第一步解压后的全部文件上传到仓库中。
+                                  <strong>2.1 推送到 GitHub：</strong> 新建一个仓库，将第一步解压后的全部文件上传到仓库中。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.2 连接云端容器平台：</strong> 登录 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App.com</a>（直接用 GitHub 授权登录） {"->"} 点击右上角 Build new app {"->"} 一定要选择绿色的 <strong>【Containers（容器服务 CaaS）】</strong>。
+                                  <strong>2.2 连接云端容器平台：</strong> 登录 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App.com</a> {"->"} 点击右上角 Build new app {"->"} 选择 <strong>【Containers（容器服务）】</strong>。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.3 傻瓜级一键部署：</strong> 选择您刚上传的那个 Git 仓库，随便起个 App Name。其他什么都不用改（不要改 Port，直接留空即可，它会自动识别内部文件的 <code className="bg-slate-800 text-emerald-300 px-1 rounded">EXPOSE 3000</code>） {"->"} 猛击创建大按钮 <strong>Create App</strong>！
+                                  <strong>2.3 傻瓜级一键部署：</strong> 选择刚才那个 Git 仓库，随便起个 App Name。（不要改 Port，保留为空） {"->"} 点击 <strong>Create App</strong>！
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30 border-emerald-500/50 relative">
                                   <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
