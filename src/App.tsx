@@ -2998,6 +2998,62 @@ export default function App() {
                               </ol>
                             </div>
 
+                            {/* Option C: Render.com Fallback */}
+                            <div className="bg-fuchsia-500/10 border border-fuchsia-500/30 p-5 rounded-2xl relative mt-4">
+                              <h5 className="font-bold text-fuchsia-400 text-sm flex items-center gap-2 mb-3">
+                                方案 C：Render.com 容器部署（连不上 GitHub 时的全球通用备份方案）
+                              </h5>
+                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-fuchsia-500/10 border border-fuchsia-500/20 p-3 rounded-xl">
+                                <strong>🚨 既然 Back4App 这个坑货接口抽风始终连不上 GitHub，我们果断换平台！被气死不值得！</strong> <br/>
+                                <br/>天下不是只有它一家！推荐使用 <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Render.com</a>，这也是全球顶级的云平台，不仅完全免费，而且对 GitHub 的兼容性极好，只要你有 GitHub 账号必定能连上。同样支持我们在 <strong className="text-white">手机端操作并绑定国内阿里云域名</strong>。
+                              </p>
+                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
+                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
+                                  <strong>3.1 准备好 GitHub：</strong> 同上，确保您的代码（尤其是 Dockerfile 等文件）已经存在于您的 GitHub 仓库的主分支里。
+                                </li>
+                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
+                                  <strong>3.2 登录 Render 平台：</strong> 访问 <a href="https://render.com/" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Render.com</a> 并使用 GitHub 授权登录，它的授权绝不会卡死出错。
+                                </li>
+                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
+                                  <strong>3.3 创建 Web Service：</strong> 登录后点击右上角 <strong>New {"->"} Web Service</strong>，选择 <strong>Build and deploy from a Git repository</strong>。
+                                </li>
+                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
+                                  <strong>3.4 一键部署：</strong> 此时列表一定会显示您的 GitHub 仓库，点击 <strong>Connect</strong>。在设置页起个名字，向下滚动确保运行环境 (Environment) 是 <strong>Docker</strong>，选 <strong>Free 免费节点</strong>。点击 <strong>Create Web Service</strong>，系统就会自动构建！
+                                </li>
+                                <li className="pl-2 border-l-2 border-fuchsia-500/30 border-emerald-500/50 relative">
+                                  <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                                  <strong>3.5 绑定国内域名：</strong> 部署跑完毕后，点击左侧菜单的 <strong>Settings</strong>，滚动找到 <strong>Custom Domains</strong>。输入您的阿里云域名，去阿里云加上 Render 为您生成的 CNAME 记录即可！
+                                </li>
+                              </ol>
+                            </div>
+
+                            {/* Option D: Zeabur (Best for China) */}
+                            <div className="bg-orange-500/10 border border-orange-500/30 p-5 rounded-2xl relative mt-4">
+                              <h5 className="font-bold text-orange-400 text-sm flex items-center gap-2 mb-3">
+                                方案 D：Zeabur.com（🔥 强烈推荐：全中文 / 国内网速极好）
+                              </h5>
+                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl">
+                                如果您的手机访问国外网站偏慢，非常推荐您使用 <strong>Zeabur</strong>！这是对国内用户最友好的平台，全中文界面，专做一键拉取 GitHub 部署。识别 Dockerfile 是秒级的，节点甚至有亚洲加速。
+                              </p>
+                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
+                                <li className="pl-2 border-l-2 border-orange-500/30">
+                                  前往 <a href="https://zeabur.com/" target="_blank" rel="noopener noreferrer" className="text-orange-400 font-bold hover:underline">Zeabur.com</a>，点击“登录”，授权您的 GitHub。
+                                </li>
+                                <li className="pl-2 border-l-2 border-orange-500/30">
+                                  进入控制台后，创建一个新项目（Project），选择离你比较近的节点（例如 AWS 亚太服务器）。
+                                </li>
+                                <li className="pl-2 border-l-2 border-orange-500/30">
+                                  点击 <strong>"添加服务" (Add Service) {"->"} "Git 仓库"</strong>，在弹出的窗口里就能看到你的代码啦，直接点选中！
+                                </li>
+                                <li className="pl-2 border-l-2 border-orange-500/30">
+                                  它会自动扫描到 <code className="text-orange-300 font-bold">Dockerfile</code> 并帮你配置好。静等几分钟部署完成。
+                                </li>
+                                <li className="pl-2 border-l-2 border-orange-500/30 border-emerald-500/50 relative">
+                                  <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                                  <strong>绑定域名：</strong> 部署成功后，在服务的“域名”设置页中，绑定你的阿里云域名。他们会直接把提示弹出来告诉你 CNAME 填什么，照做即可在国内极速打开！
+                                </li>
+                              </ol>
+                            </div>
                           </div>
                         </li>
                       </ol>
