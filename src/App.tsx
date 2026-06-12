@@ -2969,27 +2969,31 @@ export default function App() {
                             {/* Option B: Back4App Containers */}
                             <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl relative">
                               <h5 className="font-bold text-indigo-400 text-sm flex items-center gap-2 mb-3">
-                                方案 B：Back4App 微服务容器部署（已不推荐，强制关联 GitHub）
+                                方案 B：微服务容器部署（手机端必选 / 需要上传 GitHub）
                               </h5>
-                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
-                                <strong>🚨 紧急排障回复：</strong>看到了您遇到 <strong className="text-rose-400">"Unexpected error when loading GitHub repositories"</strong> 的报错！这是 Back4App 官方接口的常见 Bug。<br/>
-                                <br/>由于 Back4App <strong>不支持网页直接上传，强制要求唯一绑定 GitHub 仓库才能运行</strong>，在它出错时我们无法直接绕过连接传文件。
-                                <br/>👇👇👇
-                                <br/><strong className="text-cyan-400 text-sm mt-1 block">请您果断放弃此方案，往上看！直接使用最上面的【方案 A (Hugging Face Spaces)】！那个平台完全支持您刚刚说的“解压后直接把文件拖拽上传”，一步到位，且性能完全一致。</strong>
+                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl">
+                                <strong>💡 针对手机端用户的完美解答：</strong>因为手机没法像电脑那样方便地“拖拽拉框多个文件”到 Hugging Face，所以 <strong>走 GitHub 中间作为桥梁</strong> 反而是手机端最可行的途径！<br/>
+                                <br/><strong>1. 解决 GitHub 授权报错 ("Unexpected error...")：</strong><br/>
+                                那个报错是因为您曾经授权过或者账号状态冲突导致的死循环。<strong>解决必杀技：</strong>电脑或手机浏览器打开 GitHub.com {"->"} 右上角头像 Setting {"->"} 左边栏拉到底点 Applications {"->"} 选 Installed GitHub Apps 或者是 Authorized OAuth Apps，找到 <strong>Back4App</strong> 并点击 <strong>Uninstall / Revoke</strong> 把它的权限全切断。<br/>
+                                <strong>然后马上回到 Back4App 重新点击授权</strong>，这时会弹出一个让你确认授权范围的页面，千万要记住勾选 <strong>"All repositories" （所有仓库）</strong>！再点确认，仓库列表就绝对能刷出来了！<br/><br/>
+                                <strong>2. 国内访问与阿里云域名绑定：</strong><br/>
+                                <strong>💯 绝对可以！</strong> Back4App 支持给您的容器分配固定域名并允许绑定私有域名（免备案）。<br/>
+                                部署跑到绿色 Running 后，在这个 App 的控制面板左边菜单找到 <strong>Server Settings {"->"} Custom Domain</strong>。<br/>
+                                然后在里面填入您在阿里云买好的域名（比如 `app.yourdomain.com`）。根据给出的提示，回到阿里云控制台的“域名解析”里，加一条 <strong>CNAME 记录</strong> 指向给您的 B4A 域名，等几分钟解析生效即可！国内即可用该阿里云域名直连您的应用。
                               </p>
-                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-40 grayscale pointer-events-none">
+                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.1 推送到 GitHub：</strong> 新建一个仓库，将第一步解压后的全部文件上传到仓库中。
+                                  <strong>2.1 搞定 GitHub：</strong> 手机端直接用 GitHub 建立一个公共源仓库。等您能用电脑时（或者直接用 GitHub 原生的网页上传），把下载压缩包里解压的内容（包括 Dockerfile, src 下的文件等所有）丢进仓库的主分支。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.2 连接云端容器平台：</strong> 登录 <span>Back4App.com</span> {"->"} 点击右上角 Build new app {"->"} 选择 <strong>【Containers（容器服务）】</strong>。
+                                  <strong>2.2 连接云端容器平台：</strong> 按照上面的排障教程清掉旧权限后，重新点击 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App.com</a> 继续点上方 <strong>Build new app {"->"} Containers（容器服务）</strong>。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.3 傻瓜级一键部署：</strong> 选择刚才那个 Git 仓库，随便起个 App Name。（不要改 Port，保留为空） {"->"} 点击 <strong>Create App</strong>！
+                                  <strong>2.3 一键部署：</strong> 选中刚刚存放好我们文件的 Git 仓库，填个大气的英文短名。注意：不要改什么 Port 端口之类的，全部留空默认。点击最下面 <strong>Create App</strong>！
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30 border-emerald-500/50 relative">
                                   <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                                  <strong>2.4 等待上线：</strong> 左侧菜单切换到 Logs 或者盯住屏幕日志，等待不到3分钟，顶部的进度条变绿！部署完美跑通。
+                                  <strong>2.4 等待上线与实战直连：</strong> 日志跑满转绿！立刻去按照上面提到的 <strong>Server Settings {"->"} Custom Domain</strong> 去绑定您的阿里云域名。解析完之后您就能直接随时随地给朋友分享了！
                                 </li>
                               </ol>
                             </div>
