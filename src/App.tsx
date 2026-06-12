@@ -2969,17 +2969,20 @@ export default function App() {
                             {/* Option B: Back4App Containers */}
                             <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl relative">
                               <h5 className="font-bold text-indigo-400 text-sm flex items-center gap-2 mb-3">
-                                方案 B：Back4App 微服务容器部署（需绑定 GitHub）
+                                方案 B：Back4App 微服务容器部署（已不推荐，强制关联 GitHub）
                               </h5>
-                              <p className="text-xs text-slate-300 mb-3 leading-relaxed">
-                                <strong>提示：</strong>Back4App 平台<strong className="text-rose-400">强制要求关联 GitHub 仓库</strong>，如果出现授权白屏或加载失败（如您刚截图的情况），请放弃本方案，直接使用上方的 <strong>方案 A (直接上传)</strong>。
+                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                                <strong>🚨 紧急排障回复：</strong>看到了您遇到 <strong className="text-rose-400">"Unexpected error when loading GitHub repositories"</strong> 的报错！这是 Back4App 官方接口的常见 Bug。<br/>
+                                <br/>由于 Back4App <strong>不支持网页直接上传，强制要求唯一绑定 GitHub 仓库才能运行</strong>，在它出错时我们无法直接绕过连接传文件。
+                                <br/>👇👇👇
+                                <br/><strong className="text-cyan-400 text-sm mt-1 block">请您果断放弃此方案，往上看！直接使用最上面的【方案 A (Hugging Face Spaces)】！那个平台完全支持您刚刚说的“解压后直接把文件拖拽上传”，一步到位，且性能完全一致。</strong>
                               </p>
-                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-80">
+                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-40 grayscale pointer-events-none">
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
                                   <strong>2.1 推送到 GitHub：</strong> 新建一个仓库，将第一步解压后的全部文件上传到仓库中。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.2 连接云端容器平台：</strong> 登录 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App.com</a> {"->"} 点击右上角 Build new app {"->"} 选择 <strong>【Containers（容器服务）】</strong>。
+                                  <strong>2.2 连接云端容器平台：</strong> 登录 <span>Back4App.com</span> {"->"} 点击右上角 Build new app {"->"} 选择 <strong>【Containers（容器服务）】</strong>。
                                 </li>
                                 <li className="pl-2 border-l-2 border-indigo-500/30">
                                   <strong>2.3 傻瓜级一键部署：</strong> 选择刚才那个 Git 仓库，随便起个 App Name。（不要改 Port，保留为空） {"->"} 点击 <strong>Create App</strong>！
