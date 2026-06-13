@@ -1,4 +1,4 @@
-import archiver = require("archiver");
+import archiver from "archiver";
 import fs from "fs";
 import path from "path";
 

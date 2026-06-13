@@ -118,7 +118,7 @@ app.use((req, res, next) => {
 
   if (requestingHost && requestingHost !== "localhost" && requestingHost !== "127.0.0.1" && !requestingHost.startsWith("192.168.")) {
     const db = readDB();
-    if (db.activeDomain !== requestingHost && !db.isDomainLocked) {
+    if (db.activeDomain !== requestingHost && !(db as any).isDomainLocked) {
       db.oldDomain = db.activeDomain;
       db.activeDomain = requestingHost;
       
@@ -1138,7 +1138,7 @@ app.get("/api/download-source", (req, res) => {
   res.setHeader("Content-Type", "application/zip");
   res.setHeader("Content-Disposition", "attachment; filename=\"rory-secure-hub-source.zip\"");
   
-  const archive = new archiver.ZipArchive({ zlib: { level: 9 } });
+  const archive = archiver('zip', { zlib: { level: 9 } });
   
   archive.on("error", (err) => {
     console.error("Archiver error:", err);

@@ -63,13 +63,10 @@ import {
   KeyRound,
   MonitorUp,
   MousePointer2,
-  MessageSquare,
-  Monitor,
   Share,
   Download,
   Smartphone,
-  Maximize,
-  ShieldAlert
+  Maximize
 } from "lucide-react";
 import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
@@ -2985,6 +2982,78 @@ export default function App() {
                                   <li>进入该空间里的 <strong className="text-white">Files</strong> 标签页。不要管所谓的 Git，直接点击 add file {"->"} upload files。</li>
                                   <li>在手机或电脑里把压缩包里的所有资料直接全拖拽进来！系统会自动靠那个 Dockerfile 启动它。它给的网址就是您的应用，永远运行！</li>
                                 </ol>
+                              </div>
+
+                              {/* 用户特别关心的解答：Sealos 行吗？ */}
+                              <div className="bg-cyan-500/10 border-2 border-cyan-500/50 p-5 rounded-xl">
+                                <h6 className="font-bold text-cyan-400 text-sm mb-2 flex items-center gap-2">
+                                  ❓ 特别解答：关于 Sealos 行不行？（绝对行，但有两个坑）
+                                </h6>
+                                <p className="text-xs text-slate-300 leading-relaxed max-w-full">
+                                  您提到 <strong>Sealos</strong> 确实眼光独到，它是纯国产团队开发的系统，像 Windows 桌面一样极其好用，微信扫码一键登录。<strong>完全可行！</strong>但要避开以下两个坑：
+                                  <br/><br/>
+                                  <strong>1. 必须避开国内节点：</strong> 如果您贪图国内访问快，选了它的“北京”或“广州”按量付费节点，你的应用虽然上线了，<strong>但外网拉取代理功能就彻底残废了（因为服务器也在墙内）</strong>！如果要保留外网功能，在 Sealos 里<strong>必须选择它的海外节点（如新加坡机场：bja.sealos.run 或 sin 区）</strong>！
+                                  <br/><br/>
+                                  <strong>2. 已经不能“彻底白领”：</strong> Sealos 早期免费，但现在由于被羊毛党薅怕了，注册后一般要求<strong>实名认证并充值几块钱（通常是5-10块钱买个小杯体验）</strong>。虽然极其便宜简直像白送，但严格意义上它要求您必须花钱了。如果您不介意付杯豆浆钱，Sealos 配新加坡节点确实是国内能用到的<strong>最平替、免双币信用卡、支持外网</strong>的绝佳神器！
+                                </p>
+
+                                <div className="mt-4 border-t border-cyan-500/30 pt-4">
+                                  <h6 className="font-bold text-cyan-300 text-sm mb-2 flex items-center gap-2">
+                                    🚨 您截图页面的填法 与 Sealos的正确打开方式
+                                  </h6>
+                                  <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                                    看到您的截图了！您现在处在 Sealos 的 <strong className="text-white bg-cyan-600 px-2 py-0.5 rounded">应用发布 (App Launchpad)</strong> 页面。
+                                    <br/><br/>
+                                    <strong>为什么这个页面填不了？</strong> 因为它要求填的“镜像名(Image Name)”是指已经打包好的程序（比如 <code className="text-cyan-200">nginx</code> 等）。而您目前手里只有 GitHub 的<strong>源代码</strong>，还没打包成镜像，它不认源码！
+                                  </p>
+                                  <div className="bg-cyan-900/30 border border-cyan-500/40 p-4 rounded-xl">
+                                    <h6 className="font-bold text-cyan-300 text-xs mb-2">🔥 哎呀！踩大坑了！紧急纠偏！</h6>
+                                    <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                                      看了您最新发来的截图（里面写着“函数列表”、“接口调试”），<strong>这个绿色的【云开发】完全进错了！</strong>
+                                      <br/><br/>
+                                      这是 Sealos 用来写单条临时脚本（Serverless/Laf）的地方，根本跑不了咱们这种带反向代理加网页的完整框架代码！
+                                    </p>
+                                    <h6 className="font-bold text-cyan-300 text-xs mt-4 mb-2 border-t border-cyan-500/30 pt-4">🏁 唯一正确的破局步骤（只需三步）：</h6>
+                                    <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300">
+                                      <li>
+                                        <strong>立刻退出这里：</strong> 关掉这个界面，回到 Sealos 的主桌面。
+                                      </li>
+                                      <li>
+                                        <strong>进应用商店：</strong> 点击左上角那个像蓝色购物袋一样的 <strong>【应用商店】 (App Store)</strong> 图标。
+                                      </li>
+                                      <li className="text-green-400 font-bold">
+                                        去搜索 Devbox：<span className="text-slate-300 font-normal">在商店顶部的搜索框里，输入英文字母 <code className="bg-cyan-600 text-white px-2 py-0.5 rounded">Devbox</code> 回车去搜！</span>
+                                      </li>
+                                      <li>
+                                        找到那个名字叫 <strong>Devbox (或者叫开发机/开发环境)</strong> 的应用，点击打开/添加！这才是为您提供完整带终端（Terminal）环境的终极神器。
+                                      </li>
+                                    </ol>
+
+                                    <h6 className="font-bold text-cyan-300 text-xs mt-4 mb-2 border-t border-cyan-500/30 pt-4">💻 针对您那句“用终端行不行？”的极其肯定的解答：</h6>
+                                    <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                                      <strong>太行了！不仅行，这正是“Devbox”方案的终极本质！</strong>
+                                      <br/><br/>
+                                      这套代理和站群代码本就需要构建，图形界面反而碍事。<strong className="text-cyan-200">去应用商店搜出来的“开发环境(Devbox)”的本质，就是一个提供外网暴露能力的网页版终端！</strong> <br/>
+                                      等您按下面的步骤创建好 Devbox 进去之后，映入眼帘的就会是一个黑底白字的纯正 <strong>Terminal (终端)</strong>。<br/>
+                                      在里面粘贴我们的三连神技代码：<code className="text-green-400 bg-black/40 px-1 rounded">npm install && npm run build && npm start</code> 一回车，就彻底上线了！
+                                    </p>
+
+                                    <h6 className="font-bold text-cyan-300 text-xs mt-4 mb-2 border-t border-cyan-500/30 pt-4">🚀 找到 Devbox 进去之后的操作步骤：</h6>
+                                    <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300">
+                                      <li><strong>新建环境：</strong> 点击 <strong>新建 (New)</strong>。
+                                        <ul className="list-disc list-inside pl-4 mt-2 space-y-1 text-cyan-200">
+                                          <li><strong>运行环境 (Runtime)：</strong> 必须选择 <strong className="text-white">Node.js</strong>。</li>
+                                          <li><strong>代码仓库 (Git Repository)：</strong> 填入您的 GitHub 仓库的网址（如 `https://github.com/您的用户名/仓库名`）。</li>
+                                          <li><strong>端口 (Port)：必须删掉原来的数字修改为 <strong className="text-white bg-indigo-500 px-1 rounded">3000</strong>！</strong> 旁边的【开启外网访问】开关<strong>必须打开</strong>！</li>
+                                        </ul>
+                                      </li>
+                                      <li><strong>启动服务：</strong> 点击创建。云开发环境启动后会有一个终端界面（Terminal长方形黑框框）。因为这套代码需要反向代理功能，必须依靠环境构建，请直接复制并在里面敲入这段多合一指令，然后回车：<br/>
+                                        <code className="block bg-black/40 p-2 mt-1 rounded text-green-400 whitespace-pre-wrap break-all">npm install && npm run build && npm start</code>
+                                      </li>
+                                      <li><strong>大功告成！</strong> 等这段命令跑完不报错，您的不败海外节点就可以通过它外网访问直接上线了！</li>
+                                    </ol>
+                                  </div>
+                                </div>
                               </div>
 
                               {/* 用户特别关心的解答：外网穿透与代理拉取是否支持 */}
