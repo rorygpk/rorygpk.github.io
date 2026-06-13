@@ -2941,101 +2941,66 @@ export default function App() {
                           <p className="mt-1.5 text-center text-[10px] text-yellow-400">⚠️ 点击后直接保存文件，完美绕过重定向与跨标签页拦截。</p>
                         </li>
                         <li>
-                          <strong>第二步：选择部署方案（双轨可选，纯享免费）：</strong>
+                          <strong>中国大陆特别定制：免服务器、免绑卡、长期白嫖方案！</strong>
                           <br/><br/>
-                          我们为您提供两种顶级免费架构方案，您可以根据自己的情况任选其一：
-                          <div className="mt-4 space-y-6">
-                            
-                            {/* Option A: Hugging Face */}
-                            <div className="bg-sky-500/10 border-2 border-sky-400 p-5 rounded-2xl relative shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                              <div className="absolute -top-3 left-4 bg-sky-500 text-slate-950 font-bold px-3 py-0.5 rounded-full text-xs">
-                                无需 GitHub | 直接拖拽上传
+                          <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-2xl relative mt-4">
+                            <h5 className="font-bold text-red-400 text-base flex items-center gap-2 mb-3">
+                              🎯 认清现实：彻底告别“需要实名买服务器”和“强制绑信用卡”的坑
+                            </h5>
+                            <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                              Zeabur 等平台现在调整了策略，需要充值或者升级服务，导致大家白忙活。
+                              为了帮助您<strong>真正零成本长久运行</strong>，而且<strong>不需要信用卡，不需要购买服务器</strong>，并且能<strong>完美当作跳板枢纽拥有外网访问能力</strong>，我为您提供目前全球市面上仅存的**极其慷慨并且 100% 长期白嫖**的两大国际平台：
+                            </p>
+
+                            <div className="space-y-6">
+                              {/* 方案 一：Render */}
+                              <div className="bg-purple-500/10 border-2 border-purple-500/50 p-5 rounded-xl">
+                                <h6 className="font-bold text-purple-400 text-sm mb-2 flex items-center gap-2">
+                                  🏆 首选推荐：Render.com (全球顶级云，真正的零门槛免绑卡！)
+                                </h6>
+                                <p className="text-xs text-slate-400 mb-3 leading-relaxed">
+                                  硅谷明星平台，免费额度极为大方，跑我们的 Docker 项目绰绰有余。<strong>完全不需要验证信用卡</strong>。它的机房主要分布在欧美（完美自带无阻碍全球外网连接能力），当成备用站或跳板机的首选！
+                                </p>
+                                <ol className="list-decimal list-inside space-y-2 text-xs text-slate-300">
+                                  <li><strong>过桥前置条件：</strong>手机没法拖拉文件夹，请务必用手机浏览器打开 GitHub，新建一个公共仓库，利用网页上的 <code className="text-purple-300">upload files</code>，一口气把解压出来的所有文件（包含 Dockerfile 及 src 等）全都传进仓库的主分支。</li>
+                                  <li><strong>极速登录：</strong>手机浏览器访问 <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline">Render.com</a>，直接用您刚才的 GitHub 授权登录，绝不会卡顿报错。</li>
+                                  <li><strong>创建 Web 服务：</strong>进入控制台立刻点击 <strong>New {"->"} Web Service</strong>，然后选择 <strong>Build and deploy from a Git repository</strong>。</li>
+                                  <li><strong>一键连接：</strong>在列表里点击连接您刚才建好的那个 Git 仓库。起个响亮的名字，下拉保证 Instance Type 选择的是 <strong className="text-white">Free (免费节点)</strong>，Runtime 选择 <strong className="text-white">Docker</strong>。</li>
+                                  <li><strong>发布且绑域名：</strong>点击下方的 Create 按钮，随后盯着左侧菜单的 <strong>Settings {"->"} Custom Domains</strong>，输入您在阿里云买好的域名，去阿里云加一条它生成的 CNAME 记录，这就配置完美了！</li>
+                                </ol>
                               </div>
-                              <h5 className="font-bold text-sky-400 text-sm flex items-center gap-2 mb-3 mt-2">
-                                方案 A：Hugging Face Spaces（纯网页拖拽发布）
-                              </h5>
-                              <p className="text-xs text-slate-300 mb-3 leading-relaxed">
-                                <strong>墙裂推荐：</strong>如果您刚才连接 GitHub 失败，或者不想受那个气，直接用本方案！无需任何绑定，全程只需要在网页上拖框拉拽文件，全自动构建我们内置的 Dockerfile，免费而且简单。
-                              </p>
-                              <ol className="list-decimal list-inside space-y-2 text-xs text-slate-300">
-                                <li>访问 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-sky-400 font-bold hover:underline">Hugging Face Spaces</a>，注册并登录。</li>
-                                <li>点击右上角 <strong className="text-white bg-slate-800 px-1 py-0.5 rounded">Create new Space</strong>。</li>
-                                <li>名字随便起，<strong>Space SDK 必定选【Docker】然后选里面的【Blank】</strong>，创建容器。</li>
-                                <li>进入 <strong className="text-white">Files</strong> 标签页，将第一步解压后文件夹里的<strong>所有文件和文件夹</strong>（包括 Dockerfile, package.json, src 等）一起拉框拖拽进去！拉完点击页面下部的 <strong className="text-white bg-blue-600 px-1 py-0.5 rounded">Commit changes</strong> 保存。</li>
-                                <li>系统会自动识别 Dockerfile 进行构建，喝杯咖啡等待绿灯 <code className="text-emerald-400 font-bold">✅ Running</code> 亮起即可！显示的链接就是您的专属域名。</li>
-                              </ol>
-                            </div>
 
-                            {/* Option B: Back4App Containers */}
-                            <div className="bg-indigo-500/10 border border-indigo-500/30 p-5 rounded-2xl relative">
-                              <h5 className="font-bold text-indigo-400 text-sm flex items-center gap-2 mb-3">
-                                方案 B：微服务容器部署（手机端必选 / 需要上传 GitHub）
-                              </h5>
-                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl">
-                                <strong>💡 针对手机端用户的完美解答：</strong>因为手机没法像电脑那样方便地“拖拽拉框多个文件”到 Hugging Face，所以 <strong>走 GitHub 中间作为桥梁</strong> 反而是手机端最可行的途径！<br/>
-                                <br/><strong>1. 解决 GitHub 授权报错 ("Unexpected error...")：</strong><br/>
-                                那个报错是因为您曾经授权过或者账号状态冲突导致的死循环。<strong>解决必杀技：</strong>电脑或手机浏览器打开 GitHub.com {"->"} 右上角头像 Setting {"->"} 左边栏拉到底点 Applications {"->"} 选 Installed GitHub Apps 或者是 Authorized OAuth Apps，找到 <strong>Back4App</strong> 并点击 <strong>Uninstall / Revoke</strong> 把它的权限全切断。<br/>
-                                <strong>然后马上回到 Back4App 重新点击授权</strong>，这时会弹出一个让你确认授权范围的页面，千万要记住勾选 <strong>"All repositories" （所有仓库）</strong>！再点确认，仓库列表就绝对能刷出来了！<br/><br/>
-                                <strong>2. 国内访问与阿里云域名绑定：</strong><br/>
-                                <strong>💯 绝对可以！</strong> Back4App 支持给您的容器分配固定域名并允许绑定私有域名（免备案）。<br/>
-                                部署跑到绿色 Running 后，在这个 App 的控制面板左边菜单找到 <strong>Server Settings {"->"} Custom Domain</strong>。<br/>
-                                然后在里面填入您在阿里云买好的域名（比如 `app.yourdomain.com`）。根据给出的提示，回到阿里云控制台的“域名解析”里，加一条 <strong>CNAME 记录</strong> 指向给您的 B4A 域名，等几分钟解析生效即可！国内即可用该阿里云域名直连您的应用。
-                              </p>
-                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
-                                <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.1 搞定 GitHub：</strong> 手机端直接用 GitHub 建立一个公共源仓库。等您能用电脑时（或者直接用 GitHub 原生的网页上传），把下载压缩包里解压的内容（包括 Dockerfile, src 下的文件等所有）丢进仓库的主分支。
-                                </li>
-                                <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.2 连接云端容器平台：</strong> 按照上面的排障教程清掉旧权限后，重新点击 <a href="https://www.back4app.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">Back4App.com</a> 继续点上方 <strong>Build new app {"->"} Containers（容器服务）</strong>。
-                                </li>
-                                <li className="pl-2 border-l-2 border-indigo-500/30">
-                                  <strong>2.3 一键部署：</strong> 选中刚刚存放好我们文件的 Git 仓库，填个大气的英文短名。注意：不要改什么 Port 端口之类的，全部留空默认。点击最下面 <strong>Create App</strong>！
-                                </li>
-                                <li className="pl-2 border-l-2 border-indigo-500/30 border-emerald-500/50 relative">
-                                  <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                                  <strong>2.4 等待上线与实战直连：</strong> 日志跑满转绿！立刻去按照上面提到的 <strong>Server Settings {"->"} Custom Domain</strong> 去绑定您的阿里云域名。解析完之后您就能直接随时随地给朋友分享了！
-                                </li>
-                              </ol>
-                            </div>
+                              {/* 方案 二：Hugging Face Spaces */}
+                              <div className="bg-emerald-500/10 border-2 border-emerald-500/50 p-5 rounded-xl">
+                                <h6 className="font-bold text-emerald-400 text-sm mb-2 flex items-center gap-2">
+                                  🥈 终极底牌：Hugging Face Spaces (全球 AI 圈的良心，永不收费)
+                                </h6>
+                                <p className="text-xs text-slate-400 mb-3 leading-relaxed">
+                                  如果您连 GitHub 都嫌麻烦，Hugging Face 就是您的救世主。它本来是给 AI 大模型开发者做演示的沙盒，但我们的小项目完全可以毫无底线地在里面安家！它<strong>允许直接在网页拖拽上传</strong>，提供<strong>高配的外网机器</strong>，而且全网公认<strong>绝对不收钱，不绑卡，不废话</strong>。
+                                </p>
+                                <ol className="list-decimal list-inside space-y-2 text-xs text-slate-300">
+                                  <li>注册并登录 <a href="https://huggingface.co/spaces" target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-bold hover:underline">Hugging Face Spaces</a>。</li>
+                                  <li>点击右上角新建一个 Space。</li>
+                                  <li><strong>关键：</strong>选择 License 为 OpenRAIL，<strong>Space SDK 必定选【Docker】然后选里面的【Blank】</strong>，再选择其自带的完全免费的 Free Cpu basic，创建空间。</li>
+                                  <li>进入该空间里的 <strong className="text-white">Files</strong> 标签页。不要管所谓的 Git，直接点击 add file {"->"} upload files。</li>
+                                  <li>在手机或电脑里把压缩包里的所有资料直接全拖拽进来！系统会自动靠那个 Dockerfile 启动它。它给的网址就是您的应用，永远运行！</li>
+                                </ol>
+                              </div>
 
-                            {/* Option C: Glitch.com (100% Free, NO CC) */}
-                            <div className="bg-fuchsia-500/10 border border-fuchsia-500/30 p-5 rounded-2xl relative mt-4">
-                              <h5 className="font-bold text-fuchsia-400 text-sm flex items-center gap-2 mb-3">
-                                方案 C：Glitch.com（🔥 绝对免绑卡、免服务器、真免费的老牌良心平台）
-                              </h5>
-                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-fuchsia-500/10 border border-fuchsia-500/20 p-3 rounded-xl">
-                                <strong>🚨 拒接套牢！不买服务器！不绑信用卡！</strong> <br/>
-                                <br/>如果您被其他平台要求绑卡或买资源，请立刻换 <strong><a href="https://glitch.com" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Glitch.com</a></strong>。这是一个成立多年的老牌良心平台，<strong>彻底免费且不需要任何信用卡</strong>。它的唯一缺点是几分钟没人访问会休眠（下次打开稍微慢几秒启动），但这是长久白嫖的最佳选择。
-                              </p>
-                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
-                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.1 直接导入 GitHub：</strong> 确保您的所有代码（包含 package.json 等）都已经在您的 GitHub 仓库里。
-                                </li>
-                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.2 登录 Glitch 平台：</strong> 用您的旧 GitHub 账号直接授权登录 <a href="https://glitch.com/" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Glitch.com</a>，没有任何绑卡流程，直接进控制台。
-                                </li>
-                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.3 一键克隆发布：</strong> 点击右上角的 <strong>New Project</strong> {"->"} 选择 <strong>Import from GitHub</strong>。然后在弹出的输入框里，填写您的 GitHub 仓库地址（例如 `您的用户名/您的仓库名`），点击 OK！
-                                </li>
-                                <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.4 全自动运行：</strong> Glitch 就是个超级聪明的 Node.js 服务器，它会自动读取到 package.json 里面的启动命令跑起来。不需要您配任何繁琐环境！
-                                </li>
-                                <li className="pl-2 border-l-2 border-fuchsia-500/30 border-emerald-500/50 relative">
-                                  <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                                  <strong>3.5 绑定国内阿里云域名：</strong> 左下角找到 <strong>Tools {"->"} Custom Domains</strong>，输入您的阿里云域名。Glitch 会给出一个类似 `shw.glitch.me` 的地址让你去做 CNAME 解析，去阿里云配好之后，国内也能随时随地直连访问！
-                                </li>
-                              </ol>
-                            </div>
+                              {/* 用户特别关心的解答：外网穿透与代理拉取是否支持 */}
+                              <div className="bg-amber-500/10 border border-amber-500/40 p-4 rounded-xl mt-4">
+                                <h6 className="font-bold text-amber-400 text-sm mb-2 flex items-center gap-2">
+                                  🌐 核心解答：这两套系统的【外网访问功能】能否承接？
+                                </h6>
+                                <p className="text-xs text-slate-300 leading-relaxed">
+                                  <strong>答案是：不仅完美承接，甚至比你花小钱买的小水管服务器要强十倍！</strong>
+                                  <br/><br/>
+                                  无论是 <strong>Render</strong> 还是 <strong>Hugging Face Space</strong>，它们背靠的都是亚马逊 AWS 或是谷歌云这种世界顶尖云厂商的欧美骨干节点的机器！您的这段代码也就是跑在这些云环境里。
+                                  <br/><br/>
+                                  当系统发起外网代理请求去拉取诸如搜索或者屏蔽网站数据时，相当于<strong>顶级机房里的千兆宽带帮您完成的下载</strong>，随后再将其结果反向代理，安全、干净地渲染给您手机端的应用里。它的出海体验极为丝滑顺畅！
+                                </p>
+                              </div>
 
-                            {/* Emphasize HuggingFace as Option D as an alternative */}
-                            <div className="bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-2xl relative mt-4">
-                              <h5 className="font-bold text-emerald-400 text-sm flex items-center gap-2 mb-3">
-                                方案 D：回头重新看【方案 A (Hugging Face Spaces)】
-                              </h5>
-                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
-                                其实最符合要求（免费、免信用卡、免掏钱买服务器）的顶级平台，就是最上面的 <strong>方案 A (Hugging Face Spaces)</strong>！<br/><br/>
-                                它同样<strong>完全不要信用卡，不套路您买服务器</strong>！如果您在手机上不好拖拽文件，最稳妥的办法就是：<strong className="text-white">在手机上把代码先传进 GitHub 仓库。等您能用电脑时，或者直接用它的 Clone 功能。</strong> 这个平台背靠全球顶级 AI 圈子，极其大方，绝不搞“试用期逼您充钱”那套。
-                              </p>
                             </div>
                           </div>
                         </li>
