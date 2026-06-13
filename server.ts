@@ -1158,14 +1158,14 @@ app.get("/api/download-source", (req, res) => {
 // ==================== FRONT-END ROUTING MIDDLEWARES ====================
 
 async function startServer() {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    // Compile outputs bundle path serving
+  } else if (process.env.VERCEL !== "1") {
+    // Compile outputs bundle path serving (skip on Vercel, where static routing handles it)
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
@@ -1173,9 +1173,14 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[Fatshan Post] Full Stack active on routing node http://localhost:${PORT}`);
-  });
+  if (process.env.VERCEL !== "1") {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`[Fatshan Post] Full Stack active on routing node http://localhost:${PORT}`);
+    });
+  }
 }
 
 startServer();
+
+// Export for Vercel serverless support
+export default app;
