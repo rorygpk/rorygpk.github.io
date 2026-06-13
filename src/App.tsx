@@ -2998,61 +2998,44 @@ export default function App() {
                               </ol>
                             </div>
 
-                            {/* Option C: Render.com Fallback */}
+                            {/* Option C: Glitch.com (100% Free, NO CC) */}
                             <div className="bg-fuchsia-500/10 border border-fuchsia-500/30 p-5 rounded-2xl relative mt-4">
                               <h5 className="font-bold text-fuchsia-400 text-sm flex items-center gap-2 mb-3">
-                                方案 C：Render.com 容器部署（连不上 GitHub 时的全球通用备份方案）
+                                方案 C：Glitch.com（🔥 绝对免绑卡、免服务器、真免费的老牌良心平台）
                               </h5>
                               <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-fuchsia-500/10 border border-fuchsia-500/20 p-3 rounded-xl">
-                                <strong>🚨 既然 Back4App 这个坑货接口抽风始终连不上 GitHub，我们果断换平台！被气死不值得！</strong> <br/>
-                                <br/>天下不是只有它一家！推荐使用 <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Render.com</a>，这也是全球顶级的云平台，不仅完全免费，而且对 GitHub 的兼容性极好，只要你有 GitHub 账号必定能连上。同样支持我们在 <strong className="text-white">手机端操作并绑定国内阿里云域名</strong>。
+                                <strong>🚨 拒接套牢！不买服务器！不绑信用卡！</strong> <br/>
+                                <br/>如果您被其他平台要求绑卡或买资源，请立刻换 <strong><a href="https://glitch.com" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Glitch.com</a></strong>。这是一个成立多年的老牌良心平台，<strong>彻底免费且不需要任何信用卡</strong>。它的唯一缺点是几分钟没人访问会休眠（下次打开稍微慢几秒启动），但这是长久白嫖的最佳选择。
                               </p>
                               <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
                                 <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.1 准备好 GitHub：</strong> 同上，确保您的代码（尤其是 Dockerfile 等文件）已经存在于您的 GitHub 仓库的主分支里。
+                                  <strong>3.1 直接导入 GitHub：</strong> 确保您的所有代码（包含 package.json 等）都已经在您的 GitHub 仓库里。
                                 </li>
                                 <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.2 登录 Render 平台：</strong> 访问 <a href="https://render.com/" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Render.com</a> 并使用 GitHub 授权登录，它的授权绝不会卡死出错。
+                                  <strong>3.2 登录 Glitch 平台：</strong> 用您的旧 GitHub 账号直接授权登录 <a href="https://glitch.com/" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 font-bold hover:underline">Glitch.com</a>，没有任何绑卡流程，直接进控制台。
                                 </li>
                                 <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.3 创建 Web Service：</strong> 登录后点击右上角 <strong>New {"->"} Web Service</strong>，选择 <strong>Build and deploy from a Git repository</strong>。
+                                  <strong>3.3 一键克隆发布：</strong> 点击右上角的 <strong>New Project</strong> {"->"} 选择 <strong>Import from GitHub</strong>。然后在弹出的输入框里，填写您的 GitHub 仓库地址（例如 `您的用户名/您的仓库名`），点击 OK！
                                 </li>
                                 <li className="pl-2 border-l-2 border-fuchsia-500/30">
-                                  <strong>3.4 一键部署：</strong> 此时列表一定会显示您的 GitHub 仓库，点击 <strong>Connect</strong>。在设置页起个名字，向下滚动确保运行环境 (Environment) 是 <strong>Docker</strong>，选 <strong>Free 免费节点</strong>。点击 <strong>Create Web Service</strong>，系统就会自动构建！
+                                  <strong>3.4 全自动运行：</strong> Glitch 就是个超级聪明的 Node.js 服务器，它会自动读取到 package.json 里面的启动命令跑起来。不需要您配任何繁琐环境！
                                 </li>
                                 <li className="pl-2 border-l-2 border-fuchsia-500/30 border-emerald-500/50 relative">
                                   <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                                  <strong>3.5 绑定国内域名：</strong> 部署跑完毕后，点击左侧菜单的 <strong>Settings</strong>，滚动找到 <strong>Custom Domains</strong>。输入您的阿里云域名，去阿里云加上 Render 为您生成的 CNAME 记录即可！
+                                  <strong>3.5 绑定国内阿里云域名：</strong> 左下角找到 <strong>Tools {"->"} Custom Domains</strong>，输入您的阿里云域名。Glitch 会给出一个类似 `shw.glitch.me` 的地址让你去做 CNAME 解析，去阿里云配好之后，国内也能随时随地直连访问！
                                 </li>
                               </ol>
                             </div>
 
-                            {/* Option D: Zeabur (Best for China) */}
-                            <div className="bg-orange-500/10 border border-orange-500/30 p-5 rounded-2xl relative mt-4">
-                              <h5 className="font-bold text-orange-400 text-sm flex items-center gap-2 mb-3">
-                                方案 D：Zeabur.com（🔥 强烈推荐：全中文 / 国内网速极好）
+                            {/* Emphasize HuggingFace as Option D as an alternative */}
+                            <div className="bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-2xl relative mt-4">
+                              <h5 className="font-bold text-emerald-400 text-sm flex items-center gap-2 mb-3">
+                                方案 D：回头重新看【方案 A (Hugging Face Spaces)】
                               </h5>
-                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl">
-                                如果您的手机访问国外网站偏慢，非常推荐您使用 <strong>Zeabur</strong>！这是对国内用户最友好的平台，全中文界面，专做一键拉取 GitHub 部署。识别 Dockerfile 是秒级的，节点甚至有亚洲加速。
+                              <p className="text-xs text-slate-300 mb-4 leading-relaxed bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
+                                其实最符合要求（免费、免信用卡、免掏钱买服务器）的顶级平台，就是最上面的 <strong>方案 A (Hugging Face Spaces)</strong>！<br/><br/>
+                                它同样<strong>完全不要信用卡，不套路您买服务器</strong>！如果您在手机上不好拖拽文件，最稳妥的办法就是：<strong className="text-white">在手机上把代码先传进 GitHub 仓库。等您能用电脑时，或者直接用它的 Clone 功能。</strong> 这个平台背靠全球顶级 AI 圈子，极其大方，绝不搞“试用期逼您充钱”那套。
                               </p>
-                              <ol className="list-decimal list-inside space-y-3 text-xs text-slate-300 opacity-90">
-                                <li className="pl-2 border-l-2 border-orange-500/30">
-                                  前往 <a href="https://zeabur.com/" target="_blank" rel="noopener noreferrer" className="text-orange-400 font-bold hover:underline">Zeabur.com</a>，点击“登录”，授权您的 GitHub。
-                                </li>
-                                <li className="pl-2 border-l-2 border-orange-500/30">
-                                  进入控制台后，创建一个新项目（Project），选择离你比较近的节点（例如 AWS 亚太服务器）。
-                                </li>
-                                <li className="pl-2 border-l-2 border-orange-500/30">
-                                  点击 <strong>"添加服务" (Add Service) {"->"} "Git 仓库"</strong>，在弹出的窗口里就能看到你的代码啦，直接点选中！
-                                </li>
-                                <li className="pl-2 border-l-2 border-orange-500/30">
-                                  它会自动扫描到 <code className="text-orange-300 font-bold">Dockerfile</code> 并帮你配置好。静等几分钟部署完成。
-                                </li>
-                                <li className="pl-2 border-l-2 border-orange-500/30 border-emerald-500/50 relative">
-                                  <div className="absolute top-1 -left-[5px] w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
-                                  <strong>绑定域名：</strong> 部署成功后，在服务的“域名”设置页中，绑定你的阿里云域名。他们会直接把提示弹出来告诉你 CNAME 填什么，照做即可在国内极速打开！
-                                </li>
-                              </ol>
                             </div>
                           </div>
                         </li>
