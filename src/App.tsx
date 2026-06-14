@@ -75,6 +75,8 @@ import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
 import { encryptData, decryptData } from './lib/encryption';
 
+import { VerificationScreen } from "./components/VerificationScreen";
+
 const containerStyle = {
   width: '100%',
   height: '100%'
@@ -112,6 +114,7 @@ function GoogleMapsWrapper() {
 }
 
 export default function App() {
+  const [isSystemVerified, setIsSystemVerified] = useState(false);
   const [lang, setLang] = useState<Language>(getLanguage());
 
   useEffect(() => {
@@ -1161,6 +1164,8 @@ export default function App() {
 
   return (
     <div id="app-root" className={`min-h-screen font-sans transition-all duration-300 ${getThemeClass()} flex flex-col relative`}>
+      {!isSystemVerified && <VerificationScreen onComplete={() => setIsSystemVerified(true)} />}
+
       {/* Target Browser Checks Visual Execution layer */}
       {browserCheckBlock && !browserCheckBlock.isWarning && (
         <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-fade-in">
