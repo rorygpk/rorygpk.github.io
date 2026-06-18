@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Zap, MessageSquare, FileText, Terminal, Settings, Plus, FilePlus, ChevronRight, Check, Trash2, ArrowRight, UserPlus, Users, Sparkles, MonitorSmartphone, Maximize, ShieldAlert } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Zap, MessageSquare, FileText, Terminal, Settings, Plus, FilePlus, ChevronRight, Check, Trash2, ArrowRight, UserPlus, Users, Sparkles, MonitorSmartphone, Maximize, ShieldAlert, RefreshCw, Save, Send } from "lucide-react";
 import { t, Language } from "../i18n";
 import { SubPage, SystemState, User, PageBrowserCheck } from "../types";
 
@@ -597,6 +597,193 @@ export function AdminBrowserChecks({ lang, systemState, setSystemState }: { lang
           </div>
         ))}
         {checks.length === 0 && <div className="text-center text-slate-500 py-6 text-sm bg-slate-900/40 rounded-xl border border-white/5 border-dashed">当前未激活任何客户端合规探针，页面全局呈现不设限状态。</div>}
+      </div>
+    </div>
+  );
+}
+
+export function AdminDatabaseEditor({ lang }: { lang: Language }) {
+  const [dbData, setDbData] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const loadDb = async () => {
+    try {
+      setIsLoading(true);
+      setErrorMsg("");
+      const res = await fetch("/api/admin/db");
+      const data = await res.json();
+      setDbData(JSON.stringify(data, null, 2));
+    } catch (e) {
+      setErrorMsg("Failed to load generic database schema.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDb();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setErrorMsg("");
+      // Validate JSON
+      const parsed = JSON.parse(dbData);
+      
+      if (!window.confirm("WARNING: Overwriting the raw database will impact all site data, routing logic, and system configurations. Are you 100% sure?")) {
+        return;
+      }
+
+      setIsSaving(true);
+      const res = await fetch("/api/admin/db", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed)
+      });
+      const result = await res.json();
+      
+      if (res.ok) {
+        alert("Database structure successfully overwritten and synced to internal core memory.");
+      } else {
+        setErrorMsg(result.error || "Save collision error");
+      }
+    } catch (e) {
+      setErrorMsg("Syntax fault: your code contains invalid JSON schema structures.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-slate-900/60 border border-red-500/20 rounded-3xl p-6 shadow-[0_0_20px_rgba(239,68,68,0.1)] flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b border-red-500/20 pb-4">
+        <div>
+          <h2 className="text-xl font-black text-red-400">Master Level DB Terminal (100% Core Control)</h2>
+          <p className="text-xs text-slate-400">Warning: Proceed with extreme precision. Direct structural database modification module limits bypassed.</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={loadDb} className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5"><RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Reload core</button>
+          <button onClick={handleSave} disabled={isSaving} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5"><Save className="w-4 h-4"/> Commit Changes</button>
+        </div>
+      </div>
+      
+      {errorMsg && <div className="text-red-400 text-xs font-bold p-2 bg-red-500/10 border border-red-500/20 rounded">{errorMsg}</div>}
+      
+      <div className="relative">
+        <textarea
+           value={dbData}
+           onChange={e => setDbData(e.target.value)}
+           className="w-full h-96 bg-[#090b10] text-amber-300 font-mono text-xs p-4 rounded-xl border border-slate-800 outline-none focus:border-red-500/50 resize-y leading-relaxed"
+           spellCheck={false}
+        />
+        <div className="absolute top-2 right-4 text-[10px] text-slate-600 font-mono uppercase font-bold tracking-widest pointer-events-none">RAW JSON CORE</div>
+      </div>
+    </div>
+  );
+}
+
+export function DeploymentHub() {
+  const [activeTab, setActiveTab] = useState<"github" | "docker" | "fly" | "vercel">("github");
+
+  return (
+    <div className="bg-slate-950 border border-white/10 rounded-3xl p-6 flex flex-col gap-5">
+      <div className="border-b border-white/10 pb-4">
+        <h2 className="text-xl font-black text-white flex items-center gap-2"><Send className="w-5 h-5 text-indigo-400" /> Automated Site Build & Deployment Factory</h2>
+        <p className="text-xs text-slate-400 mt-1">Generate deployment core configurations instantly for GitHub uploading. Sync out to auto-launch production immediately.</p>
+      </div>
+
+      <div className="flex bg-slate-900 rounded-xl p-1 overflow-x-auto overflow-y-hidden">
+        <button onClick={() => setActiveTab("github")} className={`px-4 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${activeTab === 'github' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'}`}>GitHub Instructions</button>
+        <button onClick={() => setActiveTab("docker")} className={`px-4 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${activeTab === 'docker' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'}`}>Dockerfile Payload</button>
+        <button onClick={() => setActiveTab("fly")} className={`px-4 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${activeTab === 'fly' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'}`}>fly.toml Preset</button>
+        <button onClick={() => setActiveTab("vercel")} className={`px-4 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${activeTab === 'vercel' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'}`}>vercel.json Payload</button>
+      </div>
+
+      <div className="p-4 bg-[#050510] border border-white/5 rounded-2xl">
+        {activeTab === "github" && (
+          <div className="space-y-4 text-sm text-slate-300">
+             <h3 className="text-white font-bold mb-2">GitHub Production Upload Workflow:</h3>
+             <ol className="list-decimal pl-5 space-y-2 marker:text-indigo-400">
+                <li>Proceed to your standard GitHub web browser terminal.</li>
+                <li>Create an entirely new empty repository (public or private).</li>
+                <li>Go to the repository <strong className="text-white">"Upload Files"</strong> interface tab natively in the browser.</li>
+                <li>Obtain the source zip output and just drag + drop every single file and folder (including `package.json`, `server.ts`, `/src/`) inside. We've simplified the entire code to node-module-independent components.</li>
+                <li>Wait for GitHub commit syncing.</li>
+                <li>Go to platforms like Vercel, Netlify, Render, or Fly.io—log in via GitHub—click the repository you uploaded to—hit <strong className="text-white text-emerald-400">Deploy</strong>.</li>
+                <li>The newly created site will automatically detect and go live inside the platform's free ecosystem immediately via continuous hook relays.</li>
+             </ol>
+             <p className="mt-4 text-xs text-indigo-300/80 bg-indigo-900/20 p-3 outline-dashed outline-1 outline-indigo-500/30 rounded-lg">By executing these instructions, the source configuration bypasses all localized lockouts.</p>
+          </div>
+        )}
+        
+        {activeTab === "docker" && (
+          <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">Dockerfile</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px] text-white" onClick={() => navigator.clipboard.writeText(`FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\nEXPOSE 3000\nENV PORT=3000\nENV HOST=0.0.0.0\nCMD ["npm", "start"]`)}>COPY TEXT</button></p>
+            <pre className="text-xs font-mono text-cyan-300 p-4 bg-black rounded-xl overflow-auto select-all border border-cyan-900 shadow-inner">
+{`FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+ENV PORT=3000
+ENV HOST=0.0.0.0
+CMD ["npm", "start"]`}
+            </pre>
+          </div>
+        )}
+
+        {activeTab === "fly" && (
+          <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">fly.toml</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 text-white transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px]" onClick={() => navigator.clipboard.writeText(`app = "fatshan-relay"\nprimary_region = "sin"\n\n[build]\n  builder = "paketobuildpacks/builder:base"\n\n[env]\n  PORT = "3000"\n\n[[services]]\n  internal_port = 3000\n  protocol = "tcp"\n  [[services.ports]]\n    handlers = ["http"]\n    port = 80\n  [[services.ports]]\n    handlers = ["tls", "http"]\n    port = 443\n`)}>COPY TEXT</button></p>
+            <pre className="text-xs font-mono text-fuchsia-300 p-4 bg-black rounded-xl overflow-auto select-all border border-fuchsia-900 shadow-inner">
+{`app = "fatshan-relay"
+primary_region = "sin"
+
+[build]
+  builder = "paketobuildpacks/builder:base"
+
+[env]
+  PORT = "3000"
+
+[[services]]
+  internal_port = 3000
+  protocol = "tcp"
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443`}
+            </pre>
+          </div>
+        )}
+
+        {activeTab === "vercel" && (
+          <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">vercel.json</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 text-white transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px]" onClick={() => navigator.clipboard.writeText(`{\n  "version": 2,\n  "builds": [\n    {\n      "src": "package.json",\n      "use": "@vercel/node"\n    }\n  ],\n  "routes": [\n    {\n      "src": "/(.*)",\n      "dest": "server.ts"\n    }\n  ]\n}`)}>COPY TEXT</button></p>
+            <pre className="text-xs font-mono text-amber-300 p-4 bg-black rounded-xl overflow-auto select-all border border-amber-900 shadow-inner">
+{`{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.ts"
+    }
+  ]
+}`}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );

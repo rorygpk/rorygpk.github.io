@@ -10,7 +10,7 @@ import * as archiver from "archiver";
 dotenv.config();
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = 3000;
 const DB_FILE = path.join(process.cwd(), "db.json");
 
 app.use(express.json({ limit: "50mb" }));
@@ -564,6 +564,24 @@ app.post("/api/admin/save-settings", (req, res) => {
   if (pageBrowserChecks !== undefined) db.pageBrowserChecks = pageBrowserChecks;
   writeDB(db);
   res.json({ success: true });
+});
+
+// 9c. Administrator Raw DB Interaction
+app.get("/api/admin/db", (req, res) => {
+  res.json(readDB());
+});
+
+app.post("/api/admin/db", (req, res) => {
+  try {
+    const newDb = req.body;
+    if (typeof newDb !== 'object' || !newDb) {
+      return res.status(400).json({ error: "Invalid payload format" });
+    }
+    writeDB(newDb);
+    res.json({ success: true, message: "Database completely overwritten" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed saving RAW database structure" });
+  }
 });
 
 // 10. AI Customer Assistant Agent Core (Checks knowledge base & fallback to operator)

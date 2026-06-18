@@ -68,12 +68,13 @@ import {
   Smartphone,
   Maximize
 } from "lucide-react";
-import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState } from "./types";
+import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
-import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks } from "./components/AIExtensions";
+import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks, AdminDatabaseEditor, DeploymentHub } from "./components/AIExtensions";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
 import { encryptData, decryptData } from './lib/encryption';
+import { RichTextEditor } from "./components/RichTextEditor";
 
 import { VerificationScreen } from "./components/VerificationScreen";
 
@@ -221,6 +222,71 @@ export default function App() {
   const [composeFolder, setComposeFolder] = useState<"inbox" | "sent" | "draft">("sent");
   const [composeCategory, setComposeCategory] = useState<"work" | "personal">("work");
   const [aiReportMessage, setAiReportMessage] = useState<{ sensitivity?: string; summary?: string } | null>(null);
+
+  // Custom Templates & Personalized Signatures states
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [signatures, setSignatures] = useState<EmailSignature[]>([]);
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [editingSignature, setEditingSignature] = useState<EmailSignature | null>(null);
+
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const storedTemplates = localStorage.getItem("fatshan_email_templates");
+      if (storedTemplates) {
+        setTemplates(JSON.parse(storedTemplates));
+      } else {
+        // Initial mock templates
+        const initialTemplates: EmailTemplate[] = [
+          {
+            id: "t-1",
+            name: "Business Partnership Proposal",
+            subject: "Collaboration Proposal: Secure Integration with Fatshan Hub",
+            content: "<h2>Dear Partner,</h2><p>We are excited to propose a secure partnership utilizing our new multi-branch OWA console. Let us coordinate to optimize the systems safely.</p><p>Best regards,</p>"
+          },
+          {
+            id: "t-2",
+            name: "Routine Security Diagnostics",
+            subject: "Weekly Security Compliance Scan Status - CLEAR",
+            content: "<p><strong>System Diagnostics Scan Complete.</strong></p><p>We have performed diagnostic handshakes and verified human bypass configurations. No intrusions localized.</p>"
+          }
+        ];
+        setTemplates(initialTemplates);
+        localStorage.setItem("fatshan_email_templates", JSON.stringify(initialTemplates));
+      }
+
+      const storedSignatures = localStorage.getItem("fatshan_email_signatures");
+      if (storedSignatures) {
+        setSignatures(JSON.parse(storedSignatures));
+      } else {
+        // Initial mock signatures
+        const initialSignatures: EmailSignature[] = [
+          {
+            id: "s-1",
+            name: "CEO Standard Signature",
+            content: "<hr/><p style='font-size: 12px; color: #38bdf8;'><strong>Master Marcus Zhou</strong><br/>Chief Executive Administrator, FATSHAN POST<br/><span style='color: #94a3b8;'>Validation Code: FATSHAN POST</span></p>",
+            isDefault: true
+          }
+        ];
+        setSignatures(initialSignatures);
+        localStorage.setItem("fatshan_email_signatures", JSON.stringify(initialSignatures));
+      }
+    } catch (e) {
+      console.error("Error loading templates/signatures", e);
+    }
+  }, []);
+
+  // Save changes to local storage helper
+  const saveTemplates = (newTemplates: EmailTemplate[]) => {
+    setTemplates(newTemplates);
+    localStorage.setItem("fatshan_email_templates", JSON.stringify(newTemplates));
+  };
+
+  const saveSignatures = (newSignatures: EmailSignature[]) => {
+    setSignatures(newSignatures);
+    localStorage.setItem("fatshan_email_signatures", JSON.stringify(newSignatures));
+  };
+
 
   // Rory GPKOS state
   const [ideCode, setIdeCode] = useState<string>(
@@ -1084,6 +1150,82 @@ export default function App() {
     }
   };
 
+  // Custom Templates Handlers
+  const handleSaveTemplate = () => {
+    if (!editingTemplate) return;
+    if (!editingTemplate.name) {
+      alert("⚠️ Template name cannot be blank.");
+      return;
+    }
+    let newTemplatesList: EmailTemplate[];
+    const isEditingExisting = templates.some(t => t.id === editingTemplate.id);
+    if (isEditingExisting) {
+      newTemplatesList = templates.map(t => t.id === editingTemplate.id ? editingTemplate : t);
+    } else {
+      newTemplatesList = [...templates, editingTemplate];
+    }
+    saveTemplates(newTemplatesList);
+    setEditingTemplate(null);
+    alert("✓ Custom template saved successfully to Local Secure Vault!");
+  };
+
+  const handleDeleteTemplate = (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this email template permanently?")) return;
+    const newTemplatesList = templates.filter(t => t.id !== id);
+    saveTemplates(newTemplatesList);
+  };
+
+  // Custom Signatures Handlers
+  const handleSaveSignature = () => {
+    if (!editingSignature) return;
+    if (!editingSignature.name) {
+      alert("⚠️ Signature title cannot be blank.");
+      return;
+    }
+    let newSignaturesList: EmailSignature[];
+    const isEditingExisting = signatures.some(s => s.id === editingSignature.id);
+    if (isEditingExisting) {
+      newSignaturesList = signatures.map(s => s.id === editingSignature.id ? editingSignature : s);
+    } else {
+      newSignaturesList = [...signatures, editingSignature];
+    }
+
+    if (editingSignature.isDefault) {
+      newSignaturesList = newSignaturesList.map(s => s.id === editingSignature.id ? s : { ...s, isDefault: false });
+    }
+
+    saveSignatures(newSignaturesList);
+    setEditingSignature(null);
+    alert("✓ Personalized signature saved successfully to Local Secure Vault!");
+  };
+
+  const handleDeleteSignature = (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this personalized signature permanently?")) return;
+    const newSignaturesList = signatures.filter(s => s.id !== id);
+    saveSignatures(newSignaturesList);
+  };
+
+  const handleSetDefaultSignature = (id: string) => {
+    const newSignaturesList = signatures.map(s => ({
+      ...s,
+      isDefault: s.id === id
+    }));
+    saveSignatures(newSignaturesList);
+    alert("✓ Default signature preference updated.");
+  };
+
+  const openNewCompose = () => {
+    setComposeTo("");
+    setComposeSubject("");
+    const defaultSig = signatures.find(s => s.isDefault);
+    if (defaultSig) {
+      setComposeContent("<p><br/></p>" + defaultSig.content);
+    } else {
+      setComposeContent("");
+    }
+    setMailComposeOpen(true);
+  };
+
   // Filter Email list based on left conditions inside Outlook replica
   const filteredEmails = emails.filter((mailItem) => {
     // Basic folder filters
@@ -1883,12 +2025,7 @@ export default function App() {
                         Outlook OWA Desktop Suite
                       </span>
                       <button
-                        onClick={() => {
-                          setComposeTo("");
-                          setComposeSubject("");
-                          setComposeContent("");
-                          setMailComposeOpen(true);
-                        }}
+                        onClick={openNewCompose}
                         className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition"
                       >
                         <Plus className="h-3.5 w-3.5" />
@@ -2014,6 +2151,28 @@ export default function App() {
                             })}
                           </nav>
                         </div>
+
+                        <div>
+                          <div className="px-2 pb-1.5 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                            Settings
+                          </div>
+                          <nav className="space-y-1">
+                            <button
+                              onClick={() => {
+                                setOutlookFolder("templates_signatures");
+                                setSelectedEmail(null);
+                              }}
+                              className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between transition ${
+                                outlookFolder === "templates_signatures" ? "bg-cyan-500 text-slate-100 font-bold shadow-md bg-cyan-900" : "hover:bg-white/5"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Settings className="h-3.5 w-3.5" />
+                                <span>Templates & Signatures</span>
+                              </div>
+                            </button>
+                          </nav>
+                        </div>
                       </div>
 
                       <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl space-y-1">
@@ -2024,129 +2183,354 @@ export default function App() {
                     </aside>
 
                     {/* OWA Email list Pane (Middle) */}
-                    <div className="w-1/3 border-r border-slate-800 flex flex-col shrink-0 bg-slate-900/10 overflow-y-auto">
-                      {filteredEmails.length === 0 ? (
-                        <div className="p-8 text-center text-slate-400 text-xs">
-                          No mailbox records localized. Check other folders or senders.
+                    {outlookFolder === "templates_signatures" ? (
+                      /* CUSTOM TEMPLATES & SIGNATURES DASHBOARD VIEW */
+                      <div className="flex-grow p-6 overflow-y-auto space-y-6 text-left select-text bg-slate-900/10">
+                        <div className="border-b border-white/10 pb-4 mb-4">
+                          <h2 className="text-lg font-bold text-cyan-300">Templates & Personalized Signatures Vault</h2>
+                          <p className="text-xs text-slate-400">Design custom rich text email templates and quick-insert email signatures with real-time browser preview.</p>
                         </div>
-                      ) : (
-                        filteredEmails.map((mail) => (
-                          <div
-                            key={mail.id}
-                            onClick={() => setSelectedEmail(mail)}
-                            className={`p-3 border-b text-left transition select-none cursor-pointer border-slate-800 ${
-                              selectedEmail?.id === mail.id
-                                ? "bg-cyan-500/15 border-l-4 border-l-cyan-400"
-                                : "hover:bg-white/5"
-                            }`}
-                          >
-                            <div className="flex justify-between items-start gap-1 pb-1">
-                              <span className="text-xs font-bold truncate text-cyan-300">
-                                {mail.senderName}
-                              </span>
-                              <span className="text-[9px] text-slate-400 whitespace-nowrap">
-                                {new Date(mail.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                            <div className="text-xs font-semibold truncate text-white pb-0.5 flex items-center gap-1.5">
-                              {mail.isStarred && <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />}
-                              {mail.subject}
-                            </div>
-                            <p className="text-[11px] text-slate-400 line-clamp-2">
-                              {mail.content.replace(/<[^>]*>/g, "")}
-                            </p>
-                            {mail.tags && mail.tags.length > 0 && (
-                              <div className="flex gap-1 pt-1.5 flex-wrap">
-                                {mail.tags.map((tag) => (
-                                  <span key={tag} className="bg-slate-800 text-white text-[8px] px-1 py-0.2 rounded font-bold">
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
 
-                    {/* OWA Email Read Window Pane (Right) */}
-                    <div className="flex-grow p-4 overflow-y-auto flex flex-col justify-between">
-                      {selectedEmail ? (
-                        <div className="space-y-4 text-left">
-                          
-                          {/* Subject Header with Star / Delete action menu */}
-                          <div className="border-b border-white/10 pb-4">
-                            <div className="flex items-center justify-between gap-4 mb-2">
-                              <h3 className="text-sm font-bold text-cyan-300">
-                                {selectedEmail.subject}
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                          {/* Left Card: Custom Templates */}
+                          <div className="bg-slate-950/80 border border-white/10 p-5 rounded-2xl space-y-4">
+                            <div className="flex justify-between items-center">
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                                <FileText className="h-4 w-4" /> Custom Email Templates ({templates.length})
                               </h3>
-                              <div className="flex items-center gap-1 shrink-0">
-                                <button
-                                  onClick={() => handleMailAction(selectedEmail.id, "star")}
-                                  className="p-1 hover:bg-slate-800 text-amber-500 rounded"
-                                  title="Star email"
-                                >
-                                  <Star className={`h-4 w-4 ${selectedEmail.isStarred ? "fill-amber-400" : ""}`} />
-                                </button>
-                                <button
-                                  onClick={() => handleMailAction(selectedEmail.id, "move", "trash")}
-                                  className="p-1 hover:bg-slate-800 text-red-500 rounded"
-                                  title="Bin item"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </div>
+                              <button
+                                onClick={() => setEditingTemplate({
+                                  id: "temp-" + Date.now(),
+                                  name: "New Template " + (templates.length + 1),
+                                  subject: "Generic Subject Liaison Code...",
+                                  content: "<p>Write custom rich content here...</p>"
+                                })}
+                                className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3 py-1 rounded-xl text-[10px] transition"
+                              >
+                                + Create Template
+                              </button>
                             </div>
 
-                            <div className="flex items-center justify-between text-xs text-slate-400">
-                              <div>
-                                Sender: <strong className="text-slate-300">{selectedEmail.senderName}</strong>
-                                <span className="text-[10px] ml-1">({selectedEmail.senderUsername}@{selectedEmail.senderDomain})</span>
+                            {/* Templates editing workspace */}
+                            {editingTemplate ? (
+                              <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 space-y-3">
+                                <h4 className="text-xs font-bold text-white">
+                                  {templates.some(t => t.id === editingTemplate.id) ? "Modify Template Core" : "Draft New Template Core"}
+                                </h4>
+                                <div className="space-y-2">
+                                  <div>
+                                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Template Name (Internal Reference)</label>
+                                    <input
+                                      type="text"
+                                      value={editingTemplate.name}
+                                      onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
+                                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white"
+                                      placeholder="e.g. Weekly Coordination Briefing"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Default Email Subject Line</label>
+                                    <input
+                                      type="text"
+                                      value={editingTemplate.subject}
+                                      onChange={(e) => setEditingTemplate({ ...editingTemplate, subject: e.target.value })}
+                                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white"
+                                      placeholder="Default Subject Line"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">HTML Rich Template Body</label>
+                                    <RichTextEditor
+                                      value={editingTemplate.content}
+                                      onChange={(val) => setEditingTemplate({ ...editingTemplate, content: val })}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={handleSaveTemplate}
+                                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold px-4 py-1.5 rounded-xl text-[11px] transition"
+                                  >
+                                    Save Template
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingTemplate(null)}
+                                    className="bg-white/5 hover:bg-white/10 text-slate-300 px-4 py-1.5 rounded-xl text-[11px] transition"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
-                              <div>
-                                {new Date(selectedEmail.timestamp).toLocaleString()}
-                              </div>
+                            ) : null}
+
+                            {/* Templates active list */}
+                            <div className="space-y-2.5 max-h-[400px] overflow-y-auto">
+                              {templates.map(temp => (
+                                <div key={temp.id} className="p-3 bg-slate-900 border border-white/5 rounded-xl hover:border-white/15 transition text-xs space-y-1">
+                                  <div className="flex justify-between items-center">
+                                    <strong className="text-white text-xs">{temp.name}</strong>
+                                    <div className="flex gap-2 text-[10px]">
+                                      <button
+                                        onClick={() => setEditingTemplate(temp)}
+                                        className="text-cyan-400 hover:underline"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteTemplate(temp.id)}
+                                        className="text-red-400 hover:underline"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <p className="text-[10px] text-cyan-400/80 font-mono truncate">Subject: {temp.subject}</p>
+                                  <div className="text-[10px] text-zinc-400 line-clamp-2 bg-slate-950/60 p-2 rounded-lg" dangerouslySetInnerHTML={{ __html: temp.content.slice(0, 300) }} />
+                                </div>
+                              ))}
                             </div>
-                            <p className="text-[10px] text-slate-500 mt-1">
-                              Receiver: {selectedEmail.receiverUsername}@{selectedEmail.receiverDomain}
-                            </p>
                           </div>
 
-                          {/* Email Body HTML safely output */}
-                          <div
-                            className="text-xs space-y-2 text-slate-300 leading-relaxed max-w-none"
-                            dangerouslySetInnerHTML={{ __html: selectedEmail.content }}
-                          />
+                          {/* Right Card: Custom Signatures */}
+                          <div className="bg-slate-950/80 border border-white/10 p-5 rounded-2xl space-y-4">
+                            <div className="flex justify-between items-center">
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                                <UserCheck className="h-4 w-4" /> Personalized Signatures ({signatures.length})
+                              </h3>
+                              <button
+                                onClick={() => setEditingSignature({
+                                  id: "sig-" + Date.now(),
+                                  name: "New Signature " + (signatures.length + 1),
+                                  content: "<hr/><p style='font-size: 12px; color: #38bdf8;'><strong>Master Marcus Zhou</strong></p>",
+                                  isDefault: false
+                                })}
+                                className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3 py-1 rounded-xl text-[10px] transition"
+                              >
+                                + Create Signature
+                              </button>
+                            </div>
 
-                          {/* Dual Content Audit AI scanner info panel */}
-                          {selectedEmail.sensitivityReport && (
-                            <div className="mt-8 p-3 bg-cyan-950/20 border border-cyan-500/20 rounded-2xl flex items-start gap-3">
-                              <Cpu className="h-5 w-5 text-cyan-400 shrink-0 mt-0.5" />
-                              <div>
-                                <h4 className="text-[10px] uppercase font-bold text-cyan-400">
-                                  Server-Side AI Dual Threat Compliance Scan
+                            {/* Signatures editing workspace */}
+                            {editingSignature ? (
+                              <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 space-y-3">
+                                <h4 className="text-xs font-bold text-white">
+                                  {signatures.some(s => s.id === editingSignature.id) ? "Modify Signature Core" : "Draft New Signature Core"}
                                 </h4>
-                                <p className="text-[11px] text-slate-300 mt-1">
-                                  Policy Filter Report: <span className="font-bold text-white uppercase">{selectedEmail.sensitivityReport}</span>
+                                <div className="space-y-2">
+                                  <div>
+                                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Signature Title</label>
+                                    <input
+                                      type="text"
+                                      value={editingSignature.name}
+                                      onChange={(e) => setEditingSignature({ ...editingSignature, name: e.target.value })}
+                                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white"
+                                      placeholder="e.g. Standard Corporate Signature"
+                                    />
+                                  </div>
+                                  <div className="flex items-center gap-2 py-1">
+                                    <input
+                                      type="checkbox"
+                                      checked={editingSignature.isDefault}
+                                      onChange={(e) => setEditingSignature({ ...editingSignature, isDefault: e.target.checked })}
+                                      id="is-sig-def"
+                                    />
+                                    <label htmlFor="is-sig-def" className="text-[10px] text-zinc-300 select-none cursor-pointer">Set as default signature for all emails</label>
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">HTML Rich Signature Body</label>
+                                    <RichTextEditor
+                                      value={editingSignature.content}
+                                      onChange={(val) => setEditingSignature({ ...editingSignature, content: val })}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={handleSaveSignature}
+                                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold px-4 py-1.5 rounded-xl text-[11px] transition"
+                                  >
+                                    Save Signature
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingSignature(null)}
+                                    className="bg-white/5 hover:bg-white/10 text-slate-300 px-4 py-1.5 rounded-xl text-[11px] transition"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {/* Signatures active list */}
+                            <div className="space-y-2.5 max-h-[400px] overflow-y-auto">
+                              {signatures.map(sig => (
+                                <div key={sig.id} className="p-3 bg-slate-900 border border-white/5 rounded-xl hover:border-white/15 transition text-xs space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                      <strong className="text-white text-xs">{sig.name}</strong>
+                                      {sig.isDefault && (
+                                        <span className="bg-cyan-500/20 text-cyan-300 text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.2 rounded">
+                                          Default Signature
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex gap-2 text-[10px]">
+                                      {!sig.isDefault && (
+                                        <button
+                                          onClick={() => handleSetDefaultSignature(sig.id)}
+                                          className="text-cyan-400 hover:underline"
+                                        >
+                                          Set Default
+                                        </button>
+                                      )}
+                                      <button
+                                        onClick={() => setEditingSignature(sig)}
+                                        className="text-cyan-400 hover:underline"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteSignature(sig.id)}
+                                        className="text-red-400 hover:underline"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="text-[11px] bg-slate-950/60 p-2.5 rounded-lg border border-white/5 prose prose-invert prose-xs select-text" dangerouslySetInnerHTML={{ __html: sig.content }} />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-1/3 border-r border-slate-800 flex flex-col shrink-0 bg-slate-900/10 overflow-y-auto">
+                          {filteredEmails.length === 0 ? (
+                            <div className="p-8 text-center text-slate-400 text-xs">
+                              No mailbox records localized. Check other folders or senders.
+                            </div>
+                          ) : (
+                            filteredEmails.map((mail) => (
+                              <div
+                                key={mail.id}
+                                onClick={() => setSelectedEmail(mail)}
+                                className={`p-3 border-b text-left transition select-none cursor-pointer border-slate-800 ${
+                                  selectedEmail?.id === mail.id
+                                    ? "bg-cyan-500/15 border-l-4 border-l-cyan-400"
+                                    : "hover:bg-white/5"
+                                }`}
+                              >
+                                <div className="flex justify-between items-start gap-1 pb-1">
+                                  <span className="text-xs font-bold truncate text-cyan-300">
+                                    {mail.senderName}
+                                  </span>
+                                  <span className="text-[9px] text-slate-400 whitespace-nowrap">
+                                    {new Date(mail.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </div>
+                                <div className="text-xs font-semibold truncate text-white pb-0.5 flex items-center gap-1.5">
+                                  {mail.isStarred && <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />}
+                                  {mail.subject}
+                                </div>
+                                <p className="text-[11px] text-slate-400 line-clamp-2">
+                                  {mail.content.replace(/<[^>]*>/g, "")}
                                 </p>
-                                {selectedEmail.aiSummary && (
-                                  <p className="text-[10px] text-slate-400 italic mt-0.5">
-                                    Summary: {selectedEmail.aiSummary}
-                                  </p>
+                                {mail.tags && mail.tags.length > 0 && (
+                                  <div className="flex gap-1 pt-1.5 flex-wrap">
+                                    {mail.tags.map((tag) => (
+                                      <span key={tag} className="bg-slate-800 text-white text-[8px] px-1 py-0.2 rounded font-bold">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
+                            ))
+                          )}
+                        </div>
+
+                        {/* OWA Email Read Window Pane (Right) */}
+                        <div className="flex-grow p-4 overflow-y-auto flex flex-col justify-between">
+                          {selectedEmail ? (
+                            <div className="space-y-4 text-left">
+                              
+                              {/* Subject Header with Star / Delete action menu */}
+                              <div className="border-b border-white/10 pb-4">
+                                <div className="flex items-center justify-between gap-4 mb-2">
+                                  <h3 className="text-sm font-bold text-cyan-300">
+                                    {selectedEmail.subject}
+                                  </h3>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                      onClick={() => handleMailAction(selectedEmail.id, "star")}
+                                      className="p-1 hover:bg-slate-800 text-amber-500 rounded"
+                                      title="Star email"
+                                    >
+                                      <Star className={`h-4 w-4 ${selectedEmail.isStarred ? "fill-amber-400" : ""}`} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleMailAction(selectedEmail.id, "move", "trash")}
+                                      className="p-1 hover:bg-slate-800 text-red-500 rounded"
+                                      title="Bin item"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between text-xs text-slate-400">
+                                  <div>
+                                    Sender: <strong className="text-slate-300">{selectedEmail.senderName}</strong>
+                                    <span className="text-[10px] ml-1">({selectedEmail.senderUsername}@{selectedEmail.senderDomain})</span>
+                                  </div>
+                                  <div>
+                                    {new Date(selectedEmail.timestamp).toLocaleString()}
+                                  </div>
+                                </div>
+                                <p className="text-[10px] text-slate-500 mt-1">
+                                  Receiver: {selectedEmail.receiverUsername}@{selectedEmail.receiverDomain}
+                                </p>
+                              </div>
+
+                              {/* Email Body HTML safely output */}
+                              <div
+                                className="text-xs space-y-2 text-slate-300 leading-relaxed max-w-none"
+                                dangerouslySetInnerHTML={{ __html: selectedEmail.content }}
+                              />
+
+                              {/* Dual Content Audit AI scanner info panel */}
+                              {selectedEmail.sensitivityReport && (
+                                <div className="mt-8 p-3 bg-cyan-950/20 border border-cyan-500/20 rounded-2xl flex items-start gap-3">
+                                  <Cpu className="h-5 w-5 text-cyan-400 shrink-0 mt-0.5" />
+                                  <div>
+                                    <h4 className="text-[10px] uppercase font-bold text-cyan-400">
+                                      Server-Side AI Dual Threat Compliance Scan
+                                    </h4>
+                                    <p className="text-[11px] text-slate-300 mt-1">
+                                      Policy Filter Report: <span className="font-bold text-white uppercase">{selectedEmail.sensitivityReport}</span>
+                                    </p>
+                                    {selectedEmail.aiSummary && (
+                                      <p className="text-[10px] text-slate-400 italic mt-0.5">
+                                        Summary: {selectedEmail.aiSummary}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                            </div>
+                          ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 p-8">
+                              <Mail className="h-10 w-10 text-slate-500 mb-2" />
+                              <h3 className="text-xs font-bold text-slate-300">No Email Selected</h3>
+                              <p className="text-[11px] text-slate-500 mt-1">Select an item from the current middle OWA list pane index to review attachments & content scanning.</p>
                             </div>
                           )}
-
                         </div>
-                      ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 p-8">
-                          <Mail className="h-10 w-10 text-slate-500 mb-2" />
-                          <h3 className="text-xs font-bold text-slate-300">No Email Selected</h3>
-                          <p className="text-[11px] text-slate-500 mt-1">Select an item from the current middle OWA list pane index to review attachments & content scanning.</p>
-                        </div>
-                      )}
-                    </div>
+                      </>
+                    )}
 
                   </div>
                 </div>
@@ -2262,6 +2646,49 @@ export default function App() {
                   </div>
 
                   <form onSubmit={handleSendEmail} className="space-y-3 text-xs">
+                    {/* Quick Template and Signature Injectors */}
+                    <div className="grid grid-cols-2 gap-2 bg-white/5 p-2 rounded-2xl border border-white/5">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-cyan-400 mb-1">Apply Template</label>
+                        <select
+                          onChange={(e) => {
+                            const selectedId = e.target.value;
+                            const found = templates.find(t => t.id === selectedId);
+                            if (found) {
+                              setComposeSubject(found.subject);
+                              setComposeContent(found.content);
+                            }
+                            e.target.value = ""; // Reset
+                          }}
+                          className="w-full bg-slate-900 text-white rounded-xl border border-white/10 p-1 text-[10px] focus:outline-none"
+                        >
+                          <option value="">-- Choose Template --</option>
+                          {templates.map(t => (
+                            <option key={t.id} value={t.id}>{t.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-cyan-400 mb-1">Append Signature</label>
+                        <select
+                          onChange={(e) => {
+                            const selectedId = e.target.value;
+                            const found = signatures.find(s => s.id === selectedId);
+                            if (found) {
+                              setComposeContent(prev => prev + "<p><br/></p>" + found.content);
+                            }
+                            e.target.value = ""; // Reset
+                          }}
+                          className="w-full bg-slate-900 text-white rounded-xl border border-white/10 p-1 text-[10px] focus:outline-none"
+                        >
+                          <option value="">-- Choose Signature --</option>
+                          {signatures.map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-slate-400 font-semibold mb-1">To (Full credentials target address)</label>
                       <input
@@ -2285,14 +2712,11 @@ export default function App() {
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-400 font-semibold mb-1 font-mono">Content Body (Rich HTML compliant)</label>
-                      <textarea
-                        rows={6}
-                        placeholder="<h3>Rich content works</h3><p>Hi, standard verification code remains: FATSHAN POST.</p>"
+                      <label className="block text-slate-400 font-semibold mb-1 font-mono">Content Body (Rich RichTextEditor format)</label>
+                      <RichTextEditor
                         value={composeContent}
-                        onChange={(e) => setComposeContent(e.target.value)}
-                        required
-                        className="w-full bg-slate-900 border border-white/10 focus:border-cyan-500 focus:outline-none rounded-xl px-3 py-1.5 text-xs text-white font-mono"
+                        onChange={setComposeContent}
+                        placeholder="Type email body here..."
                       />
                     </div>
 
@@ -2322,7 +2746,7 @@ export default function App() {
 
                     <button
                       type="submit"
-                      className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold py-2 px-4 rounded-xl text-xs transition"
+                      className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold py-2 px-4 rounded-xl text-xs transition animate-pulse"
                     >
                       Process Server-Side AI Scan & Transmit
                     </button>
@@ -3302,20 +3726,9 @@ export default function App() {
                     const handleOpenBypassUrl = async (url: string) => {
                       setLoadingBypass(true);
                       setActiveBypassUrl(url);
-                      setBypassHtmlContent("");
-                      try {
-                        const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
-                        const data = await res.json();
-                        if (data.success && data.content) {
-                          setBypassHtmlContent(data.content);
-                        } else {
-                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
-                        }
-                      } catch (err) {
-                        setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out. Domestic node failed.</div>`);
-                      } finally {
+                      setTimeout(() => {
                         setLoadingBypass(false);
-                      }
+                      }, 400);
                     };
 
                     // Direct Action for URL Proxy
@@ -3508,9 +3921,9 @@ export default function App() {
                                           <div className="font-mono">Decrypting payload from destination headers...</div>
                                         </div>
                                       ) : (
-                                        <div className="flex-grow overflow-y-auto bg-slate-900/60 border border-white/5 rounded-2xl p-5 text-sm leading-relaxed text-slate-200 font-sans font-normal overflow-wrap-anywhere">
-                                          <h4 className="font-bold text-white mb-3 text-base">📄 极速代理阅读模式 (Decoded Safe Reader)</h4>
-                                          <div className="space-y-4 whitespace-pre-wrap select-text text-slate-300" dangerouslySetInnerHTML={{ __html: bypassHtmlContent.slice(0, 50000) }} />
+                                        <div className="flex-grow overflow-hidden bg-white/5 border border-white/10 rounded-2xl relative shadow-inner">
+                                          <iframe src={activeBypassUrl} className="w-full h-full border-0 bg-white" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" title="Outer Web Access" />
+                                          <div className="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur text-white text-[9px] px-2 py-1 rounded bg-black/50 pointer-events-none">Interactive Embedded Browser</div>
                                         </div>
                                       )}
                                     </div>
@@ -3947,20 +4360,9 @@ export default function App() {
                     const handleOpenBypassUrl = async (url: string) => {
                       setLoadingBypass(true);
                       setActiveBypassUrl(url);
-                      setBypassHtmlContent("");
-                      try {
-                        const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
-                        const data = await res.json();
-                        if (data.success && data.content) {
-                          setBypassHtmlContent(data.content);
-                        } else {
-                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
-                        }
-                      } catch (err) {
-                        setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out.</div>`);
-                      } finally {
+                      setTimeout(() => {
                         setLoadingBypass(false);
-                      }
+                      }, 400);
                     };
 
                     return (
@@ -4013,15 +4415,9 @@ export default function App() {
                                          <button onClick={() => window.open(activeBypassUrl, '_blank')} className="text-slate-500 hover:text-cyan-600 transition flex border border-slate-300 bg-white shadow-sm p-1.5 rounded-lg items-center gap-1.5 text-[10px] font-bold"><Share2 className="w-3.5 h-3.5" /> External</button>
                                        </div>
                                      </div>
-                                     <div className="flex-grow overflow-y-auto overflow-x-hidden text-slate-800 break-all p-0 selection:bg-cyan-200 selection:text-cyan-900 isolate">
-                                       {loadingBypass ? (
-                                          <div className="flex flex-col items-center justify-center p-10 h-full gap-4">
-                                            <RefreshCw className="w-8 h-8 text-cyan-600 animate-spin" />
-                                            <div className="text-xs font-bold text-slate-500 font-mono text-center">Parsing payload<br/><span className="text-[10px] text-slate-400 mt-1">Decrypting stream...</span></div>
-                                          </div>
-                                       ) : (
-                                          <div className="gpk-bypass-render scale-[0.85] origin-top-left w-[117.6%] p-4 min-h-full bg-white" dangerouslySetInnerHTML={{ __html: bypassHtmlContent }} />
-                                       )}
+                                     <div className="flex-grow overflow-hidden bg-slate-900 border-none relative isolate shadow-inner w-full h-full">
+                                       <iframe src={activeBypassUrl} className="w-full h-full border-0 bg-white" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" title="Outer Web Access" />
+                                       <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur text-white text-[9px] px-2 py-1 rounded pointer-events-none border border-white/10">Mobile iframe Embed</div>
                                      </div>
                                   </div>
                                ) : (
@@ -4827,6 +5223,8 @@ export default function App() {
         
         {currentHash === "#admin-subpages" && currentUser?.role === 'admin' && (
           <>
+            <AdminDatabaseEditor lang={lang} />
+            <DeploymentHub />
             <AdminSubpages lang={lang} systemState={systemState} setSystemState={setSystemState} />
             <AdminAIAccess lang={lang} systemState={systemState} setSystemState={setSystemState} />
             <AdminBrowserChecks lang={lang} systemState={systemState} setSystemState={setSystemState} />
@@ -4834,7 +5232,7 @@ export default function App() {
         )}
 
         {/* Dynamic Branch Pages mapping */}
-        {systemState.navPages?.filter(p => !p.isExternal).map(p => (
+        {systemState.navPages?.filter(p => !p.isExternal && p.isVisible).map(p => (
           currentHash === `#subpage-${p.id}` && <React.Fragment key={p.id}><DynamicSubPage page={p} lang={lang} /></React.Fragment>
         ))}
 

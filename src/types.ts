@@ -173,3 +173,18 @@ export interface SystemState {
     knowledgeBase: { question: string; answer: string }[];
   };
 }
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  content: string; // HTML formatted content
+}
+
+export interface EmailSignature {
+  id: string;
+  name: string;
+  content: string; // HTML formatted content
+  isDefault: boolean;
+}
+
