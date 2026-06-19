@@ -44,7 +44,8 @@ function readDB() {
     aiAuthorizedUsers: db.aiAuthorizedUsers || ["marvis_zhou2014"],
     pageBrowserChecks: db.pageBrowserChecks || [],
     settings: db.settings || { knowledgeBase: [] },
-    cryptoMessages: db.cryptoMessages || []
+    cryptoMessages: db.cryptoMessages || [],
+    cloudFiles: db.cloudFiles || []
   };
 }
 
