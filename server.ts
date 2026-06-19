@@ -49,6 +49,29 @@ function readDB() {
   };
 }
 
+// Google Auth Helper
+function decodeGoogleToken(token: string): string {
+  if (!token) return "";
+  let clean = token;
+  // Handle simulated tokens from GPKOS login
+  if (token.startsWith("SEC_TOKEN_")) {
+    return "MOCK_TOKEN_" + token.slice(10);
+  }
+  // Handle legacy base64-wrapped tokens if prefix present correctly
+  if (token.startsWith("SEC_")) {
+     try {
+       // Only try decoding if it looks like there might be something there
+       const slice = token.slice(4);
+       if (slice.length > 0) {
+         clean = Buffer.from(slice, 'base64').toString('utf8');
+       }
+     } catch (e) {
+       clean = token;
+     }
+  }
+  return clean.trim();
+}
+
 function writeDB(data: any) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
@@ -994,13 +1017,10 @@ app.post("/api/gmail/send", async (req, res) => {
   }
 
   try {
-    if (accessToken.includes('simulated_dummy_token')) {
+    const decodedToken = decodeGoogleToken(accessToken);
+    if (decodedToken.startsWith("MOCK_TOKEN_") || accessToken.includes('simulated_dummy_token')) {
         return res.json({ success: true, data: { id: Date.now().toString(), mock: true } });
     }
-
-    // Basic verification/decryption of the token. In real scenario, we use lib/encryption.ts
-    // For this demonstration, we assume accessToken is the raw or basic-encrypted token
-    const decodedToken = accessToken.startsWith('SEC_') ? Buffer.from(accessToken.slice(4), 'base64').toString('ascii') : accessToken;
 
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: decodedToken });
@@ -1016,7 +1036,7 @@ app.post("/api/gmail/send", async (req, res) => {
       "",
       message
     ];
-    const emailRaw = emailLines.join("\\n");
+    const emailRaw = emailLines.join("\n");
     const encodedEmail = Buffer.from(emailRaw).toString("base64").replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
     const response = await gmail.users.messages.send({
@@ -1038,19 +1058,19 @@ app.post("/api/gmail/inbox", async (req, res) => {
   const { accessToken } = req.body;
   if (!accessToken) return res.status(400).json({ error: "Missing Google Access Token" });
   try {
-    if (accessToken.includes('simulated_dummy_token')) {
-       // Return simulated data
-       return res.json({
-         success: true,
-         messages: [
-           { id: "1", subject: "Welcome to Global Access", from: "Google Services <noreply@google.com>", snippet: "Your domestic secure proxy is fully operative. You can now engage in global communications." },
-           { id: "2", subject: "Important Security Alert", from: "Security Team <security@google.com>", snippet: "We detected a new login from a secure internal node." },
-           { id: "3", subject: "Weekly Developer Digest", from: "Dev Updates <digest@google.com>", snippet: "Here are the top API updates for this week..." }
-         ]
-       });
+    const decodedToken = decodeGoogleToken(accessToken);
+    if (decodedToken.startsWith("MOCK_TOKEN_") || accessToken.includes('simulated_dummy_token')) {
+        // Return simulated data
+        return res.json({
+          success: true,
+          messages: [
+            { id: "1", subject: "Welcome to Global Access", from: "Google Services <noreply@google.com>", snippet: "Your domestic secure proxy is fully operative. You can now engage in global communications." },
+            { id: "2", subject: "Important Security Alert", from: "Security Team <security@google.com>", snippet: "We detected a new login from a secure internal node." },
+            { id: "3", subject: "Weekly Developer Digest", from: "Dev Updates <digest@google.com>", snippet: "Here are the top API updates for this week..." }
+          ]
+        });
     }
 
-    const decodedToken = accessToken.startsWith('SEC_') ? Buffer.from(accessToken.slice(4), 'base64').toString('ascii') : accessToken;
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: decodedToken });
     const gmail = google.gmail({ version: "v1", auth: oauth2Client });
@@ -1075,7 +1095,134 @@ app.post("/api/gmail/inbox", async (req, res) => {
   }
 });
 
-// 20. Global Search Proxy (Disguised unblocked search)
+// 21. Google Drive Sync (Secure Server-Side Fetching)
+app.post("/api/google/drive", async (req, res) => {
+  const { accessToken } = req.body;
+  if (!accessToken) return res.status(400).json({ error: "Missing Google Access Token" });
+  try {
+    const decodedToken = decodeGoogleToken(accessToken);
+    if (decodedToken.startsWith("MOCK_TOKEN_")) {
+      return res.json({
+        success: true,
+        files: [
+          { id: "m1", name: "Fatshan_Global_Strategy.pdf", mimeType: "application/pdf", webViewLink: "#" },
+          { id: "m2", name: "Node_Configuration.json", mimeType: "application/json", webViewLink: "#" }
+        ]
+      });
+    }
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: decodedToken });
+    const drive = google.drive({ version: "v3", auth: oauth2Client });
+    
+    const response = await drive.files.list({
+      pageSize: 20,
+      fields: "files(id, name, mimeType, webViewLink, iconLink)",
+      orderBy: "modifiedTime desc"
+    });
+    
+    res.json({ success: true, files: response.data.files });
+  } catch (error: any) {
+    console.error("Drive Error:", error);
+    res.status(500).json({ error: "Failed to fetch Drive items", details: error.message });
+  }
+});
+
+// 22. Google Calendar Sync
+app.post("/api/google/calendar", async (req, res) => {
+  const { accessToken } = req.body;
+  if (!accessToken) return res.status(400).json({ error: "Missing Google Access Token" });
+  try {
+    const decodedToken = decodeGoogleToken(accessToken);
+    if (decodedToken.startsWith("MOCK_TOKEN_")) {
+      return res.json({
+        success: true,
+        events: [
+          { id: "e1", summary: "Global Bridge Meeting", start: { dateTime: new Date().toISOString() }, location: "Secure Virtual Node" }
+        ]
+      });
+    }
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: decodedToken });
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+    
+    const response = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: new Date().toISOString(),
+      maxResults: 15,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+    
+    res.json({ success: true, events: response.data.items });
+  } catch (error: any) {
+    console.error("Calendar Error:", error);
+    res.status(500).json({ error: "Failed to fetch Calendar events", details: error.message });
+  }
+});
+
+// 23. YouTube Activity Sync
+app.post("/api/google/youtube", async (req, res) => {
+  const { accessToken } = req.body;
+  if (!accessToken) return res.status(400).json({ error: "Missing Google Access Token" });
+  try {
+    const decodedToken = decodeGoogleToken(accessToken);
+    if (decodedToken.startsWith("MOCK_TOKEN_")) {
+      return res.json({
+        success: true,
+        items: [
+          { id: "v1", snippet: { title: "Secure Proxy Overview", type: "video" } }
+        ]
+      });
+    }
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: decodedToken });
+    const youtube = google.youtube({ version: "v3", auth: oauth2Client });
+    
+    const response = await youtube.activities.list({
+      part: ["snippet", "contentDetails"],
+      mine: true,
+      maxResults: 15
+    });
+    
+    res.json({ success: true, activities: response.data.items });
+  } catch (error: any) {
+    console.error("YouTube Error:", error);
+    res.status(500).json({ error: "Failed to fetch YouTube activities", details: error.message });
+  }
+});
+
+// 24. Google People (Contacts) Sync
+app.post("/api/google/contacts", async (req, res) => {
+  const { accessToken } = req.body;
+  if (!accessToken) return res.status(400).json({ error: "Missing Google Access Token" });
+  try {
+    const decodedToken = decodeGoogleToken(accessToken);
+    if (decodedToken.startsWith("MOCK_TOKEN_")) {
+      return res.json({
+        success: true,
+        contacts: [
+          { resourceName: "people/1", names: [{ displayName: "Admin Fatshan" }], emailAddresses: [{ value: "admin@fatshan.com" }] }
+        ]
+      });
+    }
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: decodedToken });
+    const people = google.people({ version: "v1", auth: oauth2Client });
+    
+    const response = await people.people.connections.list({
+      resourceName: "people/me",
+      pageSize: 30,
+      personFields: "names,emailAddresses,photos"
+    });
+    
+    res.json({ success: true, contacts: response.data.connections });
+  } catch (error: any) {
+    console.error("People API Error:", error);
+    res.status(500).json({ error: "Failed to fetch Contacts", details: error.message });
+  }
+});
+
+// 25. Google Search Proxy (Disguised unblocked search)
 app.get("/api/search/proxy", async (req, res) => {
   const { q } = req.query;
   if (!q) return res.json({ results: [] });
@@ -1132,6 +1279,80 @@ app.get("/api/web/proxy", async (req, res) => {
     res.json({ success: true, url: targetUrl, content: html });
   } catch (err: any) {
     res.json({ success: false, error: err.message });
+  }
+});
+
+// 21b. HTML Secure Bypassing Gateway for direct iframe rendering
+app.get("/api/web/proxy-html", async (req, res) => {
+  const { url } = req.query;
+  if (!url) {
+    return res.status(400).send("<h3>Missing URL Parameter</h3>");
+  }
+  try {
+    let targetUrl = decodeURIComponent(url as string);
+    if (!/^https?:\/\//i.test(targetUrl)) {
+      if (targetUrl.includes(".") && !targetUrl.startsWith("http")) {
+        targetUrl = "https://" + targetUrl;
+      } else {
+        targetUrl = "https://www.google.com/search?q=" + encodeURIComponent(targetUrl);
+      }
+    }
+
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7"
+      }
+    });
+
+    let html = await response.text();
+
+    // Disable standard frame-breaking scripts
+    html = html.replace(/window\.top\./g, "window.self.");
+    html = html.replace(/top\.location/g, "self.location");
+
+    // Inject base tag in head so all relative resources are loaded perfectly relative to original hostname
+    const baseTag = `<base href="${targetUrl}">`;
+    if (html.includes("<head>")) {
+      html = html.replace("<head>", `<head>\n${baseTag}`);
+    } else if (html.includes("<HEAD>")) {
+      html = html.replace("<HEAD>", `<HEAD>\n${baseTag}`);
+    } else {
+      html = baseTag + html;
+    }
+
+    // Dynamic link routing: replace absolute and relative hyperlinks inside HTML so clicking them maintains proxy connection!
+    const linkRegex = /<a\s+([^>]*?)href="([^"]+?)"/gi;
+    html = html.replace(linkRegex, (match, before, link) => {
+      if (link.startsWith("#") || link.startsWith("javascript:") || link.startsWith("mailto:")) {
+        return match;
+      }
+      try {
+        const absoluteUrl = new URL(link, targetUrl).href;
+        return `<a ${before}href="/api/web/proxy-html?url=${encodeURIComponent(absoluteUrl)}"`;
+      } catch (e) {
+        return match;
+      }
+    });
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("X-Frame-Options", "ALLOWALL");
+    res.send(html);
+  } catch (err: any) {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.status(500).send(`
+      <div style="font-family:sans-serif; padding:2.5rem; background:#f8fafc; color:#1e293b; border-radius:16px; margin:2rem; border:1px solid #e2e8f0; max-width:600px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.05);">
+        <h2 style="color:#ef4444; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">🌐 Proxy Connection Failed</h2>
+        <p style="font-size:0.95rem; color:#475569; line-height:1.6;">GPKOS SSL secure tunnel gateway was unable to connect to the destination server.</p>
+        <div style="background:#f1f5f9; padding:1rem; border-radius:8px; font-family:monospace; font-size:0.85rem; color:#0f172a; margin:1.2rem 0; font-weight:bold;">
+          Error: ${err.message}
+        </div>
+        <p style="font-size:0.85rem; color:#64748b;">Target URL: <span style="font-family:monospace; font-weight:bold; color:#3b82f6;">${url}</span></p>
+        <hr style="border:0; border-top:1px solid #e2e8f0; margin:1.5rem 0;" />
+        <p style="font-size:0.8rem; color:#94a3b8; line-height:1.5;">Tips: Standard domains like wikipedia.org, types.ts, or custom generated website builders will load seamlessly. If accessing restricted endpoints, ensure the target server is listening.</p>
+      </div>
+    `);
   }
 });
 
@@ -1244,26 +1465,40 @@ app.post("/api/drive/delete", express.json({limit: '2mb'}), (req, res) => {
 
 // ==================== FRONT-END ROUTING MIDDLEWARES ====================
 
-async function startServer() {
-  if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else if (process.env.VERCEL !== "1") {
-    // Compile outputs bundle path serving (skip on Vercel, where static routing handles it)
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
+// API fallback to avoid serving index.html for undefined API routes
+app.all("/api/*", (req, res) => {
+  res.status(404).json({ error: "API Route Not Found" });
+});
 
-  if (process.env.VERCEL !== "1") {
+async function startServer() {
+  try {
+    if (process.env.NODE_ENV !== "production") {
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), "dist");
+      if (fs.existsSync(distPath)) {
+        app.use(express.static(distPath));
+        app.get("*", (req, res) => {
+          res.sendFile(path.join(distPath, "index.html"));
+        });
+      } else {
+        console.warn("Production mode but dist folder missing. Fallback to API-only mode.");
+      }
+    }
+
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`[Fatshan Post] Full Stack active on routing node http://localhost:${PORT}`);
+      console.log(`[Fatshan Post] Full Stack active on routing node http://0.0.0.0:${PORT}`);
     });
+  } catch (err) {
+    console.error("Critical server startup error:", err);
+    // Even if Vite fails, try to listen so API works
+    if (!(app as any).listening) {
+       app.listen(PORT, "0.0.0.0");
+    }
   }
 }
 

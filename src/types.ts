@@ -194,6 +194,38 @@ export interface EmailTemplate {
   content: string; // HTML formatted content
 }
 
+export interface GoogleDriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  webViewLink?: string;
+  iconLink?: string;
+}
+
+export interface GoogleCalendarEvent {
+  id: string;
+  summary: string;
+  start: { dateTime?: string; date?: string };
+  end: { dateTime?: string; date?: string };
+  location?: string;
+}
+
+export interface GoogleYouTubeActivity {
+  id: string;
+  snippet: {
+    title: string;
+    description: string;
+    thumbnails?: { medium?: { url: string } };
+  };
+}
+
+export interface GoogleContact {
+  resourceName: string;
+  names?: { displayName: string }[];
+  emailAddresses?: { value: string }[];
+  photos?: { url: string }[];
+}
+
 export interface EmailSignature {
   id: string;
   name: string;

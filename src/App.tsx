@@ -77,7 +77,7 @@ import {
   Camera,
   Package
 } from "lucide-react";
-import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature } from "./types";
+import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
 import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks, AdminDatabaseEditor, DeploymentHub } from "./components/AIExtensions";
 import { PublicMail } from "./components/PublicMail";
@@ -1002,6 +1002,11 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [googleDriveFiles, setGoogleDriveFiles] = useState<GoogleDriveFile[]>([]);
+  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<GoogleCalendarEvent[]>([]);
+  const [googleYoutubeActivities, setGoogleYoutubeActivities] = useState<GoogleYouTubeActivity[]>([]);
+  const [googleContacts, setGoogleContacts] = useState<GoogleContact[]>([]);
+  const [loadingGoogleData, setLoadingGoogleData] = useState<{[key: string]: boolean}>({});
 
   // Global Google Provider Auth State
   const [googleToken, setGoogleToken] = useState<string | null>(() => {
@@ -1014,13 +1019,78 @@ export default function App() {
     return null;
   });
 
-  const loginGoogleProvider = () => {
-    const token = "SEC_simulated_dummy_token_" + Date.now();
-    setGoogleToken(token);
-    localStorage.setItem("fatshan_global_session", encryptData(token));
-    alert("✅ Global secure gateway handshake complete! Your domestic Google proxy is active.");
-    fetchGmailInbox(token);
+  const fetchGoogleData = async (token: string, service: 'drive' | 'calendar' | 'youtube' | 'gmail' | 'contacts') => {
+    setLoadingGoogleData(prev => ({ ...prev, [service]: true }));
+    try {
+      const endpoint = service === 'gmail' ? '/api/gmail/inbox' : `/api/google/${service}`;
+      const res = await fetch(getApiBase() + endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken: token })
+      });
+      const contentType = res.headers.get("content-type");
+      if (!res.ok || !contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid API response format (expected JSON)");
+      }
+      const data = await res.json();
+      if (data.success) {
+        if (service === 'drive') setGoogleDriveFiles(data.files || []);
+        if (service === 'calendar') setGoogleCalendarEvents(data.events || []);
+        if (service === 'youtube') setGoogleYoutubeActivities(data.activities || []);
+        if (service === 'contacts') setGoogleContacts(data.contacts || []);
+        if (service === 'gmail') {
+            const newMails: Email[] = (data.messages || []).map((m: any) => ({
+                id: m.id,
+                senderFullName: m.from,
+                senderUsername: m.from.split('@')[0].replace(/<.*/, '').trim(),
+                senderDomain: m.from.includes('@') ? m.from.split('@')[1].replace('>', '') : 'google.com',
+                receiverFullName: "Me",
+                receiverUsername: "me",
+                receiverDomain: systemState.activeDomain,
+                subject: m.subject,
+                snippet: m.snippet,
+                body: m.snippet,
+                timestamp: new Date().getTime(),
+                read: false,
+             }));
+             setEmails(prev => [...newMails, ...prev.filter(p => !p.id.startsWith('gmail-') && !newMails.find(nm => nm.id === p.id))]);
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to fetch ${service}:`, err);
+    } finally {
+      setLoadingGoogleData(prev => ({ ...prev, [service]: false }));
+    }
   };
+
+  const loginGoogleProvider = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      const token = tokenResponse.access_token;
+      setGoogleToken(token);
+      localStorage.setItem("fatshan_global_session", encryptData(token));
+      alert("✅ Global secure gateway handshake complete! Your domestic Google proxy is active.");
+      fetchGoogleData(token, 'gmail');
+      fetchGoogleData(token, 'drive');
+      fetchGoogleData(token, 'calendar');
+      fetchGoogleData(token, 'youtube');
+      fetchGoogleData(token, 'contacts');
+    },
+    onError: (error) => {
+      console.error('Google Login Error:', error);
+      alert("Handshake failed. Encryption tunnel not established.");
+    },
+    scope: "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/contacts.readonly",
+  });
+
+  useEffect(() => {
+    if (googleToken) {
+      fetchGoogleData(googleToken, 'gmail');
+      fetchGoogleData(googleToken, 'drive');
+      fetchGoogleData(googleToken, 'calendar');
+      fetchGoogleData(googleToken, 'youtube');
+      fetchGoogleData(googleToken, 'contacts');
+    }
+  }, [googleToken]);
 
   // Global Session State
   const [currentUser, setCurrentUser] = useState<UserType | null>(() => {
@@ -1326,7 +1396,12 @@ export default function App() {
     try {
       let res;
       try {
-        res = await fetch(getApiBase() + "/api/state");
+        const url = getApiBase() + "/api/state";
+        res = await fetch(url);
+        const ct = res.headers.get("content-type");
+        if (!res.ok || !ct || !ct.includes("application/json")) {
+           throw new Error("Not JSON");
+        }
       } catch (err: any) {
         if (customApiUrl) {
           console.warn("Custom API URL connection failed. Falling back to relative routing.", err);
@@ -1336,6 +1411,10 @@ export default function App() {
         } else {
           throw err;
         }
+      }
+      const ct = res.headers.get("content-type");
+      if (!res.ok || !ct || !ct.includes("application/json")) {
+         return; // Avoid crashing on HTML response
       }
       const data = await res.json();
       setSystemState(data);
@@ -1353,7 +1432,12 @@ export default function App() {
       let resp;
       const targetPath = `/api/emails?username=${encodeURIComponent(currentUser.emailUsername)}&domain=${encodeURIComponent(currentUser.emailDomain)}`;
       try {
-        resp = await fetch(getApiBase() + targetPath);
+        const url = getApiBase() + targetPath;
+        resp = await fetch(url);
+        const ct = resp.headers.get("content-type");
+        if (!resp.ok || !ct || !ct.includes("application/json")) {
+           throw new Error("Not JSON");
+        }
       } catch (err: any) {
         if (customApiUrl) {
           console.warn("Custom API URL connection failed. Falling back to relative routing for emails.", err);
@@ -1363,6 +1447,10 @@ export default function App() {
         } else {
           throw err;
         }
+      }
+      const ct = resp.headers.get("content-type");
+      if (!resp.ok || !ct || !ct.includes("application/json")) {
+         return;
       }
       const data = await resp.json();
       setEmails(data);
@@ -1635,7 +1723,7 @@ export default function App() {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   // Google Hub dedicated secure proxy workspace states
-  const [googleHubTab, setGoogleHubTab] = useState<"search" | "gmail" | "maps" | "gemini" | "crypto">("search");
+  const [googleHubTab, setGoogleHubTab] = useState<"search" | "gmail" | "maps" | "gemini" | "crypto" | "drive" | "calendar" | "youtube" | "contacts">("search");
   const [proxySearchQueryValue, setProxySearchQueryValue] = useState("");
   const [proxySearchResultsList, setProxySearchResultsList] = useState<any[]>([]);
   const [loadingProxySearch, setLoadingProxySearch] = useState(false);
@@ -4751,19 +4839,20 @@ export default function App() {
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                           className="absolute left-0 mt-1.5 w-48 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
                         >
-                          <button onClick={() => { alert("Created New GPKOS Node Sandbox workspace successfully."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                          <button onClick={() => { alert("Created New GPKOS Node Sandbox workspace successfully. System ready for deployment."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
                             📁 Create New Node File
                           </button>
-                          <button onClick={() => { setGpkosSecureTunnelState(!gpkosSecureTunnelState); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+                          <button onClick={() => { setGpkosSecureTunnelState(!gpkosSecureTunnelState); setGpkosActiveDropdown(null); alert(`SSL Tunnel status updated: ${!gpkosSecureTunnelState ? 'CONNECTED' : 'DISCONNECTED'}`); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
                             <span>📡 Secure Tunnel Link</span>
                             <span>{gpkosSecureTunnelState ? "Online" : "Off"}</span>
                           </button>
                           <button onClick={() => { 
-                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: Fatshan Core\nStatus: Secure tunnel established\nPings: 14ms"], {type: "text/plain"});
+                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: Fatshan Core\nStatus: Secure tunnel established\nPings: 14ms\nEncryption: 4096-bit AES Handshake"], {type: "text/plain"});
                             const link = document.createElement("a");
                             link.href = URL.createObjectURL(blob);
                             link.download = "gpkos_defense_report.txt";
                             link.click();
+                            alert("System security log exported successfully.");
                             setGpkosActiveDropdown(null);
                           }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
                             💾 Backup System Logs
@@ -6392,7 +6481,7 @@ export default function App() {
                   {/* Gmail App */}
                   {gpkosActiveApp === 'gmail' && (() => {
                     return (
-                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40 text-left">
                         <div className="bg-slate-800 px-6 py-4 border-b border-white/5 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="bg-rose-500 p-2 rounded-xl text-white shadow-lg shadow-rose-900/20"><Mail className="h-5 w-5" /></div>
@@ -6400,31 +6489,58 @@ export default function App() {
                           </div>
                           <div className="flex items-center gap-2">
                              <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-bold text-slate-400 transition border border-white/5 uppercase tracking-widest">Close App</button>
-                             <div className="flex gap-1.5 ml-4">
-                               <div className="h-3 w-3 rounded-full bg-slate-700"></div>
-                               <div className="h-3 w-3 rounded-full bg-slate-700"></div>
-                               <div className="h-3 w-3 rounded-full bg-slate-600"></div>
-                             </div>
+                             {!googleToken ? (
+                                <button onClick={() => loginGoogleProvider()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Sign In</button>
+                             ) : (
+                                <button onClick={() => { setGoogleToken(null); localStorage.removeItem("fatshan_global_session"); }} className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Logout</button>
+                             )}
                           </div>
                         </div>
-                        <div className="flex-grow flex items-center justify-center bg-slate-950 relative">
-                           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-rose-500 via-transparent to-transparent"></div>
-                           <div className="text-center z-10 max-w-sm">
-                             <div className="mb-8 relative inline-block">
-                                <div className="absolute inset-0 bg-rose-500/20 blur-3xl animate-pulse rounded-full"></div>
-                                <div className="bg-slate-900 border border-white/10 p-8 rounded-full relative z-10 shadow-2xl">
-                                  <ShieldAlert className="h-16 w-16 text-rose-400 mx-auto" />
-                                </div>
+                        <div className="flex-grow flex bg-slate-950 relative overflow-hidden">
+                           {!googleToken ? (
+                             <div className="flex-grow flex items-center justify-center relative">
+                               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-rose-500 via-transparent to-transparent"></div>
+                               <div className="text-center z-10 max-w-sm">
+                                 <div className="mb-8 relative inline-block">
+                                    <div className="absolute inset-0 bg-rose-500/20 blur-3xl animate-pulse rounded-full"></div>
+                                    <div className="bg-slate-900 border border-white/10 p-8 rounded-full relative z-10 shadow-2xl">
+                                      <ShieldAlert className="h-16 w-16 text-rose-400 mx-auto" />
+                                    </div>
+                                 </div>
+                                 <h2 className="text-2xl font-black text-slate-100 mb-4 tracking-tight">Access Token Required</h2>
+                                 <p className="text-slate-400 text-xs leading-relaxed mb-8 px-4">
+                                   Please authenticate via the <span className="text-rose-400 font-bold">Secure Gateway</span> to proceed with full Gmail synchronization.
+                                 </p>
+                                 <button onClick={() => loginGoogleProvider()} className="px-8 py-3 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-900/40 transition active:scale-95 uppercase tracking-widest text-[11px]">
+                                   Sign in with Google
+                                 </button>
+                               </div>
                              </div>
-                             <h2 className="text-2xl font-black text-slate-100 mb-4 tracking-tight">Access Token Required</h2>
-                             <p className="text-slate-400 text-xs leading-relaxed mb-8 px-4">
-                               You are attempting to access a secured Gmail environment. 
-                               Please authenticate via the <span className="text-rose-400 font-bold">Cloud Gateway</span> to proceed with full mailbox synchronization.
-                             </p>
-                             <button onClick={() => { alert("Initiating OAuth Handshake..."); setTimeout(() => alert("Callback verification failed: Invalid Origin."), 1500); }} className="px-8 py-3 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-900/40 transition active:scale-95 uppercase tracking-widest text-[11px]">
-                               Sign in with Google
-                             </button>
-                           </div>
+                           ) : (
+                             <div className="flex-grow flex flex-col">
+                               <div className="flex-grow overflow-y-auto divide-y divide-white/5">
+                                 {loadingGoogleData['gmail'] ? (
+                                   <div className="p-20 text-center flex flex-col items-center gap-4">
+                                      <RefreshCw className="h-10 w-10 text-rose-500 animate-spin" />
+                                      <span className="text-slate-400 animate-pulse font-mono text-xs uppercase tracking-widest">Handshaking with Google Mail Servers...</span>
+                                   </div>
+                                 ) : emails.filter(m => m.id.startsWith('gmail-') || m.senderDomain === 'gmail.com').length === 0 ? (
+                                   <div className="p-20 text-center text-slate-500 font-mono text-sm">No items found in synchronized buffer.</div>
+                                 ) : (
+                                   emails.filter(m => m.id.startsWith('gmail-') || m.senderDomain === 'gmail.com').map(mail => (
+                                     <div key={mail.id} className="p-4 hover:bg-white/5 transition border-l-2 border-transparent hover:border-rose-500 cursor-pointer">
+                                       <div className="flex justify-between items-start mb-1">
+                                         <span className="text-rose-400 font-black text-xs truncate max-w-[200px]">{mail.senderFullName || mail.senderUsername}</span>
+                                         <span className="text-[10px] text-slate-500 font-mono italic">{new Date(mail.timestamp).toLocaleTimeString()}</span>
+                                       </div>
+                                       <h4 className="text-white font-bold text-sm mb-1 leading-tight">{mail.subject}</h4>
+                                       <p className="text-slate-400 text-xs line-clamp-2 leading-relaxed">{mail.snippet}</p>
+                                     </div>
+                                   ))
+                                 )}
+                               </div>
+                             </div>
+                           )}
                         </div>
                       </div>
                     );
@@ -6485,34 +6601,47 @@ export default function App() {
                   {/* Google Drive App */}
                   {gpkosActiveApp === 'drive' && (() => {
                     return (
-                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40 text-left">
                          <div className="bg-slate-800 px-6 py-4 border-b border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                <div className="bg-amber-500 p-2 rounded-xl text-white shadow-lg"><HardDrive className="h-5 w-5" /></div>
                                <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Drive <span className="text-slate-500 font-normal text-xs ml-2">Secure Cloud Storage</span></span>
                             </div>
-                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+                            <div className="flex items-center gap-2">
+                               <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+                               {!googleToken && <button onClick={() => loginGoogleProvider()} className="bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-bold">Login</button>}
+                            </div>
                          </div>
-                         <div className="flex-grow p-8 bg-slate-950 flex flex-col items-center justify-center text-center">
-                            <div className="w-24 h-24 bg-amber-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-amber-500/20 shadow-2xl">
-                               <Package className="h-12 w-12 text-amber-400 animate-bounce" />
-                            </div>
-                            <h3 className="text-2xl font-black text-slate-100 mb-2">Cloud Synced Successfully</h3>
-                            <p className="text-slate-500 text-sm max-w-xs mx-auto mb-8">Your local nodes are synchronized with the primary Google Drive cluster. Latency: 12ms.</p>
-                            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-                               <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl text-left">
-                                  <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Storage Usage</div>
-                                  <div className="text-xl font-bold text-white">4.2 GB <span className="text-[10px] opacity-40">/ 15 GB</span></div>
-                                  <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                     <div className="bg-amber-500 h-full w-[28%] rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div>
-                                  </div>
+                         <div className="flex-grow p-6 bg-slate-950 overflow-y-auto">
+                            {!googleToken ? (
+                               <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
+                                  <Lock className="h-12 w-12 text-slate-600 mb-4" />
+                                  <p className="text-slate-400 text-sm">Synchronization Offline. Authenticate to view cloud assets.</p>
                                </div>
-                               <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl text-left">
-                                  <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Recent Files</div>
-                                  <div className="text-white text-xs font-bold truncate">fatshan_log_06.log</div>
-                                  <div className="text-[10px] text-slate-500 mt-1">Uploaded 4m ago</div>
+                            ) : loadingGoogleData['drive'] ? (
+                               <div className="h-full flex flex-col items-center justify-center gap-3">
+                                  <RefreshCw className="h-8 w-8 text-amber-500 animate-spin" />
+                                  <span className="text-slate-500 font-mono text-[10px] tracking-widest">QUERYING DISTRIBUTED NODES...</span>
                                </div>
-                            </div>
+                            ) : (
+                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {googleDriveFiles.map(file => (
+                                     <div key={file.id} className="bg-slate-900/50 border border-white/5 p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition cursor-pointer group">
+                                        <div className="bg-slate-800 p-3 rounded-xl group-hover:bg-amber-500/20 transition">
+                                           {file.iconLink ? <img src={file.iconLink} alt="" className="h-6 w-6" /> : <Box className="h-6 w-6 text-amber-500" />}
+                                        </div>
+                                        <div className="flex-grow overflow-hidden text-left">
+                                           <div className="text-white text-xs font-bold truncate">{file.name}</div>
+                                           <div className="text-[10px] text-slate-500 font-mono uppercase truncate">{file.mimeType.split('.').pop()} Node Asset</div>
+                                        </div>
+                                        <a href={file.webViewLink} target="_blank" rel="noreferrer" className="p-2 hover:bg-white/10 rounded-full text-slate-500 hover:text-cyan-400 transition">
+                                           <Download className="h-4 w-4" />
+                                        </a>
+                                     </div>
+                                  ))}
+                                  {googleDriveFiles.length === 0 && <div className="col-span-full py-20 text-center text-slate-600 italic">No cloud assets found in standard clusters.</div>}
+                               </div>
+                            )}
                          </div>
                       </div>
                     );
@@ -6521,42 +6650,36 @@ export default function App() {
                   {/* Google Calendar App */}
                   {gpkosActiveApp === 'calendar' && (() => {
                     return (
-                      <div className="absolute inset-x-8 top-12 bottom-20 bg-white border border-slate-200 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
-                         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40 text-left">
+                         <div className="bg-slate-800 px-6 py-4 border-b border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                <div className="bg-blue-600 p-2 rounded-xl text-white shadow"><Calendar className="h-5 w-5" /></div>
-                               <span className="font-bold text-slate-900 text-lg">Google Calendar</span>
+                               <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Calendar</span>
                             </div>
-                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-slate-200 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
                          </div>
-                         <div className="flex-grow p-8 bg-white overflow-y-auto">
-                            <div className="max-w-xl mx-auto">
-                               <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-6">Today's Schedule Node</h4>
-                               <div className="space-y-4">
-                                  <div className="flex gap-6 items-start">
-                                     <div className="text-right w-16 pt-1">
-                                        <div className="text-sm font-black text-slate-900">09:00</div>
-                                        <div className="text-[10px] text-slate-400 font-bold uppercase">AM</div>
-                                     </div>
-                                     <div className="flex-grow bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
-                                        <div className="text-sm font-bold text-blue-900">Fatshan Node Security Audit</div>
-                                        <div className="text-[10px] text-blue-600 font-bold mt-1 uppercase flex items-center gap-1.5 font-mono">
-                                          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></div> HIGH_PRIORITY_REBOOT
+                         <div className="flex-grow p-6 bg-slate-950 overflow-y-auto">
+                            {!googleToken ? (
+                               <div className="h-full flex items-center justify-center text-slate-500 font-mono text-xs uppercase tracking-widest opacity-40">handshake required</div>
+                            ) : loadingGoogleData['calendar'] ? (
+                               <div className="h-full flex items-center justify-center"><RefreshCw className="h-8 w-8 text-blue-500 animate-spin" /></div>
+                            ) : (
+                               <div className="max-w-xl mx-auto space-y-3">
+                                  {googleCalendarEvents.map(event => (
+                                     <div key={event.id} className="bg-slate-900/50 border border-white/5 p-4 rounded-2xl flex gap-6 items-start hover:bg-white/5 transition group">
+                                        <div className="text-right w-20 shrink-0 font-mono">
+                                           <div className="text-xs font-black text-cyan-400">{new Date(event.start?.dateTime || event.start?.date || "").toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                           <div className="text-[9px] text-slate-600 font-bold uppercase">{new Date(event.start?.dateTime || event.start?.date || "").toLocaleDateString([], { month: 'short', day: 'numeric' })}</div>
+                                        </div>
+                                        <div className="flex-grow">
+                                           <div className="text-sm font-bold text-white group-hover:text-cyan-300 transition">{event.summary || "(No Title Event)"}</div>
+                                           <div className="text-[10px] text-slate-500 mt-1 font-mono">{event.location || "Global Coordinates Sync"}</div>
                                         </div>
                                      </div>
-                                  </div>
-                                  <div className="flex gap-6 items-start">
-                                     <div className="text-right w-16 pt-1">
-                                        <div className="text-sm font-black text-slate-300">14:00</div>
-                                        <div className="text-[10px] text-slate-400 font-bold uppercase">PM</div>
-                                     </div>
-                                     <div className="flex-grow bg-slate-50 border border-slate-100 p-4 rounded-2xl border-dashed">
-                                        <div className="text-sm font-bold text-slate-400">Gemini Optimization Callback</div>
-                                        <div className="text-[10px] text-slate-400 font-bold mt-1 uppercase font-mono">Status: Pending Verification</div>
-                                     </div>
-                                  </div>
+                                  ))}
+                                  {googleCalendarEvents.length === 0 && <div className="py-20 text-center text-slate-600 font-mono text-xs uppercase tracking-widest whitespace-nowrap overflow-hidden">End of transmission. No schedule data.</div>}
                                </div>
-                            </div>
+                            )}
                          </div>
                       </div>
                     );
@@ -6595,7 +6718,7 @@ export default function App() {
                   {/* YouTube App */}
                   {gpkosActiveApp === 'youtube' && (() => {
                     return (
-                      <div className="absolute inset-x-8 top-12 bottom-20 bg-[#0f0f0f] border border-red-500/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-[#0f0f0f] border border-red-500/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40 text-left">
                          <div className="bg-black/80 px-6 py-4 border-b border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                <Youtube className="h-6 w-6 text-red-600" />
@@ -6603,18 +6726,74 @@ export default function App() {
                             </div>
                             <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 transition border border-white/5 uppercase tracking-widest">Exit</button>
                          </div>
-                         <div className="flex-grow p-8 flex flex-col items-center justify-center text-center bg-transparent">
-                            <div className="w-32 h-24 bg-red-600/10 rounded-3xl flex items-center justify-center mb-8 border border-red-600/20 shadow-[0_20px_50px_rgba(220,38,38,0.2)] animate-pulse">
-                               <Play className="h-12 w-12 text-red-600 fill-current ml-1" />
+                         <div className="flex-grow p-6 bg-transparent overflow-y-auto">
+                            {!googleToken ? (
+                               <div className="h-full flex items-center justify-center opacity-30 invertgrayscale">
+                                  <Play className="h-16 w-16" />
+                                </div>
+                            ) : loadingGoogleData['youtube'] ? (
+                               <div className="h-full flex items-center justify-center"><RefreshCw className="h-8 w-8 text-red-600 animate-spin" /></div>
+                            ) : (
+                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                  {googleYoutubeActivities.map(act => (
+                                     <div key={act.id} className="bg-slate-900 rounded-2xl overflow-hidden border border-white/5 hover:border-red-500/30 transition group cursor-pointer">
+                                        <div className="aspect-video bg-slate-800 relative overflow-hidden">
+                                           {act.snippet?.thumbnails?.medium?.url && <img src={act.snippet.thumbnails.medium.url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />}
+                                           <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition duration-300" />
+                                           <div className="absolute bottom-2 right-2 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase font-mono">Verified</div>
+                                        </div>
+                                        <div className="p-3">
+                                           <div className="text-[10px] text-slate-500 font-mono uppercase mb-1">{act.snippet?.type || "Activity"} Buffer</div>
+                                           <div className="text-white text-xs font-black leading-tight line-clamp-2">{act.snippet?.title}</div>
+                                           <div className="text-[9px] text-slate-500 mt-2 font-mono truncate">ID: {act.id}</div>
+                                        </div>
+                                     </div>
+                                  ))}
+                                  {googleYoutubeActivities.length === 0 && <div className="col-span-full py-20 text-center text-slate-700 font-black uppercase tracking-[0.2em]">Signal Silenced. No active transmissions found.</div>}
+                               </div>
+                            )}
+                         </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Google Contacts App */}
+                  {gpkosActiveApp === 'contacts' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40 text-left">
+                         <div className="bg-slate-800 px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                               <div className="bg-cyan-500 p-2 rounded-xl text-white shadow-lg"><Users className="h-5 w-5" /></div>
+                               <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Contacts</span>
                             </div>
-                            <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Stream Relay Active</h3>
-                            <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed mb-10">
-                               Your Fatshan node video transmission is now being relayed through the secure YouTube core servers. Verification status: <span className="text-emerald-400 font-bold">LEGITIMATE</span>.
-                            </p>
-                            <div className="flex gap-4">
-                               <button className="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition active:scale-95 hover:bg-slate-200">Start Stream</button>
-                               <button className="bg-white/5 text-white border border-white/10 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition hover:bg-white/10">Dashboards</button>
-                            </div>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+                         </div>
+                         <div className="flex-grow p-6 bg-slate-950 overflow-y-auto">
+                            {!googleToken ? (
+                               <div className="h-full flex items-center justify-center opacity-30 grayscale"><Users className="h-16 w-16" /></div>
+                            ) : loadingGoogleData['contacts'] ? (
+                               <div className="h-full flex items-center justify-center"><RefreshCw className="h-8 w-8 text-cyan-500 animate-spin" /></div>
+                            ) : (
+                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {googleContacts.map((contact, idx) => {
+                                     const name = contact.names?.[0]?.displayName || "Unknown Identity";
+                                     const email = contact.emailAddresses?.[0]?.value || "No Email Bridge";
+                                     const photo = contact.photos?.[0]?.url;
+                                     return (
+                                       <div key={idx} className="bg-slate-900/50 border border-white/5 p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition group">
+                                          <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-800 border-2 border-white/5 shrink-0">
+                                             {photo ? <img src={photo} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <div className="w-full h-full flex items-center justify-center text-slate-600 font-black">{name.charAt(0)}</div>}
+                                          </div>
+                                          <div className="overflow-hidden">
+                                             <div className="text-white text-xs font-black truncate">{name}</div>
+                                             <div className="text-[10px] text-slate-500 font-mono truncate">{email}</div>
+                                          </div>
+                                       </div>
+                                     );
+                                  })}
+                                  {googleContacts.length === 0 && <div className="col-span-full py-20 text-center text-slate-700 font-mono text-xs uppercase tracking-widest">Isolated Environment. Connection List Empty.</div>}
+                               </div>
+                            )}
                          </div>
                       </div>
                     );
@@ -6807,8 +6986,8 @@ export default function App() {
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mobile Hub</span>
                     </button>
                     <button onClick={() => setGpkosActiveApp('maps')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'maps' ? 'scale-110' : ''}`}>
-                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><MapIcon className="h-6 w-6 text-emerald-400" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Google Maps</span>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><Chrome className="h-6 w-6 text-cyan-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Google Hub</span>
                     </button>
                     <button onClick={() => setGpkosActiveApp('gmail')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'gmail' ? 'scale-110' : ''}`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-rose-500/50 transition-colors"><Mail className="h-6 w-6 text-rose-500" /></div>

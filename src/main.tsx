@@ -6,7 +6,7 @@ import './index.css';
 
 // By default or through .env we inject the Google Client ID
 // The user will need to configure VITE_GOOGLE_CLIENT_ID if not present
-const clientId = (import.meta as any).env.VITE_GOOGLE_CLIENT_ID || "123456789-proxyid.apps.googleusercontent.com";
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "123456789-proxyid.apps.googleusercontent.com";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
