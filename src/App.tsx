@@ -67,7 +67,15 @@ import {
   Share,
   Download,
   Smartphone,
-  Maximize
+  Maximize,
+  HardDrive,
+  Calendar,
+  Images,
+  Youtube,
+  MapPin,
+  Layers,
+  Camera,
+  Package
 } from "lucide-react";
 import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
@@ -96,13 +104,16 @@ function GoogleMapsWrapper() {
   const [activeNode, setActiveNode] = React.useState<string>("Foshan");
 
   // React-side control states matching the iframe's capabilities
-  const [mapLayer, setMapLayer] = React.useState<"y" | "m" | "p">("y"); // y = hybrid sat, m = road, p = terrain
+  const [mapLayer, setMapLayer] = React.useState<"y" | "m" | "p">("m"); // Default to road for clarity
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [manualSelectMode, setManualSelectMode] = React.useState<"none" | "start" | "dest">("none");
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState<"prompt" | "granted" | "denied">("prompt");
   
-  // Routing inputs & outputs
-  const [routeStart, setRouteStart] = React.useState("Foshan Core Hub");
-  const [routeDest, setRouteDest] = React.useState("Shenzhen Port Relay");
+  // Routing inputs & outputs supporting arbitrary start/end & transport modes
+  const [routeStart, setRouteStart] = React.useState("Foshan");
+  const [routeDest, setRouteDest] = React.useState("Shenzhen");
+  const [travelMode, setTravelMode] = React.useState<"driving" | "walking" | "cycling">("driving");
   const [routeInstructions, setRouteInstructions] = React.useState<string[]>([]);
   const [routeMetrics, setRouteMetrics] = React.useState<{ distance: string; duration: string } | null>(null);
   const [isRouting, setIsRouting] = useState(false);
@@ -151,12 +162,25 @@ function GoogleMapsWrapper() {
           setSimRunning(false);
           setSimData(null);
         } else if (type === "mapClickGeo") {
+          if (manualSelectMode === "start") {
+            setRouteStart(payload.address);
+            setManualSelectMode("none");
+          } else if (manualSelectMode === "dest") {
+            setRouteDest(payload.address);
+            setManualSelectMode("none");
+          }
           setStreetViewData({
             address: payload.address || "Unknown Spot",
             lat: payload.lat,
             lng: payload.lng,
             description: payload.description || "Simulated 360° street survey"
           });
+        } else if (type === "locationUpdate") {
+          setRouteStart(payload.address);
+          setLocationPermissionStatus("granted");
+        } else if (type === "locationError") {
+          setLocationPermissionStatus("denied");
+          alert("Location Access Denied: " + payload.message);
         } else if (type === "searchResult") {
           setIsSearching(false);
           if (payload.error) {
@@ -192,6 +216,18 @@ function GoogleMapsWrapper() {
     }
   };
 
+  const handleZoomIn = () => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'zoomIn' }, '*');
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'zoomOut' }, '*');
+    }
+  };
+
   const handleSearchCommit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -211,8 +247,9 @@ function GoogleMapsWrapper() {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
         type: 'calculateRoute',
-        start: routeStart.trim(),
-        destination: routeDest.trim()
+        startQuery: routeStart.trim(),
+        destQuery: routeDest.trim(),
+        mode: travelMode
       }, '*');
     }
   };
@@ -224,6 +261,12 @@ function GoogleMapsWrapper() {
       } else {
         iframeRef.current.contentWindow.postMessage({ type: 'startSimulation' }, '*');
       }
+    }
+  };
+
+  const handleLocateMe = () => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'locateMe' }, '*');
     }
   };
 
@@ -269,11 +312,11 @@ function GoogleMapsWrapper() {
     <body>
       <div id="map"></div>
       <script>
-        // Store tiles of actual Google Maps servers
+        // Store tiles of actual Google Maps servers - using scale=2 for clarity if possible
         var tileLayers = {
-          y: L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', { maxZoom: 20 }), // Google Hybrid Satellite
-          m: L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20 }), // Google Road standard
-          p: L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', { maxZoom: 20 })  // Google Physical / Terrain
+          y: L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=2', { maxZoom: 20, subdomains: '0123' }), // Google Hybrid Satellite
+          m: L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&scale=2', { maxZoom: 20, subdomains: '0123' }), // Google Road standard
+          p: L.tileLayer('https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&scale=2', { maxZoom: 20, subdomains: '0123' })  // Google Physical / Terrain
         };
 
         var map = L.map('map', { 
@@ -282,8 +325,30 @@ function GoogleMapsWrapper() {
           doubleClickZoom: false
         }).setView([23.0215, 113.1214], 12);
         
-        // Initial Layer is Sat Hybrid
-        tileLayers.y.addTo(map);
+        map.on('locationfound', function(e) {
+          var radius = e.accuracy / 2;
+          L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
+          L.circle(e.latlng, radius).addTo(map);
+          
+          window.parent.postMessage({
+            type: "locationUpdate",
+            payload: {
+              lat: e.latlng.lat,
+              lng: e.latlng.lng,
+              address: "Current System Location [Lat: " + e.latlng.lat.toFixed(4) + ", Lng: " + e.latlng.lng.toFixed(4) + "]"
+            }
+          }, '*');
+        });
+
+        map.on('locationerror', function(e) {
+          window.parent.postMessage({
+            type: "locationError",
+            payload: { message: e.message }
+          }, '*');
+        });
+        
+        // Initial Layer is Road for better clarity if requested
+        tileLayers.m.addTo(map);
 
         // Standard custom marker icon
         var searchMarkers = [];
@@ -441,18 +506,49 @@ function GoogleMapsWrapper() {
               });
           }
 
-          // Compute Driving Routes (using Free public OSRM mapping api)
+          // Compute Routing (arbitrary departure & destination + chosen travel mode)
           else if (data.type === 'calculateRoute') {
-            var startName = data.start;
-            var destName = data.destination;
+            var startQuery = data.startQuery;
+            var destQuery = data.destQuery;
+            var mode = data.mode || "driving";
             
-            // Resolve inputs (preset nodes fallback to geocode)
-            var startCoords = relays[startName] || relays["Foshan"];
-            var destCoords = relays[destName] || relays["Shenzhen"];
-            
-            // Look up geocode for start and destination if they are typed input strings
-            function resolvePoints() {
-              var url = "https://router.project-osrm.org/route/v1/driving/" + 
+            function geocodeAddress(query, fallback) {
+              var term = query.toLowerCase().trim();
+              if (relays[query]) return Promise.resolve(relays[query]);
+              
+              // search preset keys
+              for (var key in relays) {
+                if (term.includes(key.toLowerCase())) {
+                  return Promise.resolve(relays[key]);
+                }
+              }
+              // query openstreetmap nominatim
+              var url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(query);
+              return fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(results) {
+                  if (results && results.length > 0) {
+                    return [parseFloat(results[0].lat), parseFloat(results[0].lon)];
+                  }
+                  return fallback;
+                })
+                .catch(function() {
+                  return fallback;
+                });
+            }
+
+            Promise.all([
+              geocodeAddress(startQuery, [23.0215, 113.1214]),
+              geocodeAddress(destQuery, [22.5431, 114.0579])
+            ]).then(function(coords) {
+              var startCoords = coords[0];
+              var destCoords = coords[1];
+              
+              var profile = "driving";
+              if (mode === "walking") profile = "foot";
+              else if (mode === "cycling") profile = "bicycle";
+
+              var url = "https://router.project-osrm.org/route/v1/" + profile + "/" + 
                 startCoords[1] + "," + startCoords[0] + ";" + 
                 destCoords[1] + "," + destCoords[0] + 
                 "?overview=full&steps=true&geometries=geojson";
@@ -464,14 +560,12 @@ function GoogleMapsWrapper() {
                     var route = routeData.routes[0];
                     var geometry = route.geometry;
                     
-                    // Clear older route rendering
                     if (activeRoutePolyline) map.removeLayer(activeRoutePolyline);
                     
-                    // Decode geojson coordinates L.Polyline accepts lat,lng whereas GeoJSON is lng,lat
                     var polylinePoints = geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
                     
                     activeRoutePolyline = L.polyline(polylinePoints, {
-                      color: "#06b6d4",
+                      color: mode === "walking" ? "#10b981" : mode === "cycling" ? "#f59e0b" : "#06b6d4",
                       weight: 5,
                       opacity: 0.85,
                       dashArray: simInterval ? "10, 10" : null
@@ -479,19 +573,17 @@ function GoogleMapsWrapper() {
                     
                     map.fitBounds(activeRoutePolyline.getBounds(), { padding: [40, 40] });
                     
-                    // Extract turn-by-turn text instructions
                     var steps = route.legs[0].steps || [];
                     var inst = steps.map(function(st) {
                       var man = st.maneuver || {};
                       var type = man.type || "drive";
                       var modifier = man.modifier ? " " + man.modifier : "";
-                      return (type + modifier).toUpperCase() + " onto " + (st.name || "Main Gateway Segment") + " (for " + Math.round(st.distance) + "m)";
+                      return (type + modifier).toUpperCase() + " onto " + (st.name || "Route segment") + " (for " + Math.round(st.distance) + "m)";
                     });
                     if (inst.length === 0) {
-                      inst = ["HEAD OUT toward Destination terminal", "TRAVERSE routing corridors", "ARRIVE safely at " + destName];
+                      inst = ["DEPART from " + startQuery, "MOVE along designated path via " + mode + " mode", "ARRIVE at " + destQuery];
                     }
                     
-                    // Save polyline list for simulation
                     simCoordinatesList = polylinePoints;
                     
                     window.parent.postMessage({
@@ -503,19 +595,17 @@ function GoogleMapsWrapper() {
                       }
                     }, '*');
                   } else {
-                    // Offline routing generator fallback simulation
-                    generateSyntheticRoute(startCoords, destCoords, startName, destName);
+                    generateSyntheticRoute(startCoords, destCoords, startQuery, destQuery, mode);
                   }
                 })
                 .catch(function() {
-                  generateSyntheticRoute(startCoords, destCoords, startName, destName);
+                  generateSyntheticRoute(startCoords, destCoords, startQuery, destQuery, mode);
                 });
-            }
+            });
 
-            function generateSyntheticRoute(sc, dc, sn, dn) {
+            function generateSyntheticRoute(sc, dc, sn, dn, m) {
               if (activeRoutePolyline) map.removeLayer(activeRoutePolyline);
               
-              // Generate simple interpolated steps
               var points = [];
               var stepsCount = 15;
               for(var k=0; k<=stepsCount; k++) {
@@ -526,7 +616,11 @@ function GoogleMapsWrapper() {
                 ]);
               }
               
-              activeRoutePolyline = L.polyline(points, { color: "#ec4899", weight: 5, opacity: 0.8 }).addTo(map);
+              activeRoutePolyline = L.polyline(points, { 
+                color: m === "walking" ? "#10b981" : m === "cycling" ? "#f59e0b" : "#ec4899", 
+                weight: 5, 
+                opacity: 0.8 
+              }).addTo(map);
               map.fitBounds(activeRoutePolyline.getBounds());
               simCoordinatesList = points;
               
@@ -534,18 +628,29 @@ function GoogleMapsWrapper() {
                 type: "routeComputed",
                 payload: {
                   instructions: [
-                    "DEPART Secure Node Terminal " + sn,
-                    "PROCEED north along SSL Tunneling Freeway",
-                    "MONITOR packet integrity at segment crossing",
-                    "ARRIVE safely at " + dn + " Port"
+                    "DEPART Secure Terminal (" + sn + ")",
+                    "TRAVERSE along local passage (" + m.toUpperCase() + " mode active)",
+                    "MONITOR secure transit nodes with full security",
+                    "ARRIVE safely at destination terminal (" + dn + ")"
                   ],
-                  distance: 85200,
-                  duration: 3600
+                  distance: 98000,
+                  duration: m === "walking" ? 64000 : m === "cycling" ? 18000 : 4200
                 }
               }, '*');
             }
+          }
 
-            resolvePoints();
+          // Iframe zoom keys support
+          else if (data.type === 'zoomIn') {
+            map.zoomIn();
+          }
+          else if (data.type === 'zoomOut') {
+            map.zoomOut();
+          }
+
+          // Geolocation support
+          else if (data.type === 'locateMe') {
+            map.locate({ setView: true, maxZoom: 16 });
           }
 
           // Live Navigation Simulation
@@ -670,25 +775,63 @@ function GoogleMapsWrapper() {
           <span className="text-[10px] uppercase font-bold text-slate-400 font-mono tracking-widest block mb-1">Route & Directions Router</span>
           <form onSubmit={handleCalculateRoute} className="space-y-2 mt-2">
             <div>
-              <label className="text-[9px] text-slate-500 uppercase font-bold">Start Node</label>
-              <select 
-                value={routeStart}
-                onChange={e => setRouteStart(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white"
-              >
-                {nodes.map(n => <option key={n.id} value={n.id}>{n.id} Gateway ({n.name})</option>)}
-              </select>
+              <label className="text-[9px] text-slate-500 uppercase font-bold">Departure (出发点)</label>
+              <div className="relative group">
+                <input 
+                  type="text"
+                  value={routeStart}
+                  onChange={e => setRouteStart(e.target.value)}
+                  placeholder="Type start e.g. Foshan, New York..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-500 pr-8"
+                />
+                <button 
+                   type="button"
+                   onClick={() => setManualSelectMode(manualSelectMode === "start" ? "none" : "start")}
+                   className={`absolute right-1.5 top-1 p-1 rounded hover:bg-slate-800 transition ${manualSelectMode === "start" ? "text-cyan-400 bg-slate-800 ring-1 ring-cyan-500/50" : "text-slate-500"}`}
+                   title="Click on map to pick"
+                >
+                  <MousePointer2 className="h-3 w-3" />
+                </button>
+              </div>
             </div>
             <div>
-              <label className="text-[9px] text-slate-500 uppercase font-bold">Destination Portal</label>
-              <select 
-                value={routeDest}
-                onChange={e => setRouteDest(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white"
-              >
-                {nodes.map(n => <option key={n.id} value={n.id}>{n.id} Gateway ({n.name})</option>)}
-              </select>
+              <label className="text-[9px] text-slate-500 uppercase font-bold">Arrival (到达点)</label>
+              <div className="relative group">
+                <input 
+                  type="text"
+                  value={routeDest}
+                  onChange={e => setRouteDest(e.target.value)}
+                  placeholder="Type destination e.g. Shenzhen, Guangzhou..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-500 pr-8"
+                />
+                <button 
+                   type="button"
+                   onClick={() => setManualSelectMode(manualSelectMode === "dest" ? "none" : "dest")}
+                   className={`absolute right-1.5 top-1 p-1 rounded hover:bg-slate-800 transition ${manualSelectMode === "dest" ? "text-cyan-400 bg-slate-800 ring-1 ring-cyan-500/50" : "text-slate-500"}`}
+                   title="Click on map to pick"
+                >
+                  <MousePointer2 className="h-3 w-3" />
+                </button>
+              </div>
             </div>
+
+            {/* Travel Mode Selector Grid */}
+            <div>
+              <label className="text-[9px] text-slate-500 uppercase font-bold block mb-1">Travel Mode (出行方式)</label>
+              <div className="grid grid-cols-3 gap-1">
+                {(["driving", "walking", "cycling"] as const).map(mode => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setTravelMode(mode)}
+                    className={`py-1 px-1 rounded text-[9px] font-bold border transition ${travelMode === mode ? "bg-cyan-950 text-cyan-300 border-cyan-500/40" : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"}`}
+                  >
+                    {mode === "driving" ? "🚗 Car" : mode === "walking" ? "🚶 Walk" : "🚲 Bike"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button 
               type="submit" 
               disabled={isRouting}
@@ -770,6 +913,32 @@ function GoogleMapsWrapper() {
             title="Google Map High precision Vector Engine"
             sandbox="allow-scripts allow-same-origin"
           />
+
+          {/* Interactive Zoom Buttons overlay (地图必带放大缩小!) */}
+          <div className="absolute right-4 top-4 flex flex-col gap-1.5 z-[45] bg-slate-900/95 border border-slate-800 p-1.5 rounded-xl shadow-2xl backdrop-blur-md">
+            <button 
+              onClick={handleLocateMe} 
+              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-lg shadow transition hover:scale-105 active:scale-95 border border-white/5"
+              title="Locate Me"
+            >
+              <Compass className="h-4 w-4 text-emerald-400" />
+            </button>
+            <div className="w-full h-px bg-white/10 my-0.5"></div>
+            <button 
+              onClick={handleZoomIn} 
+              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-lg shadow transition hover:scale-105 active:scale-95 border border-white/5"
+              title="Zoom In"
+            >
+              ＋
+            </button>
+            <button 
+              onClick={handleZoomOut} 
+              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center text-lg shadow transition hover:scale-105 active:scale-95 border border-white/5"
+              title="Zoom Out"
+            >
+              －
+            </button>
+          </div>
 
           {/* Interactive details box describing street look view */}
           {streetViewData && (
@@ -1457,7 +1626,7 @@ export default function App() {
   };
 
   // Interactive Live terminal code simulator actions
-  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>("desktop"); // "desktop", "terminal", "ide", "maps", "remote", "mobile-search"
+  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>("desktop"); // "desktop", "terminal", "ide", "maps", "remote", "mobile-search", "gmail", "gemini", "google-play", "drive", "calendar", "photos", "youtube"
   
   // Remote Support Session State
   const [remoteSessionActive, setRemoteSessionActive] = useState(false);
@@ -1501,6 +1670,154 @@ export default function App() {
   const [signupPass, setSignupPass] = useState("");
   const [signupConfirmPass, setSignupConfirmPass] = useState("");
   const [signupPhone, setSignupPhone] = useState("");
+  
+  // GPKOS macOS top-bar menu options & custom desktop settings are state-backed for high-fidelity native feeling
+  const [gpkosActiveDropdown, setGpkosActiveDropdown] = useState<"gpkos" | "file" | "edit" | "view" | "kernel" | null>(null);
+  const [gpkosWallpaper, setGpkosWallpaper] = useState<"cyberpunk" | "monterey" | "space" | "dark-slate">("dark-slate");
+  const [gpkosEncryptionActive, setGpkosEncryptionActive] = useState(true);
+  const [gpkosLatencyMonitorOpen, setGpkosLatencyMonitorOpen] = useState(false);
+  const [gpkosDiagnosticsModalOpen, setGpkosDiagnosticsModalOpen] = useState(false);
+  const [gpkosSystemInfoModalOpen, setGpkosSystemInfoModalOpen] = useState(false);
+  const [gpkosSecureTunnelState, setGpkosSecureTunnelState] = useState(true);
+  const [gpkosLatencyHistory, setGpkosLatencyHistory] = useState<number[]>([14, 15, 12, 16, 13, 14, 15]);
+
+  // Gmail Advanced replying, forwarding & attachment capabilities
+  const [gmailReplyText, setGmailReplyText] = useState("");
+  const [gmailReplyOpen, setGmailReplyOpen] = useState(false);
+  const [gmailForwardOpen, setGmailForwardOpen] = useState(false);
+  const [gmailForwardToAddress, setGmailForwardToAddress] = useState("");
+  const [gmailComposeAttachments, setGmailComposeAttachments] = useState<string[]>([]);
+  
+  // Standalone Google Play Store states
+  const [playStoreTab, setPlayStoreTab] = useState<"games" | "apps" | "top" | "detail">("games");
+  const [playStoreSearch, setPlayStoreSearch] = useState("");
+  const [playStoreSelectedApp, setPlayStoreSelectedApp] = useState<any | null>(null);
+  const [playStoreInstallingAppId, setPlayStoreInstallingAppId] = useState<string | null>(null);
+  const [playStoreInstallationProgress, setPlayStoreInstallationProgress] = useState(0);
+  const [playStoreInstalledApps, setPlayStoreInstalledApps] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("gpkos_installed_play_apps");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Gemini Website Builder AI states
+  const [geminiSubTab, setGeminiSubTab] = useState<"chat" | "web-builder">("chat");
+  const [webBuilderPrompt, setWebBuilderPrompt] = useState("");
+  const [webBuilderGeneratedCode, setWebBuilderGeneratedCode] = useState<string>(() => {
+    return localStorage.getItem("gpkos_web_builder_code") || `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sleek Analog Aesthetic Clock</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #0F172A, #020617);
+            color: #F8FAFC;
+            font-family: system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .clock {
+            width: 200px;
+            height: 200px;
+            border: 8px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.6);
+            background: rgba(15, 23, 42, 0.4);
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 4px;
+        }
+        .hour {
+            width: 6px;
+            height: 50px;
+            background: #3B82F6;
+            margin-left: -3px;
+        }
+        .minute {
+            width: 4px;
+            height: 70px;
+            background: #60A5FA;
+            margin-left: -2px;
+        }
+        .second {
+            width: 2px;
+            height: 80px;
+            background: #EF4444;
+            margin-left: -1px;
+        }
+        .center {
+            width: 12px;
+            height: 12px;
+            background: #FFFFFF;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -6px;
+            margin-left: -6px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        .digital {
+            margin-top: 2rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: #60A5FA;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="clock">
+        <div class="hand hour" id="hour"></div>
+        <div class="hand minute" id="minute"></div>
+        <div class="hand second" id="second"></div>
+        <div class="center"></div>
+    </div>
+    <div class="digital" id="digital">00:00:00</div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+
+            const hDeg = (h % 12) * 30 + m * 0.5;
+            const mDeg = m * 6;
+            const sDeg = s * 6;
+
+            document.getElementById('hour').style.transform = 'rotate(' + hDeg + 'deg)';
+            document.getElementById('minute').style.transform = 'rotate(' + mDeg + 'deg)';
+            document.getElementById('second').style.transform = 'rotate(' + sDeg + 'deg)';
+
+            const pad = (v) => String(v).padStart(2, '0');
+            document.getElementById('digital').innerText = pad(h) + ':' + pad(m) + ':' + pad(s);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>`;
+  });
+  const [webBuilderDeploying, setWebBuilderDeploying] = useState(false);
+  const [webBuilderDeployedUrl, setWebBuilderDeployedUrl] = useState<string | null>(null);
+  const [webBuilderPreviewMode, setWebBuilderPreviewMode] = useState<"preview" | "code">("preview");
   
   // Crypto Relay UI States
   const [cryptoMessages, setCryptoMessages] = useState<any[]>([]);
@@ -4379,20 +4696,172 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900/40 flex flex-col">
-                {/* macOS styled Title bar / Top Bar */}
-                <div className="bg-black/40 backdrop-blur-md px-4 py-1.5 flex items-center justify-between z-10 shrink-0">
+              <div className={`absolute inset-0 transition-all duration-500 flex flex-col ${
+                gpkosWallpaper === "cyberpunk" ? "bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-900/60" :
+                gpkosWallpaper === "monterey" ? "bg-gradient-to-br from-pink-950 via-orange-950/50 to-slate-950" :
+                gpkosWallpaper === "space" ? "bg-gradient-to-br from-blue-950 via-slate-950 to-emerald-950/40" :
+                "bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900/40"
+              }`}>
+                {/* macOS styled Title bar / Top Bar with active drop-downs */}
+                <div className="bg-black/60 border-b border-white/5 backdrop-blur-md px-4 py-1.5 flex items-center justify-between z-50 shrink-0 relative">
                   <div className="flex items-center gap-4 text-xs font-bold text-white">
-                    <span className="flex items-center gap-1.5 opacity-90"><Command className="h-3.5 w-3.5" /> GPKOS</span>
-                    <span className="cursor-pointer hover:opacity-80">File</span>
-                    <span className="cursor-pointer hover:opacity-80">Edit</span>
-                    <span className="cursor-pointer hover:opacity-80">View</span>
-                    <span className="cursor-pointer hover:opacity-80">Kernel</span>
+                    {/* GPKOS Item */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "gpkos" ? null : "gpkos")}
+                        className={`flex items-center gap-1 opacity-90 hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "gpkos" ? "bg-white/10" : ""}`}
+                      >
+                        <Command className="h-3 w-3 text-cyan-400" /> GPKOS
+                      </button>
+                      {gpkosActiveDropdown === "gpkos" && (
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
+                        >
+                          <button onClick={() => { setGpkosSystemInfoModalOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+                            <span>ℹ️ System Diagnostics</span>
+                            <span className="text-[8px] opacity-60">⌘I</span>
+                          </button>
+                          <button onClick={() => { setGpkosLatencyMonitorOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+                            <span>🚀 Gateway Latency Check</span>
+                            <span className="text-[8px] opacity-60">⌘P</span>
+                          </button>
+                          <button onClick={() => { setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+                            <span>🔒 Guard SSL Tunnel</span>
+                            <span className="text-[10px]">{gpkosEncryptionActive ? "✅" : "❌"}</span>
+                          </button>
+                          <hr className="border-white/5 my-1" />
+                          <button onClick={() => { localStorage.removeItem("gpkos_active_gmail_account"); window.location.reload(); }} className="w-full text-left px-3 py-1.5 hover:bg-red-500 hover:text-white transition text-red-400">
+                            🚪 Terminate OS Session
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* File Item */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "file" ? null : "file")}
+                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "file" ? "bg-white/10" : "opacity-85"}`}
+                      >
+                        File
+                      </button>
+                      {gpkosActiveDropdown === "file" && (
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          className="absolute left-0 mt-1.5 w-48 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
+                        >
+                          <button onClick={() => { alert("Created New GPKOS Node Sandbox workspace successfully."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            📁 Create New Node File
+                          </button>
+                          <button onClick={() => { setGpkosSecureTunnelState(!gpkosSecureTunnelState); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+                            <span>📡 Secure Tunnel Link</span>
+                            <span>{gpkosSecureTunnelState ? "Online" : "Off"}</span>
+                          </button>
+                          <button onClick={() => { 
+                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: Fatshan Core\nStatus: Secure tunnel established\nPings: 14ms"], {type: "text/plain"});
+                            const link = document.createElement("a");
+                            link.href = URL.createObjectURL(blob);
+                            link.download = "gpkos_defense_report.txt";
+                            link.click();
+                            setGpkosActiveDropdown(null);
+                          }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            💾 Backup System Logs
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Edit Item */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "edit" ? null : "edit")}
+                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "edit" ? "bg-white/10" : "opacity-85"}`}
+                      >
+                        Edit
+                      </button>
+                      {gpkosActiveDropdown === "edit" && (
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          className="absolute left-0 mt-1.5 w-48 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
+                        >
+                          <button onClick={() => { setIsEditingSig(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            ✏️ Edit Signature Payload
+                          </button>
+                          <button onClick={() => { alert("DNS Flush Completed. Flush value: 4 entries."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            🧹 Flush DNS Nodes
+                          </button>
+                          <button onClick={() => { alert("Regenerated secure 4096-bit SSH Tunnel key pair."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            🔑 Renew SSH Keypair
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* View Item */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "view" ? null : "view")}
+                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "view" ? "bg-white/10" : "opacity-85"}`}
+                      >
+                        View
+                      </button>
+                      {gpkosActiveDropdown === "view" && (
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
+                        >
+                          <span className="text-[8px] text-slate-500 font-extrabold px-3 py-1 block uppercase tracking-wider">Change Desktop Style</span>
+                          <button onClick={() => { setGpkosWallpaper("dark-slate"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            {gpkosWallpaper === "dark-slate" ? "●" : "○"} 🌲 Default Forest
+                          </button>
+                          <button onClick={() => { setGpkosWallpaper("cyberpunk"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            {gpkosWallpaper === "cyberpunk" ? "●" : "○"} 🌆 Cyberpunk Neon
+                          </button>
+                          <button onClick={() => { setGpkosWallpaper("monterey"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            {gpkosWallpaper === "monterey" ? "●" : "○"} 🍊 Monterey Glow
+                          </button>
+                          <button onClick={() => { setGpkosWallpaper("space"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            {gpkosWallpaper === "space" ? "●" : "○"} 🪐 Space Cosmos
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Kernel Item */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "kernel" ? null : "kernel")}
+                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "kernel" ? "bg-white/10" : "opacity-85"}`}
+                      >
+                        Kernel
+                      </button>
+                      {gpkosActiveDropdown === "kernel" && (
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                          className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
+                        >
+                          <button onClick={() => { setGpkosDiagnosticsModalOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            🧪 Gateway Kernel Rebuild
+                          </button>
+                          <button onClick={() => { alert("SHA256 signature Verified: 8b04a09c... Root authority checks out OK."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+                            🛡️ SSL Integrity Verify
+                          </button>
+                          <button onClick={() => { alert("Gateway Dev Container reboot sequence initialized."); window.location.reload(); }} className="w-full text-left px-3 py-1.5 hover:bg-red-500 hover:text-white transition">
+                            ⚙️ Reboot Dev Container
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
+
                   <div className="flex items-center gap-4 text-[10px] text-white/80 font-mono font-bold tracking-wider uppercase">
-                    <span>Admin: {currentUser.emailUsername}</span>
-                    <div className="flex items-center gap-1"><Wifi className="h-3 w-3 text-emerald-400" /> Secure</div>
-                    <span>{new Date().toLocaleTimeString()}</span>
+                    <span className="hidden sm:inline">Admin: {currentUser.emailUsername}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <Wifi className="h-3 w-3 text-emerald-400" /> Gateway: {gpkosSecureTunnelState ? "ON" : "OFF"}
+                    </div>
+                    <span>{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                   </div>
                 </div>
 
@@ -5873,6 +6342,284 @@ export default function App() {
                     );
                   })()}
 
+                  {/* Google Play Store */}
+                  {gpkosActiveApp === 'google-play' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                         <div className="bg-slate-100 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                               <div className="bg-blue-600 p-2 rounded-xl text-white shadow"><ShoppingBag className="h-5 w-5" /></div>
+                               <span className="font-bold text-slate-800 text-lg">Google Play</span>
+                            </div>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-slate-200 rounded-full transition"><X className="h-5 w-5 text-slate-500" /></button>
+                         </div>
+                         <div className="flex-grow flex flex-col p-8 overflow-y-auto bg-slate-50">
+                            <div className="max-w-4xl mx-auto w-full">
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                                  <div>
+                                     <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 border border-slate-200 shadow-inner">
+                                        <Smartphone className="h-10 w-10 text-slate-400" />
+                                     </div>
+                                     <h2 className="text-3xl font-black text-slate-900 mb-2">Sync Account</h2>
+                                     <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                                        The Google Play Store requires a verified developer account to access high-speed binary distribution nodes.
+                                     </p>
+                                     <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg">Sign In to Sync</button>
+                                  </div>
+                                  <div className="space-y-4">
+                                     <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+                                        <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600"><CheckCircle className="h-6 w-6" /></div>
+                                        <div>
+                                           <div className="text-xs font-bold text-slate-900">Verified System</div>
+                                           <div className="text-[10px] text-slate-500 font-mono tracking-tight">NODES_SECURE_VERIFIED</div>
+                                        </div>
+                                     </div>
+                                     <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 opacity-50">
+                                        <div className="bg-amber-100 p-3 rounded-xl text-amber-600"><AlertTriangle className="h-6 w-6" /></div>
+                                        <div>
+                                           <div className="text-xs font-bold text-slate-900">Payload Pending</div>
+                                           <div className="text-[10px] text-slate-500 font-mono tracking-tight">WAITING_FOR_AUTH_HANDSHAKE</div>
+                                        </div>
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Gmail App */}
+                  {gpkosActiveApp === 'gmail' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                        <div className="bg-slate-800 px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-rose-500 p-2 rounded-xl text-white shadow-lg shadow-rose-900/20"><Mail className="h-5 w-5" /></div>
+                            <span className="font-bold text-slate-100 italic tracking-tighter text-xl">Gmail <span className="text-slate-500 font-normal text-xs not-italic">Suite</span></span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-bold text-slate-400 transition border border-white/5 uppercase tracking-widest">Close App</button>
+                             <div className="flex gap-1.5 ml-4">
+                               <div className="h-3 w-3 rounded-full bg-slate-700"></div>
+                               <div className="h-3 w-3 rounded-full bg-slate-700"></div>
+                               <div className="h-3 w-3 rounded-full bg-slate-600"></div>
+                             </div>
+                          </div>
+                        </div>
+                        <div className="flex-grow flex items-center justify-center bg-slate-950 relative">
+                           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-rose-500 via-transparent to-transparent"></div>
+                           <div className="text-center z-10 max-w-sm">
+                             <div className="mb-8 relative inline-block">
+                                <div className="absolute inset-0 bg-rose-500/20 blur-3xl animate-pulse rounded-full"></div>
+                                <div className="bg-slate-900 border border-white/10 p-8 rounded-full relative z-10 shadow-2xl">
+                                  <ShieldAlert className="h-16 w-16 text-rose-400 mx-auto" />
+                                </div>
+                             </div>
+                             <h2 className="text-2xl font-black text-slate-100 mb-4 tracking-tight">Access Token Required</h2>
+                             <p className="text-slate-400 text-xs leading-relaxed mb-8 px-4">
+                               You are attempting to access a secured Gmail environment. 
+                               Please authenticate via the <span className="text-rose-400 font-bold">Cloud Gateway</span> to proceed with full mailbox synchronization.
+                             </p>
+                             <button onClick={() => { alert("Initiating OAuth Handshake..."); setTimeout(() => alert("Callback verification failed: Invalid Origin."), 1500); }} className="px-8 py-3 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-900/40 transition active:scale-95 uppercase tracking-widest text-[11px]">
+                               Sign in with Google
+                             </button>
+                           </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Gemini app */}
+                  {gpkosActiveApp === 'gemini' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-[#0a0a1a] border border-cyan-500/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                         <div className="bg-black/60 backdrop-blur-xl px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-900/40 animate-pulse"><Sparkles className="h-5 w-5" /></div>
+                            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 tracking-tighter text-xl">Gemini <span className="text-slate-500 font-normal text-xs italic">Experimental Hub</span></span>
+                          </div>
+                          <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1 gap-1.5 bg-slate-900 hover:bg-slate-800 rounded-full text-[10px] font-bold text-slate-500 transition border border-white/5 flex items-center">
+                            <X className="h-3 w-3" /> ESC
+                          </button>
+                        </div>
+                        <div className="flex-grow flex flex-col p-6 overflow-y-auto">
+                           <div className="max-w-2xl mx-auto w-full flex flex-col gap-8 py-10">
+                              <div className="bg-blue-500/5 border border-blue-500/20 p-6 rounded-[2rem] text-center">
+                                 <div className="text-blue-400 text-sm font-bold mb-2">Welcome to GPKOS Artificial Intelligence</div>
+                                 <div className="text-slate-400 text-xs">How can I assist you with the Fatshan node operations today?</div>
+                              </div>
+                              <div className="flex flex-col gap-4">
+                                 <div className="flex gap-4">
+                                    <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-white/5"><BrainCircuit className="h-4 w-4 text-blue-400" /></div>
+                                    <div className="bg-slate-900/50 border border-white/10 p-4 rounded-2xl rounded-tl-none text-xs text-slate-300 leading-relaxed shadow-sm">
+                                       Hello! I am Gemini, your dedicated AI core for this workspace. I can help with log analysis, security auditing, or general queries about the Fatshan Post console.
+                                    </div>
+                                 </div>
+                                 <div className="flex gap-4 justify-end">
+                                    <div className="bg-blue-600 p-4 rounded-2xl rounded-tr-none text-xs text-white leading-relaxed shadow-lg">
+                                       Show me the latest latency report for the Tokyo Node.
+                                    </div>
+                                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-lg"><User className="h-4 w-4 text-white" /></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        {/* Gemini input bar */}
+                        <div className="p-6 bg-black/40 border-t border-white/5">
+                           <div className="max-w-2xl mx-auto relative group">
+                              <input 
+                                type="text" 
+                                placeholder="Message Gemini..." 
+                                className="w-full bg-slate-900 border border-white/10 rounded-2xl py-4 pl-4 pr-14 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all shadow-inner"
+                              />
+                              <button className="absolute right-2 top-2 p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition shadow-lg active:scale-95">
+                                 <ArrowRight className="h-4 w-4" />
+                              </button>
+                           </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Google Drive App */}
+                  {gpkosActiveApp === 'drive' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                         <div className="bg-slate-800 px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                               <div className="bg-amber-500 p-2 rounded-xl text-white shadow-lg"><HardDrive className="h-5 w-5" /></div>
+                               <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Drive <span className="text-slate-500 font-normal text-xs ml-2">Secure Cloud Storage</span></span>
+                            </div>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+                         </div>
+                         <div className="flex-grow p-8 bg-slate-950 flex flex-col items-center justify-center text-center">
+                            <div className="w-24 h-24 bg-amber-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-amber-500/20 shadow-2xl">
+                               <Package className="h-12 w-12 text-amber-400 animate-bounce" />
+                            </div>
+                            <h3 className="text-2xl font-black text-slate-100 mb-2">Cloud Synced Successfully</h3>
+                            <p className="text-slate-500 text-sm max-w-xs mx-auto mb-8">Your local nodes are synchronized with the primary Google Drive cluster. Latency: 12ms.</p>
+                            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                               <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl text-left">
+                                  <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Storage Usage</div>
+                                  <div className="text-xl font-bold text-white">4.2 GB <span className="text-[10px] opacity-40">/ 15 GB</span></div>
+                                  <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                     <div className="bg-amber-500 h-full w-[28%] rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div>
+                                  </div>
+                               </div>
+                               <div className="bg-slate-900 border border-white/5 p-4 rounded-2xl text-left">
+                                  <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">Recent Files</div>
+                                  <div className="text-white text-xs font-bold truncate">fatshan_log_06.log</div>
+                                  <div className="text-[10px] text-slate-500 mt-1">Uploaded 4m ago</div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Google Calendar App */}
+                  {gpkosActiveApp === 'calendar' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-white border border-slate-200 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                               <div className="bg-blue-600 p-2 rounded-xl text-white shadow"><Calendar className="h-5 w-5" /></div>
+                               <span className="font-bold text-slate-900 text-lg">Google Calendar</span>
+                            </div>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-slate-200 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+                         </div>
+                         <div className="flex-grow p-8 bg-white overflow-y-auto">
+                            <div className="max-w-xl mx-auto">
+                               <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-6">Today's Schedule Node</h4>
+                               <div className="space-y-4">
+                                  <div className="flex gap-6 items-start">
+                                     <div className="text-right w-16 pt-1">
+                                        <div className="text-sm font-black text-slate-900">09:00</div>
+                                        <div className="text-[10px] text-slate-400 font-bold uppercase">AM</div>
+                                     </div>
+                                     <div className="flex-grow bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
+                                        <div className="text-sm font-bold text-blue-900">Fatshan Node Security Audit</div>
+                                        <div className="text-[10px] text-blue-600 font-bold mt-1 uppercase flex items-center gap-1.5 font-mono">
+                                          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></div> HIGH_PRIORITY_REBOOT
+                                        </div>
+                                     </div>
+                                  </div>
+                                  <div className="flex gap-6 items-start">
+                                     <div className="text-right w-16 pt-1">
+                                        <div className="text-sm font-black text-slate-300">14:00</div>
+                                        <div className="text-[10px] text-slate-400 font-bold uppercase">PM</div>
+                                     </div>
+                                     <div className="flex-grow bg-slate-50 border border-slate-100 p-4 rounded-2xl border-dashed">
+                                        <div className="text-sm font-bold text-slate-400">Gemini Optimization Callback</div>
+                                        <div className="text-[10px] text-slate-400 font-bold mt-1 uppercase font-mono">Status: Pending Verification</div>
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Google Photos App */}
+                  {gpkosActiveApp === 'photos' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-slate-950 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                         <div className="bg-black/60 backdrop-blur-xl px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                               <div className="bg-gradient-to-br from-blue-500 via-green-500 to-yellow-500 p-2 rounded-xl text-white shadow-lg"><Images className="h-5 w-5" /></div>
+                               <span className="font-bold text-white text-lg">Google Photos</span>
+                            </div>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-500"><X className="h-5 w-5" /></button>
+                         </div>
+                         <div className="flex-grow p-6 overflow-y-auto bg-slate-950">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                               {[1,2,3,4,5,6,7,8].map(i => (
+                                 <div key={i} className="aspect-square bg-slate-900 border border-white/5 rounded-2xl overflow-hidden relative group cursor-pointer shadow-lg">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-end p-3">
+                                       <div className="text-[9px] font-bold text-white uppercase tracking-widest">FATSHAN_SURVEY_{i}.PNG</div>
+                                    </div>
+                                    <div className="w-full h-full flex items-center justify-center text-slate-800">
+                                       <Camera className="h-8 w-8 opacity-20" />
+                                    </div>
+                                    <div className="absolute top-2 right-2 bg-black/40 backdrop-blur px-1.5 py-0.5 rounded text-[8px] font-bold text-white border border-white/10 opacity-60 group-hover:opacity-100 transition">ENCRYPTED</div>
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* YouTube App */}
+                  {gpkosActiveApp === 'youtube' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-[#0f0f0f] border border-red-500/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-40">
+                         <div className="bg-black/80 px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                               <Youtube className="h-6 w-6 text-red-600" />
+                               <span className="font-black text-white italic tracking-tighter text-xl">YouTube <span className="text-[10px] not-italic text-red-500 align-top opacity-60">ADMIN</span></span>
+                            </div>
+                            <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 transition border border-white/5 uppercase tracking-widest">Exit</button>
+                         </div>
+                         <div className="flex-grow p-8 flex flex-col items-center justify-center text-center bg-transparent">
+                            <div className="w-32 h-24 bg-red-600/10 rounded-3xl flex items-center justify-center mb-8 border border-red-600/20 shadow-[0_20px_50px_rgba(220,38,38,0.2)] animate-pulse">
+                               <Play className="h-12 w-12 text-red-600 fill-current ml-1" />
+                            </div>
+                            <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Stream Relay Active</h3>
+                            <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed mb-10">
+                               Your Fatshan node video transmission is now being relayed through the secure YouTube core servers. Verification status: <span className="text-emerald-400 font-bold">LEGITIMATE</span>.
+                            </p>
+                            <div className="flex gap-4">
+                               <button className="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition active:scale-95 hover:bg-slate-200">Start Stream</button>
+                               <button className="bg-white/5 text-white border border-white/10 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition hover:bg-white/10">Dashboards</button>
+                            </div>
+                         </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Mobile Search Window */}
                   {gpkosActiveApp === 'mobile-search' && (() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
@@ -6060,8 +6807,36 @@ export default function App() {
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mobile Hub</span>
                     </button>
                     <button onClick={() => setGpkosActiveApp('maps')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'maps' ? 'scale-110' : ''}`}>
-                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10"><Chrome className="h-6 w-6 text-cyan-400" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Google Hub</span>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><MapIcon className="h-6 w-6 text-emerald-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Google Maps</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('gmail')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'gmail' ? 'scale-110' : ''}`}>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-rose-500/50 transition-colors"><Mail className="h-6 w-6 text-rose-500" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Gmail</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('drive')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'drive' ? 'scale-110' : ''}`}>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-amber-500/50 transition-colors"><HardDrive className="h-6 w-6 text-amber-500" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Drive</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('calendar')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'calendar' ? 'scale-110' : ''}`}>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-blue-500/50 transition-colors"><Calendar className="h-6 w-6 text-blue-500" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Calendar</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('photos')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'photos' ? 'scale-110' : ''}`}>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-orange-500/50 transition-colors"><Images className="h-6 w-6 text-orange-500" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Photos</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('youtube')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'youtube' ? 'scale-110' : ''}`}>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-red-500/50 transition-colors"><Youtube className="h-6 w-6 text-red-600" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">YouTube</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('gemini')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'gemini' ? 'scale-110' : ''}`}>
+                       <div className="bg-[#131214] p-2.5 rounded-xl shadow border border-white/10 hover:border-violet-500/50 transition-colors"><BrainCircuit className="h-6 w-6 text-violet-400 animate-pulse" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Gemini AI</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('google-play')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'google-play' ? 'scale-110' : ''}`}>
+                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-teal-500/50 transition-colors"><ShoppingBag className="h-6 w-6 text-teal-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Play Store</span>
                     </button>
                     <div className="w-px h-8 bg-white/20 mx-1"></div>
                     <button onClick={() => {}} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 text-white/50 cursor-not-allowed">
