@@ -125,12 +125,13 @@ interface WindowProps {
   onFocus: (id: string) => void;
   onPositionChange: (id: string, x: number, y: number) => void;
   onSizeChange: (id: string, w: number, h: number) => void;
+  onMaximize: (id: string) => void;
   children: React.ReactNode;
   isFocused: boolean;
   constraintsRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, onFocus, onPositionChange, onSizeChange, children, isFocused, constraintsRef }) => {
+const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, onFocus, onPositionChange, onSizeChange, onMaximize, children, isFocused, constraintsRef }) => {
   const [resizing, setResizing] = useState(false);
   const winRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
@@ -140,10 +141,18 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
   return (
     <motion.div
       ref={winRef}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      drag={!resizing}
+      initial={false}
+      animate={{ 
+        opacity: 1, 
+        scale: 1,
+        x: window.isMaximized ? 0 : window.x,
+        y: window.isMaximized ? 0 : window.y,
+        width: window.isMaximized ? '100%' : window.width,
+        height: window.isMaximized ? '100%' : window.height,
+        borderRadius: window.isMaximized ? 0 : 16
+      }}
+      transition={{ type: "spring", damping: 30, stiffness: 400, mass: 0.5 }}
+      drag={!resizing && !window.isMaximized}
       dragControls={dragControls}
       dragListener={false}
       dragMomentum={false}
@@ -157,18 +166,15 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
         position: 'absolute',
         top: 0,
         left: 0,
-        x: window.x,
-        y: window.y,
-        width: window.width,
-        height: window.height,
         zIndex: window.zIndex,
       }}
-      className={`bg-slate-950 border border-white/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'}`}
+      className={`bg-slate-950 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${window.isMaximized ? 'border-none' : ''}`}
     >
       {/* Window Header */}
       <div 
         className="bg-slate-900/90 p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
-        onPointerDown={(e) => dragControls.start(e)}
+        onPointerDown={(e) => !window.isMaximized && dragControls.start(e)}
+        onDoubleClick={() => onMaximize(window.id)}
       >
         <div className="flex gap-2 shrink-0">
           <button onClick={(e) => { e.stopPropagation(); onClose(window.id); }} className="h-3 w-3 rounded-full bg-[#ff5f57] hover:bg-[#ff5f57cc] border border-black/10 transition-colors flex items-center justify-center group">
@@ -177,7 +183,7 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
           <button onClick={(e) => { e.stopPropagation(); onMinimize(window.id); }} className="h-3 w-3 rounded-full bg-[#ffbd2e] hover:bg-[#ffbd2ecc] border border-black/10 transition-colors flex items-center justify-center group">
             <Minimize2 className="w-2 h-2 text-transparent group-hover:text-amber-950" />
           </button>
-          <button className="h-3 w-3 rounded-full bg-[#28c840] hover:bg-[#28c840cc] border border-black/10 transition-colors flex items-center justify-center group">
+          <button onClick={(e) => { e.stopPropagation(); onMaximize(window.id); }} className="h-3 w-3 rounded-full bg-[#28c840] hover:bg-[#28c840cc] border border-black/10 transition-colors flex items-center justify-center group">
             <Maximize2 className="w-2 h-2 text-transparent group-hover:text-emerald-950" />
           </button>
         </div>
@@ -186,39 +192,41 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
       </div>
       
       {/* Window Content */}
-      <div className="flex-grow overflow-auto relative">
+      <div className="flex-grow overflow-hidden relative">
         {children}
       </div>
 
       {/* Resize Handle */}
-      <div 
-        className="absolute bottom-0 right-0 w-5 h-5 cursor-nwse-resize z-[100]"
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          setResizing(true);
-          const startX = e.clientX;
-          const startY = e.clientY;
-          const startW = winRef.current?.offsetWidth || 800;
-          const startH = winRef.current?.offsetHeight || 600;
+      {!window.isMaximized && (
+        <div 
+          className="absolute bottom-0 right-0 w-5 h-5 cursor-nwse-resize z-[100]"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            setResizing(true);
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startW = winRef.current?.offsetWidth || 800;
+            const startH = winRef.current?.offsetHeight || 600;
 
-          const onPointerMove = (moveEvent: PointerEvent) => {
-            const newW = Math.max(400, startW + (moveEvent.clientX - startX));
-            const newH = Math.max(300, startH + (moveEvent.clientY - startY));
-            onSizeChange(window.id, newW, newH);
-          };
+            const onPointerMove = (moveEvent: PointerEvent) => {
+              const newW = Math.max(400, startW + (moveEvent.clientX - startX));
+              const newH = Math.max(300, startH + (moveEvent.clientY - startY));
+              onSizeChange(window.id, newW, newH);
+            };
 
-          const onPointerUp = () => {
-             setResizing(false);
-             document.removeEventListener('pointermove', onPointerMove);
-             document.removeEventListener('pointerup', onPointerUp);
-          };
+            const onPointerUp = () => {
+               setResizing(false);
+               document.removeEventListener('pointermove', onPointerMove);
+               document.removeEventListener('pointerup', onPointerUp);
+            };
 
-          document.addEventListener('pointermove', onPointerMove);
-          document.addEventListener('pointerup', onPointerUp);
-        }}
-      >
-        <div className="absolute bottom-1.5 right-1.5 w-2 h-2 bg-white/20 rounded-full border border-white/10" />
-      </div>
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+          }}
+        >
+          <div className="absolute bottom-1.5 right-1.5 w-2 h-2 bg-white/20 rounded-full border border-white/10" />
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -1356,6 +1364,7 @@ export default function App() {
 
 
   // Rory GPKOS state
+  const [ideLanguage, setIdeLanguage] = useState<string>("typescript");
   const [ideCode, setIdeCode] = useState<string>(
     `// Rory GPKOS IDE sandboxed compiler entrypoint\nexport function main() {\n  console.log("Validation Token: FATSHAN POST");\n  console.log("Workspace connected to standard Docker hub");\n}`
   );
@@ -2116,12 +2125,16 @@ export default function App() {
   const [decryptedMessageText, setDecryptedMessageText] = useState<string>("");
   const [sendingCrypto, setSendingCrypto] = useState(false);
   
+  const toggleMaximizeW = (winId: string) => {
+    setOpenedWindows(prev => prev.map(w => w.id === winId ? { ...w, isMaximized: !w.isMaximized } : w));
+  };
+
   const handleIDECompile = async () => {
     try {
       const res = await fetch(getApiBase() + "/api/rory-gpkos/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: ideCode })
+        body: JSON.stringify({ code: ideCode, language: ideLanguage })
       });
       const data = await res.json();
       setIdeLogs(data.output);
@@ -5206,14 +5219,33 @@ export default function App() {
                       onFocus={focusWindow}
                       onPositionChange={updateWindowPos}
                       onSizeChange={updateWindowSize}
+                      onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
                       <div className="flex flex-col h-full bg-slate-950">
                         <div className="flex-grow flex flex-col lg:flex-row shadow-inner overflow-hidden">
                           <div className="flex-grow p-0 border-r border-white/10 flex flex-col overflow-hidden">
                             <div className="bg-slate-900 p-2 flex justify-between items-center text-xs shrink-0">
-                              <span className="font-mono text-cyan-400 font-bold bg-cyan-950/40 px-2 rounded">TS • main.ts</span>
-                              <button onClick={handleIDECompile} className="bg-emerald-500 text-slate-950 px-3 py-1 rounded font-bold flex items-center gap-1"><Play className="h-3 w-3"/> Run</button>
+                               <div className="flex items-center gap-2">
+                                <select 
+                                  value={ideLanguage}
+                                  onChange={(e) => setIdeLanguage(e.target.value)}
+                                  className="bg-slate-800 text-cyan-400 font-mono text-[10px] px-2 py-0.5 rounded border border-white/10 outline-none focus:ring-1 focus:ring-cyan-500"
+                                >
+                                  <option value="typescript">TypeScript</option>
+                                  <option value="javascript">JavaScript</option>
+                                  <option value="python">Python</option>
+                                  <option value="cpp">C++</option>
+                                  <option value="java">Java</option>
+                                  <option value="rust">Rust</option>
+                                  <option value="go">Go</option>
+                                  <option value="csharp">C#</option>
+                                  <option value="ruby">Ruby</option>
+                                  <option value="php">PHP</option>
+                                </select>
+                                <span className="font-mono text-slate-500 text-[10px] hidden sm:inline">main.{ideLanguage === 'typescript' ? 'ts' : ideLanguage === 'javascript' ? 'js' : ideLanguage === 'python' ? 'py' : ideLanguage === 'cpp' ? 'cpp' : 'file'}</span>
+                              </div>
+                              <button onClick={handleIDECompile} className="bg-emerald-500 text-slate-950 px-3 py-1 rounded font-bold flex items-center gap-1 transition active:scale-95"><Play className="h-3 w-3"/> Run</button>
                             </div>
                             <textarea value={ideCode} onChange={(e) => setIdeCode(e.target.value)} className="flex-grow bg-transparent text-emerald-400 p-4 font-mono text-xs border-none outline-none resize-none leading-relaxed" spellCheck={false} />
                           </div>
@@ -5236,6 +5268,7 @@ export default function App() {
                       onFocus={focusWindow}
                       onPositionChange={updateWindowPos}
                       onSizeChange={updateWindowSize}
+                      onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
                       <div className="flex flex-col h-full bg-slate-900">
@@ -5283,6 +5316,7 @@ export default function App() {
                       onFocus={focusWindow}
                       onPositionChange={updateWindowPos}
                       onSizeChange={updateWindowSize}
+                      onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
                       <div className="flex flex-col h-full bg-black font-mono text-[10px] text-emerald-500 p-4 relative">
@@ -7236,6 +7270,7 @@ export default function App() {
                       onFocus={focusWindow}
                       onPositionChange={updateWindowPos}
                       onSizeChange={updateWindowSize}
+                      onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
                       {window.appId === 'maps' && <GoogleMapsWidget />}

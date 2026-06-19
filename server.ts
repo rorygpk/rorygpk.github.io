@@ -692,7 +692,7 @@ Please stand by. (Verification string: FATSHAN POST)`,
 
 // 11. Rory GPKOS IDE sandboxed playground Compiler Action
 app.post("/api/rory-gpkos/compile", (req, res) => {
-  const { code, command } = req.body;
+  const { code, command, language = "typescript" } = req.body;
   
   if (command) {
     // Process typical commands like ls, docker ps, cd, run
@@ -712,51 +712,85 @@ app.post("/api/rory-gpkos/compile", (req, res) => {
         output: "gpkos_sandbox_user_marvis_zhou@outlook.com",
       });
     }
+    if (cmdStr === "help") {
+       return res.json({
+         output: "GPKOS Multi-Language Runtime v4.2.1\nSupported Languages: TypeScript, JavaScript, Python, C++, Java, Rust, Go, C#, Ruby, PHP\nCommands: ls, docker ps, whoami, cat <file>, help"
+       });
+    }
     if (cmdStr.startsWith("cat ")) {
       const fn = cmdStr.split(" ")[1] || "main_code.ts";
       return res.json({
-        output: `// Content of mock file ${fn}\nexport function main() {\n  console.log("Validation String: FATSHAN POST");\n}`,
+        output: `// Content of mock file ${fn}\n// GPKOS Secure File System Node\n[EOF]`,
       });
     }
   }
 
-  // Eval simulator
+  // Multi-Language Simulator
   try {
     if (!code) {
-      return res.json({ output: "Compiler system initialized. Write TypeScript code and execute compile." });
+      return res.json({ output: `Compiler system initialized for ${language}. Ready for execution.` });
     }
     
-    // Safety check - we don't eval directly on backend to prevent vulnerability on Docker level,
-    // we use a fully secure sandbox parser that validates loops, variables, and simulates realistic compiler output logs!
     const sandboxOutput: string[] = [];
-    sandboxOutput.push("✨ Starting Rory GPKOS TypeScript Compiler service v3.11.2");
-    sandboxOutput.push("📦 Resolving index.html and module tree...");
-    sandboxOutput.push("✓ Standard syntax check completed. Zero semantic irregularities found.");
-    sandboxOutput.push("⚙ Compiling to native ES Modules (esm/dist/bundle.js)...");
+    const ts = new Date().toLocaleTimeString();
+
+    // Mapping for compiler pre-logs based on language
+    const langConfigs: Record<string, any> = {
+      typescript: { compiler: "tsc v5.3.3", binary: "node bundle.js", extension: "ts" },
+      javascript: { compiler: "v8 engine", binary: "node main.js", extension: "js" },
+      python: { compiler: "python 3.12 (CPython)", binary: "python main.py", extension: "py" },
+      cpp: { compiler: "g++ 13.2.0 (C++20)", binary: "./a.out", extension: "cpp" },
+      java: { compiler: "openjdk 21.0.1", binary: "java Main", extension: "java" },
+      rust: { compiler: "rustc 1.75.0 (cargo)", binary: "./target/release/main", extension: "rs" },
+      go: { compiler: "go 1.22.0", binary: "./main", extension: "go" },
+      csharp: { compiler: "dotnet sdk 8.0", binary: "dotnet run", extension: "cs" },
+      ruby: { compiler: "ruby 3.3.0", binary: "ruby main.rb", extension: "rb" },
+      php: { compiler: "php 8.3.2 (Zend)", binary: "php main.php", extension: "php" }
+    };
+
+    const config = langConfigs[language.toLowerCase()] || langConfigs.typescript;
+
+    sandboxOutput.push(`\n[${ts}] 🚀 INITIALIZING ${language.toUpperCase()} RUNTIME...`);
+    sandboxOutput.push(`📦 Loading ${config.compiler} into memory sandbox...`);
+    sandboxOutput.push(`✓ File main.${config.extension} successfully parsed.`);
+    sandboxOutput.push(`⚙ Running transformation to native binary: ${config.binary}`);
+    sandboxOutput.push(`---------------------------------------------------------`);
     
-    // Parse code triggers
-    if (code.includes("console.log")) {
-      const logs = code.match(/console\.log\((['"`])(.*?)\1\)/g);
-      if (logs) {
-        logs.forEach((log: string) => {
-          const match = log.match(/console\.log\((['"`])(.*?)\1\)/);
-          if (match && match[2]) {
-            sandboxOutput.push(`[stdout] ${match[2]}`);
-          }
-        });
-      } else {
-        sandboxOutput.push("[stdout] Execution completed successfully.");
+    // Simple print/log pattern matching for all languages
+    const printPatterns = [
+      /console\.log\((['"`])(.*?)\1\)/g,      // TS/JS
+      /print\((['"`])(.*?)\1\)/g,             // Python/Ruby
+      /std::cout\s*<<\s*(['"`])(.*?)\1/g,     // C++
+      /System\.out\.println\((['"`])(.*?)\1\)/g, // Java
+      /println!\((['"`])(.*?)\1\)/g,          // Rust
+      /fmt\.Println\((['"`])(.*?)\1\)/g,      // Go
+      /Console\.WriteLine\((['"`])(.*?)\1\)/g, // C#
+      /echo\s*(['"`])(.*?)\1/g,               // PHP/Bash
+      /puts\s*(['"`])(.*?)\1/g                // Ruby
+    ];
+
+    let foundOutput = false;
+    printPatterns.forEach(pattern => {
+      const matches = code.matchAll(pattern);
+      for (const match of matches) {
+        if (match[2]) {
+          sandboxOutput.push(`[STDOUT] ${match[2]}`);
+          foundOutput = true;
+        }
       }
-    } else {
-      sandboxOutput.push("[stdout] Rory GPKOS successfully parsed expressions. Output is void.");
+    });
+
+    if (!foundOutput) {
+      sandboxOutput.push(`[SYSTEM] Task executed. No output generated by program.`);
     }
     
-    sandboxOutput.push("\n📈 Process finished with exit code 0");
-    sandboxOutput.push("🔒 Sandbox security verified. (FATSHAN POST Validation token validated)");
+    sandboxOutput.push(`---------------------------------------------------------`);
+    sandboxOutput.push(`✅ Execution complete. Exit code 0 (Success)`);
+    sandboxOutput.push(`🔒 Sandbox cleaned. Validation: FATSHAN POST`);
     
     res.json({ output: sandboxOutput.join("\n") });
   } catch (error: any) {
-    res.json({ output: `❌ Compiler Error: ${error.message}` });
+    res.json({ output: `❌ Fatal Runtime Error: ${error.message}` });
   }
 });
 
