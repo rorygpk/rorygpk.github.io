@@ -32,14 +32,31 @@ export interface Attachment {
   dataUrl?: string;
 }
 
+export type GpkosPowerMode = "on" | "saving" | "sleep";
+
+export interface GpkosAppWindow {
+  id: string;
+  appId: string; // 'ide', 'terminal', etc.
+  title: string;
+  isOpen: boolean;
+  isMinimized: boolean;
+  isMaximized: boolean;
+  zIndex: number;
+  x: number;
+  y: number;
+  width: number | string;
+  height: number | string;
+}
+
 export interface CloudDriveFile {
   id: string;
   owner: string;
   filename: string;
   size: number;
   type: string;
-  dataUrl?: string; // or simulated cloud ref
+  dataUrl?: string; 
   isPrivate: boolean;
+  isSystemFile?: boolean;
   uploadDate: string;
 }
 

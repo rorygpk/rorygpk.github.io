@@ -230,10 +230,10 @@ export const SecureBridge: React.FC = () => {
             <div className="mb-8 flex items-center justify-between px-2 shrink-0">
               <div>
                  <h2 className="text-xl font-black text-white italic uppercase tracking-tighter">Hugging Face Elite Mesh</h2>
-                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                 <div className="text-[11px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                     1000/1000 Tests Passed (Elite Status)
-                 </p>
+                 </div>
               </div>
               <div className="flex items-center gap-6 text-right">
                  <div>

@@ -75,9 +75,23 @@ import {
   MapPin,
   Layers,
   Camera,
-  Package
+  Package,
+  Minimize2,
+  Maximize2,
+  Power,
+  RotateCcw,
+  Layout,
+  Bell,
+  Info,
+  HelpCircle,
+  Battery,
+  ShieldCheck,
+  UserCircle,
+  Save,
+  Folder,
+  File
 } from "lucide-react";
-import { User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact } from "./types";
+import { GpkosAppWindow, GpkosPowerMode, User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
 import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks, AdminDatabaseEditor, DeploymentHub } from "./components/AIExtensions";
 import { PublicMail } from "./components/PublicMail";
@@ -88,8 +102,9 @@ import { GoogleMapsWidget } from "./components/GoogleMapsWidget";
 import { SecureBridge } from "./components/SecureBridge";
 import { encryptData, decryptData } from './lib/encryption';
 import { RichTextEditor } from "./components/RichTextEditor";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useDragControls } from "motion/react";
 
+import { GpkosSettings } from "./components/GpkosSettings";
 import { VerificationScreen } from "./components/VerificationScreen";
 
 const containerStyle = {
@@ -100,6 +115,112 @@ const containerStyle = {
 const defaultCenter = {
   lat: 23.0215, // Fatshan coordinates roughly
   lng: 113.1214
+};
+
+// --- GPKOS Multi-Window System Component ---
+interface WindowProps {
+  window: GpkosAppWindow;
+  onClose: (id: string) => void;
+  onMinimize: (id: string) => void;
+  onFocus: (id: string) => void;
+  onPositionChange: (id: string, x: number, y: number) => void;
+  onSizeChange: (id: string, w: number, h: number) => void;
+  children: React.ReactNode;
+  isFocused: boolean;
+  constraintsRef?: React.RefObject<HTMLDivElement | null>;
+}
+
+const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, onFocus, onPositionChange, onSizeChange, children, isFocused, constraintsRef }) => {
+  const [resizing, setResizing] = useState(false);
+  const winRef = useRef<HTMLDivElement>(null);
+  const dragControls = useDragControls();
+
+  if (window.isMinimized) return null;
+
+  return (
+    <motion.div
+      ref={winRef}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      drag={!resizing}
+      dragControls={dragControls}
+      dragListener={false}
+      dragMomentum={false}
+      dragElastic={0}
+      dragConstraints={constraintsRef}
+      onDragEnd={(_, info) => {
+        onPositionChange(window.id, window.x + info.offset.x, window.y + info.offset.y);
+      }}
+      onPointerDown={() => onFocus(window.id)}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        x: window.x,
+        y: window.y,
+        width: window.width,
+        height: window.height,
+        zIndex: window.zIndex,
+      }}
+      className={`bg-slate-950 border border-white/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'}`}
+    >
+      {/* Window Header */}
+      <div 
+        className="bg-slate-900/90 p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
+        onPointerDown={(e) => dragControls.start(e)}
+      >
+        <div className="flex gap-2 shrink-0">
+          <button onClick={(e) => { e.stopPropagation(); onClose(window.id); }} className="h-3 w-3 rounded-full bg-[#ff5f57] hover:bg-[#ff5f57cc] border border-black/10 transition-colors flex items-center justify-center group">
+            <X className="w-2 h-2 text-transparent group-hover:text-red-950" />
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); onMinimize(window.id); }} className="h-3 w-3 rounded-full bg-[#ffbd2e] hover:bg-[#ffbd2ecc] border border-black/10 transition-colors flex items-center justify-center group">
+            <Minimize2 className="w-2 h-2 text-transparent group-hover:text-amber-950" />
+          </button>
+          <button className="h-3 w-3 rounded-full bg-[#28c840] hover:bg-[#28c840cc] border border-black/10 transition-colors flex items-center justify-center group">
+            <Maximize2 className="w-2 h-2 text-transparent group-hover:text-emerald-950" />
+          </button>
+        </div>
+        <div className={`text-[11px] font-bold tracking-tight px-4 transition-colors ${isFocused ? 'text-white' : 'text-slate-500'}`}>{window.title}</div>
+        <div className="w-12"></div>
+      </div>
+      
+      {/* Window Content */}
+      <div className="flex-grow overflow-auto relative">
+        {children}
+      </div>
+
+      {/* Resize Handle */}
+      <div 
+        className="absolute bottom-0 right-0 w-5 h-5 cursor-nwse-resize z-[100]"
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          setResizing(true);
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const startW = winRef.current?.offsetWidth || 800;
+          const startH = winRef.current?.offsetHeight || 600;
+
+          const onPointerMove = (moveEvent: PointerEvent) => {
+            const newW = Math.max(400, startW + (moveEvent.clientX - startX));
+            const newH = Math.max(300, startH + (moveEvent.clientY - startY));
+            onSizeChange(window.id, newW, newH);
+          };
+
+          const onPointerUp = () => {
+             setResizing(false);
+             document.removeEventListener('pointermove', onPointerMove);
+             document.removeEventListener('pointerup', onPointerUp);
+          };
+
+          document.addEventListener('pointermove', onPointerMove);
+          document.addEventListener('pointerup', onPointerUp);
+        }}
+      >
+        <div className="absolute bottom-1.5 right-1.5 w-2 h-2 bg-white/20 rounded-full border border-white/10" />
+      </div>
+    </motion.div>
+  );
 };
 
 function GoogleMapsWrapper() {
@@ -1724,6 +1845,65 @@ export default function App() {
     } finally {
       setIsAiLoading(false);
     }
+  };
+
+  // Window Management States
+  const desktopRef = useRef<HTMLDivElement>(null);
+  const [openedWindows, setOpenedWindows] = useState<GpkosAppWindow[]>([]);
+  const [focusedWindowId, setFocusedWindowId] = useState<string | null>(null);
+  const [powerMode, setPowerMode] = useState<GpkosPowerMode>("on");
+  const [systemUptime, setSystemUptime] = useState(0);
+
+  // App Launch Helper
+  const launchApp = (appId: string, title: string) => {
+    setOpenedWindows(prev => {
+      const existing = prev.find(w => w.appId === appId);
+      if (existing) {
+        setFocusedWindowId(existing.id);
+        return prev.map(w => w.appId === appId ? { ...w, isMinimized: false, zIndex: (prev.length > 0 ? Math.max(...prev.map(aw => aw.zIndex)) : 10) + 1 } : w);
+      }
+      const newWin: GpkosAppWindow = {
+        id: `win-${Date.now()}`,
+        appId,
+        title,
+        isOpen: true,
+        isMinimized: false,
+        isMaximized: false,
+        zIndex: (prev.length > 0 ? Math.max(...prev.map(aw => aw.zIndex)) : 10) + 1,
+        x: 100 + (prev.length * 30),
+        y: 100 + (prev.length * 30),
+        width: 900,
+        height: 600
+      };
+      setFocusedWindowId(newWin.id);
+      return [...prev, newWin];
+    });
+  };
+
+  const closeWindow = (winId: string) => {
+    setOpenedWindows(prev => prev.filter(w => w.id !== winId));
+    if (focusedWindowId === winId) setFocusedWindowId(null);
+  };
+
+  const minimizeWindow = (winId: string) => {
+    setOpenedWindows(prev => prev.map(w => w.id === winId ? { ...w, isMinimized: true } : w));
+    if (focusedWindowId === winId) setFocusedWindowId(null);
+  };
+
+  const focusWindow = (winId: string) => {
+    setFocusedWindowId(winId);
+    setOpenedWindows(prev => {
+      const maxZ = prev.length > 0 ? Math.max(...prev.map(w => w.zIndex)) : 10;
+      return prev.map(w => w.id === winId ? { ...w, zIndex: maxZ + 1 } : w);
+    });
+  };
+
+  const updateWindowPos = (winId: string, x: number, y: number) => {
+    setOpenedWindows(prev => prev.map(w => w.id === winId ? { ...w, x, y } : w));
+  };
+
+  const updateWindowSize = (winId: string, width: number, height: number) => {
+    setOpenedWindows(prev => prev.map(w => w.id === winId ? { ...w, width, height } : w));
   };
 
   // Interactive Live terminal code simulator actions
@@ -4963,7 +5143,29 @@ export default function App() {
                     </div>
                   </div>
 
+                  {/* Minimized Window Previews - macOS Style Top Bar Display */}
+                  <div className="flex-grow flex items-center justify-center pointer-events-none">
+                     <div className="pointer-events-auto flex items-center gap-1.5 px-2">
+                        {openedWindows.filter(w => w.isMinimized).map(window => (
+                           <button 
+                             key={window.id}
+                             onClick={() => minimizeWindow(window.id)}
+                             className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md border border-white/10 transition animate-in slide-in-from-top-1 duration-300"
+                           >
+                              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_5px_rgba(34,211,238,0.5)]" />
+                              <span className="text-[10px] font-black text-white italic tracking-tighter uppercase">{window.title}</span>
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+
                   <div className="flex items-center gap-4 text-[10px] text-white/80 font-mono font-bold tracking-wider uppercase">
+                    {powerMode === 'eco' && (
+                      <div className="flex items-center gap-1.5 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30 text-emerald-400 animate-pulse">
+                         <Cpu className="w-3 h-3" />
+                         <span>ECO SAVER</span>
+                      </div>
+                    )}
                     <span className="hidden sm:inline">Admin: {currentUser.emailUsername}</span>
                     <div className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -4974,155 +5176,131 @@ export default function App() {
                 </div>
 
                 {/* Desktop Workspace Area */}
-                <div className="flex-grow p-6 relative overflow-hidden flex items-start justify-center">
+                <div ref={desktopRef} className="flex-grow relative overflow-hidden p-0">
+                  {/* Power Mode Overlays */}
+                  {powerMode === 'sleep' && (
+                    <div className="absolute inset-0 z-[1000] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000">
+                       <motion.div 
+                        initial={{ opacity: 0.2 }}
+                        animate={{ opacity: 0.5 }}
+                        transition={{ repeat: Infinity, duration: 4, repeatType: "reverse" }}
+                        className="text-white flex flex-col items-center gap-4"
+                       >
+                          <Moon className="w-16 h-16 opacity-20" />
+                          <div className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">System Sleeping...</div>
+                       </motion.div>
+                       <button 
+                        onClick={() => setPowerMode('on')}
+                        className="absolute inset-0 cursor-default"
+                       />
+                    </div>
+                  )}
                   
                   {/* IDE Window */}
-                  {gpkosActiveApp === 'ide' && (
-                    <div className="bg-slate-950 border border-white/20 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col h-[500px] animate-fade-in">
-                      <div className="bg-slate-900/80 p-3 border-b border-white/10 flex items-center justify-between">
-                        <div className="flex gap-1.5 shrink-0">
-                          <button onClick={() => setGpkosActiveApp('desktop')} className="h-3 w-3 rounded-full bg-red-500 hover:bg-red-400" />
-                          <div className="h-3 w-3 rounded-full bg-amber-500" />
-                          <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                        </div>
-                        <div className="text-[11px] font-bold text-slate-300">GPKOS Code Sandbox</div>
-                        <div className="w-10"></div>
-                      </div>
-                      <div className="flex-grow flex flex-col lg:flex-row shadow-inner">
-                        <div className="flex-grow p-0 border-r border-white/10 flex flex-col">
-                          <div className="bg-slate-900 p-2 flex justify-between items-center text-xs">
-                            <span className="font-mono text-cyan-400 font-bold bg-cyan-950/40 px-2 rounded">TS • main.ts</span>
-                            <button onClick={handleIDECompile} className="bg-emerald-500 text-slate-950 px-3 py-1 rounded font-bold flex items-center gap-1"><Play className="h-3 w-3"/> Run</button>
+                  {openedWindows.some(w => w.appId === 'ide' && !w.isMinimized) && (
+                    <DraggableWindow
+                      window={openedWindows.find(w => w.appId === 'ide')!}
+                      isFocused={focusedWindowId === openedWindows.find(w => w.appId === 'ide')?.id}
+                      onClose={closeWindow}
+                      onMinimize={minimizeWindow}
+                      onFocus={focusWindow}
+                      onPositionChange={updateWindowPos}
+                      onSizeChange={updateWindowSize}
+                      constraintsRef={desktopRef}
+                    >
+                      <div className="flex flex-col h-full bg-slate-950">
+                        <div className="flex-grow flex flex-col lg:flex-row shadow-inner overflow-hidden">
+                          <div className="flex-grow p-0 border-r border-white/10 flex flex-col overflow-hidden">
+                            <div className="bg-slate-900 p-2 flex justify-between items-center text-xs shrink-0">
+                              <span className="font-mono text-cyan-400 font-bold bg-cyan-950/40 px-2 rounded">TS • main.ts</span>
+                              <button onClick={handleIDECompile} className="bg-emerald-500 text-slate-950 px-3 py-1 rounded font-bold flex items-center gap-1"><Play className="h-3 w-3"/> Run</button>
+                            </div>
+                            <textarea value={ideCode} onChange={(e) => setIdeCode(e.target.value)} className="flex-grow bg-transparent text-emerald-400 p-4 font-mono text-xs border-none outline-none resize-none leading-relaxed" spellCheck={false} />
                           </div>
-                          <textarea value={ideCode} onChange={(e) => setIdeCode(e.target.value)} className="flex-grow bg-transparent text-emerald-400 p-4 font-mono text-xs border-none outline-none resize-none leading-relaxed" spellCheck={false} />
-                        </div>
-                        <div className="w-full lg:w-1/3 flex flex-col bg-black">
-                          <div className="bg-slate-900 p-2 text-xs font-bold text-slate-400 border-b border-white/10">Execution Logs</div>
-                          <div className="flex-grow p-4 font-mono text-[10px] text-slate-300 overflow-y-auto whitespace-pre-wrap">{ideLogs}</div>
+                          <div className="w-full lg:w-1/3 flex flex-col bg-black overflow-hidden shrink-0 font-bold uppercase tracking-widest text-[9px]">
+                            <div className="bg-slate-900 p-2 text-xs font-bold text-slate-400 border-b border-white/10 shrink-0 uppercase tracking-widest">Execution Logs</div>
+                            <div className="flex-grow p-4 font-mono text-[10px] text-slate-300 overflow-y-auto whitespace-pre-wrap">{ideLogs}</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </DraggableWindow>
                   )}
 
                   {/* Remote Assist Window */}
-                  {gpkosActiveApp === 'remote' && (
-                    <div className="bg-slate-900 border border-white/20 rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col h-[550px] animate-fade-in relative overflow-hidden">
-                      {/* Window Header */}
-                      <div className="bg-slate-800/90 p-3 border-b border-white/10 flex items-center justify-between shrink-0">
-                        <div className="flex gap-1.5 shrink-0">
-                          <button onClick={() => setGpkosActiveApp('desktop')} className="h-3 w-3 rounded-full bg-red-500 hover:bg-red-400" />
-                          <div className="h-3 w-3 rounded-full bg-amber-500" />
-                          <div className="h-3 w-3 rounded-full bg-green-500" />
-                        </div>
-                        <div className="flex-grow flex items-center justify-center gap-2">
-                           <MonitorUp className="w-4 h-4 text-emerald-400" />
-                           <span className="text-white text-xs font-bold tracking-wider">远程协同与多端控屏 (OS级别用户鼠标特权版)</span>
-                        </div>
-                        <div className="w-12 shrink-0"></div>
-                      </div>
-
-                      <div className="flex-grow flex overflow-hidden">
-                        {/* Main Screen Stream Area */}
-                        <div className="flex-grow bg-slate-950 relative flex flex-col items-center justify-center border-r border-white/5 overflow-hidden">
-                          {!remoteSessionActive && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/50 z-10 p-6 text-center">
-                               <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20 mb-4 animate-pulse">
-                                 <MonitorUp className="w-8 h-8 text-emerald-400" />
-                               </div>
-                               <h3 className="text-white font-bold text-lg mb-2">安全建立协作会话</h3>
-                               <p className="text-slate-400 text-xs max-w-sm mb-6">采用最前沿的 WebRTC 实时分享流协议。远端协同者可实时语音及屏幕标引批注，但在操作上，<strong className="text-amber-400">本机拥有绝对第一鼠标归属主权</strong>，绝不发生光标被强制拉长、锁止篡夺事件。</p>
-                               <button 
-                                 onClick={startRemoteSession}
-                                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold transition flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/50"
-                               >
-                                 <Share className="w-4 h-4" /> 开启屏幕协同与投屏
-                               </button>
+                  {openedWindows.some(w => w.appId === 'remote' && !w.isMinimized) && (
+                    <DraggableWindow
+                      window={openedWindows.find(w => w.appId === 'remote')!}
+                      isFocused={focusedWindowId === openedWindows.find(w => w.appId === 'remote')?.id}
+                      onClose={closeWindow}
+                      onMinimize={minimizeWindow}
+                      onFocus={focusWindow}
+                      onPositionChange={updateWindowPos}
+                      onSizeChange={updateWindowSize}
+                      constraintsRef={desktopRef}
+                    >
+                      <div className="flex flex-col h-full bg-slate-900">
+                         <div className="flex-grow flex overflow-hidden">
+                            <div className="flex-grow bg-slate-950 relative flex flex-col items-center justify-center border-r border-white/5 overflow-hidden">
+                              {!remoteSessionActive && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/50 z-10 p-6 text-center">
+                                  <MonitorUp className="w-12 h-12 text-emerald-400 mb-4 animate-pulse opacity-50" />
+                                  <h3 className="text-white font-bold text-lg mb-2 italic tracking-tighter uppercase">Establish协作会话</h3>
+                                  <button onClick={startRemoteSession} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold transition flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/50 uppercase tracking-widest">
+                                    <Share className="w-4 h-4" /> 开启屏幕投屏
+                                  </button>
+                                </div>
+                              )}
+                              <video ref={remoteVideoRef} autoPlay playsInline muted className={`max-w-full max-h-full object-contain ${remoteSessionActive ? 'opacity-100' : 'opacity-0'} transition-opacity outline-none border-none`} />
                             </div>
-                          )}
-                          <video 
-                             ref={remoteVideoRef} 
-                             autoPlay 
-                             playsInline 
-                             muted 
-                             className={`max-w-full max-h-full object-contain ${remoteSessionActive ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
-                          ></video>
-                          
-                          {/* Pseudo "Collaborative Cursor" overlay demonstration */}
-                          {remoteSessionActive && (
-                            <div className="absolute top-1/3 left-1/3 pointer-events-none z-20 flex flex-col items-center animate-bounce shadow">
-                               <MousePointer2 className="w-6 h-6 text-fuchsia-500 drop-shadow-xl" fill="currentColor" />
-                               <span className="bg-fuchsia-500 px-2 py-0.5 rounded text-[9px] font-bold text-white shadow-xl whitespace-nowrap mt-1">Guest_tech_221</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Side Chat / Events Bar */}
-                        <div className="w-72 bg-slate-900 flex flex-col shrink-0">
-                           <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2 bg-slate-900/50">
-                              <MessageSquare className="w-4 h-4 text-cyan-400" />
-                              <span className="text-white text-xs font-bold uppercase tracking-wider">实时会控对话舱</span>
-                           </div>
-                           
-                           <div className="flex-grow overflow-y-auto p-4 space-y-4">
-                             {remoteChatMessages.map((m, idx) => (
-                               <div key={idx} className={m.sender === "System" ? "text-center" : (m.sender === (currentUser?.fullName || "Host") ? "text-right" : "text-left")}>
-                                  {m.sender === "System" ? (
-                                    <span className="text-[10px] text-emerald-400/80 font-mono bg-emerald-900/20 px-2 py-1 rounded-full">{m.text}</span>
-                                  ) : (
-                                    <div className={`inline-block max-w-[85%] text-left ${m.sender === (currentUser?.fullName || "Host") ? "bg-cyan-600 border border-cyan-500 text-white" : "bg-slate-800 border border-slate-700 text-slate-200"} rounded-xl px-3 py-2 text-xs`}>
-                                       <div className="text-[9px] text-white/50 mb-1 font-bold">{m.sender} <span className="font-normal opacity-50 ml-1">{m.time}</span></div>
-                                       <div className="leading-relaxed">{m.text}</div>
-                                    </div>
-                                  )}
+                            <div className="w-64 bg-slate-900 flex flex-col shrink-0 overflow-hidden">
+                               <div className="p-3 border-b border-white/5 flex items-center gap-2 shrink-0 bg-slate-800">
+                                  <MessageSquare className="w-4 h-4 text-cyan-400" />
+                                  <span className="text-white text-[10px] font-black uppercase tracking-widest">Chat Portal</span>
                                </div>
-                             ))}
-                             {remoteChatMessages.length === 0 && (
-                               <div className="text-center text-xs text-slate-500 py-10">尚无对话。等待协同建立以接收远端会话。</div>
-                             )}
-                           </div>
-
-                           <div className="p-3 border-t border-white/5 bg-slate-950">
-                             <form onSubmit={handleRemoteChatSubmit} className="flex gap-2">
-                               <input 
-                                 type="text" 
-                                 value={remoteChatInput}
-                                 onChange={e => setRemoteChatInput(e.target.value)}
-                                 disabled={!remoteSessionActive}
-                                 placeholder={remoteSessionActive ? "输入并发送..." : "连接后可输入(支持快捷键)"}
-                                 className="flex-grow bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50"
-                               />
-                               <button type="submit" disabled={!remoteSessionActive} className="bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                 发送
-                               </button>
-                             </form>
-                           </div>
-                        </div>
+                               <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-900/40">
+                                 {remoteChatMessages.map((m, idx) => (
+                                   <div key={idx} className="text-left animate-in slide-in-from-left-2 duration-300">
+                                      <div className={`inline-block max-w-[90%] bg-slate-800 border border-white/5 rounded-2xl px-3 py-2 text-[10px] text-slate-200 shadow-xl`}>
+                                         <div className="text-[8px] text-cyan-400 mb-1 font-black uppercase tracking-tighter">{m.sender}</div>
+                                         <div className="leading-relaxed font-bold italic">{m.text}</div>
+                                      </div>
+                                   </div>
+                                 ))}
+                               </div>
+                            </div>
+                         </div>
                       </div>
-                    </div>
+                    </DraggableWindow>
                   )}
 
                   {/* Terminal Window */}
-                  {gpkosActiveApp === 'terminal' && (
-                    <div className="bg-black border border-white/20 rounded-xl w-full max-w-3xl shadow-2xl flex flex-col h-[450px] animate-fade-in">
-                      <div className="bg-slate-900 p-2 border-b border-white/10 flex items-center justify-between">
-                        <div className="flex gap-1.5 shrink-0">
-                          <button onClick={() => setGpkosActiveApp('desktop')} className="h-3 w-3 rounded-full bg-red-500 hover:bg-red-400" />
-                          <div className="h-3 w-3 rounded-full bg-amber-500" />
-                          <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                        </div>
-                        <div className="text-[11px] font-bold text-slate-400 font-mono">root@gpkos-core:~</div>
-                        <div className="w-10"></div>
+                  {openedWindows.some(w => w.appId === 'terminal' && !w.isMinimized) && (
+                    <DraggableWindow
+                      window={openedWindows.find(w => w.appId === 'terminal')!}
+                      isFocused={focusedWindowId === openedWindows.find(w => w.appId === 'terminal')?.id}
+                      onClose={closeWindow}
+                      onMinimize={minimizeWindow}
+                      onFocus={focusWindow}
+                      onPositionChange={updateWindowPos}
+                      onSizeChange={updateWindowSize}
+                      constraintsRef={desktopRef}
+                    >
+                      <div className="flex flex-col h-full bg-black font-mono text-[10px] text-emerald-500 p-4 relative">
+                         <div className="absolute top-2 right-4 opacity-20 font-black italic uppercase tracking-[0.3em]">Kernel v4.21</div>
+                         <div className="flex-grow overflow-y-auto whitespace-pre-wrap leading-relaxed">{ideLogs || "FATSHAN GPKOS KERNEL INITIALIZED...\nREADY FOR COMMAND INPUT."}</div>
+                         <div className="flex items-center gap-2 mt-4 border-t border-emerald-900/30 pt-4 bg-black shrink-0">
+                            <span className="opacity-70 font-black">root@gpkos:~$</span>
+                            <input 
+                              type="text" 
+                              value={ideTerminalInput} 
+                              onChange={e => setIdeTerminalInput(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && handleIDECompile()}
+                              className="flex-grow bg-transparent border-none outline-none text-white font-black"
+                              autoFocus
+                            />
+                         </div>
                       </div>
-                      <div className="flex-grow flex flex-col p-4 overflow-hidden">
-                        <div className="flex-grow font-mono text-xs leading-relaxed overflow-y-auto whitespace-pre-wrap text-emerald-400 pb-2">
-                          {ideLogs}
-                        </div>
-                        <form onSubmit={handleIDETerminalCmd} className="flex items-center gap-2 mt-auto">
-                          <span className="text-emerald-500 text-xs font-mono font-bold">host:~#</span>
-                          <input type="text" value={ideTerminalInput} onChange={(e) => setIdeTerminalInput(e.target.value)} className="flex-grow bg-transparent text-xs text-white border-none outline-none font-mono py-1" spellCheck={false} autoFocus />
-                        </form>
-                      </div>
-                    </div>
+                    </DraggableWindow>
                   )}
 
                   {/* DELETING START */}
@@ -7046,67 +7224,79 @@ export default function App() {
                   );
                 })()}
 
+                {/* Main Dynamic Workspace rendering */}
+                <AnimatePresence mode="popLayout">
+                  {openedWindows.filter(w => !['ide', 'remote', 'terminal'].includes(w.appId)).map(window => (
+                    <DraggableWindow
+                      key={window.id}
+                      window={window}
+                      isFocused={focusedWindowId === window.id}
+                      onClose={closeWindow}
+                      onMinimize={minimizeWindow}
+                      onFocus={focusWindow}
+                      onPositionChange={updateWindowPos}
+                      onSizeChange={updateWindowSize}
+                      constraintsRef={desktopRef}
+                    >
+                      {window.appId === 'maps' && <GoogleMapsWidget />}
+                      {window.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
+                      {window.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
+                      {window.appId === 'global-bridge' && <SecureBridge />}
+                      {/* Fallback for other apps */}
+                      {!['maps', 'drive', 'settings', 'global-bridge'].includes(window.appId) && (
+                        <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
+                           {window.title} Module Loaded
+                        </div>
+                      )}
+                    </DraggableWindow>
+                  ))}
+                </AnimatePresence>
+
                 </div>
 
                 {/* macOS styled Dock bottom */}
-                <div className="pb-4 pt-2 flex justify-center z-10 shrink-0">
+                <div className="pb-4 pt-2 flex justify-center z-[2000] shrink-0">
                   <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-2xl flex items-center gap-4 shadow-2xl">
-                    <button onClick={() => setGpkosActiveApp('remote')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'remote' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('remote', '远程协同协作 (Admin)')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-emerald-900/60 p-2.5 rounded-xl shadow border border-emerald-500/30"><MonitorUp className="h-6 w-6 text-emerald-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Remote Assist</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('terminal')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'terminal' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('terminal', 'GPKOS Kernel Terminal')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10"><Terminal className="h-6 w-6 text-emerald-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Terminal</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('ide')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'ide' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('ide', 'GPKOS Code Sandbox')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-cyan-900/60 p-2.5 rounded-xl shadow border border-cyan-500/30"><FileCode2 className="h-6 w-6 text-cyan-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Compiler</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('mobile-search')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'mobile-search' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('mobile-search', 'Mobile Search Hub')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-purple-900/60 p-2.5 rounded-xl shadow border border-purple-500/30"><Smartphone className="h-6 w-6 text-purple-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mobile Hub</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('global-bridge')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'global-bridge' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('global-bridge', 'HF Secure Bridge')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-cyan-900/60 p-2.5 rounded-xl shadow border border-cyan-500/30 font-bold"><Shield className="h-6 w-6 text-cyan-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">HF Bridge</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('maps')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'maps' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('maps', 'Google Maps HUB')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><Chrome className="h-6 w-6 text-cyan-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Google Hub</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('gmail')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'gmail' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('gmail', 'Mail Cloud Workspace')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-rose-500/50 transition-colors"><Mail className="h-6 w-6 text-rose-500" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Gmail</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('drive')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'drive' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('drive', 'GPKOS Cloud Drive')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-amber-500/50 transition-colors"><HardDrive className="h-6 w-6 text-amber-500" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Drive</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('calendar')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'calendar' ? 'scale-110' : ''}`}>
-                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-blue-500/50 transition-colors"><Calendar className="h-6 w-6 text-blue-500" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Calendar</span>
-                    </button>
-                    <button onClick={() => setGpkosActiveApp('photos')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'photos' ? 'scale-110' : ''}`}>
-                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-orange-500/50 transition-colors"><Images className="h-6 w-6 text-orange-500" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Photos</span>
-                    </button>
-                    <button onClick={() => setGpkosActiveApp('youtube')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'youtube' ? 'scale-110' : ''}`}>
-                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-red-500/50 transition-colors"><Youtube className="h-6 w-6 text-red-600" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">YouTube</span>
-                    </button>
-                    <button onClick={() => setGpkosActiveApp('gemini')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'gemini' ? 'scale-110' : ''}`}>
+                    <button onClick={() => launchApp('gemini', 'Gemini Pro Workspace')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-[#131214] p-2.5 rounded-xl shadow border border-white/10 hover:border-violet-500/50 transition-colors"><BrainCircuit className="h-6 w-6 text-violet-400 animate-pulse" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Gemini AI</span>
                     </button>
-                    <button onClick={() => setGpkosActiveApp('google-play')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'google-play' ? 'scale-110' : ''}`}>
-                       <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-teal-500/50 transition-colors"><ShoppingBag className="h-6 w-6 text-teal-400" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Play Store</span>
-                    </button>
                     <div className="w-px h-8 bg-white/20 mx-1"></div>
-                    <button onClick={() => {}} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 text-white/50 cursor-not-allowed">
-                       <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 opacity-50"><Settings className="h-6 w-6" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Config Locked</span>
+                    <button onClick={() => launchApp('settings', 'System Preferences')} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2">
+                       <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 hover:border-cyan-500/50 transition-colors"><Settings className="h-6 w-6 text-white" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Settings</span>
                     </button>
                   </div>
                 </div>
