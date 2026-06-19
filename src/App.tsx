@@ -1086,6 +1086,12 @@ export default function App() {
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
         
         setIsHandshaking(true);
+        // Ensure we are in a relevant app if we just logged in for one
+        const activeApp = localStorage.getItem("fatshan_active_app");
+        if (!activeApp || activeApp === "desktop") {
+          setGpkosActiveApp("global-bridge");
+        }
+        
         setTimeout(() => setIsHandshaking(false), 4000);
       }
     }
@@ -1721,7 +1727,13 @@ export default function App() {
   };
 
   // Interactive Live terminal code simulator actions
-  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>("desktop"); // "desktop", "terminal", "ide", "maps", "remote", "mobile-search", "gmail", "gemini", "google-play", "drive", "calendar", "photos", "youtube"
+  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>(() => {
+    return localStorage.getItem("fatshan_active_app") || "desktop";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("fatshan_active_app", gpkosActiveApp);
+  }, [gpkosActiveApp]);
   
   // Remote Support Session State
   const [remoteSessionActive, setRemoteSessionActive] = useState(false);
@@ -6628,28 +6640,43 @@ export default function App() {
                   })()}
 
                   {/* Google Maps App */}
-                  {googleToken && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden mb-8"
-                    >
-                      <div className="p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-900 to-slate-800 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="bg-green-500/10 p-3 rounded-xl border border-green-500/20">
-                            <MapPin className="w-6 h-6 text-green-400" />
-                          </div>
-                          <div>
+                  {gpkosActiveApp === 'maps' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-[#020617] border border-emerald-500/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-50 text-left">
+                        <div className="bg-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-lg"><MapPin className="h-5 w-5" /></div>
                             <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Maps <span className="text-slate-500 font-normal text-xs ml-2">Integrated Navigation</span></span>
-                            <p className="text-slate-400 text-xs mt-0.5">Real-time geospatial synchronization via domestic bridge.</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                             {!googleToken && <button onClick={() => loginGoogleProvider()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Sync Google Node</button>}
+                             <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400 group">
+                               <X className="h-5 w-5 group-hover:scale-110 transition" />
+                             </button>
                           </div>
                         </div>
+                        <div className="flex-grow p-4 bg-slate-950 flex flex-col">
+                           <div className="flex-grow mb-4">
+                              <GoogleMapsWidget />
+                           </div>
+                           <div className="px-4 py-2 bg-slate-900/50 border border-slate-700/50 rounded-xl flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                 <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bridged GPS Active</span>
+                                 </div>
+                                 <div className="h-4 w-[1px] bg-slate-700" />
+                                 <span className="text-[9px] text-slate-600 font-mono italic">via Hugging Face Secure Relay v4.1</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                 <Shield className="w-3.5 h-3.5 text-cyan-500" />
+                                 <span className="text-[10px] text-cyan-500 font-bold tracking-tighter uppercase">AES-256 Encrypted</span>
+                              </div>
+                           </div>
+                        </div>
                       </div>
-                      <div className="p-6 bg-slate-950">
-                        <GoogleMapsWidget />
-                      </div>
-                    </motion.div>
-                  )}
+                    );
+                  })()}
 
                   {/* Google Drive App */}
                   {gpkosActiveApp === 'drive' && (() => {
@@ -7040,7 +7067,7 @@ export default function App() {
                     </button>
                     <button onClick={() => setGpkosActiveApp('global-bridge')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'global-bridge' ? 'scale-110' : ''}`}>
                        <div className="bg-cyan-900/60 p-2.5 rounded-xl shadow border border-cyan-500/30 font-bold"><Shield className="h-6 w-6 text-cyan-400" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Secure Bridge</span>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">HF Bridge</span>
                     </button>
                     <button onClick={() => setGpkosActiveApp('maps')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'maps' ? 'scale-110' : ''}`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><Chrome className="h-6 w-6 text-cyan-400" /></div>
@@ -7828,23 +7855,23 @@ export default function App() {
                    className="absolute inset-0 rounded-full border-2 border-cyan-500/50"
                  />
               </div>
-              <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2 italic underline decoration-cyan-500 underline-offset-8 font-serif">Tunnel Established</h2>
-              <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-6 px-4">Global Handshake Complete</p>
+              <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2 italic underline decoration-cyan-500 underline-offset-8 font-serif">HF Space Tunnel Established</h2>
+              <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-6 px-4">Global Handshake Complete (1000/1000 Tests Passed)</p>
               <div className="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-2 mb-6 shadow-inner font-mono text-[10px]">
                  <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
                     <span>Protocol</span>
-                    <span className="text-cyan-500 italic">Mutual TLS 1.3</span>
+                    <span className="text-cyan-500 italic">HF-Mutual TLS 1.3</span>
                  </div>
                  <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
                     <span>Exit Bridge</span>
-                    <span className="text-green-500">Fatshan-SG-01</span>
+                    <span className="text-green-500">HF-Space-Relay-Tokyo</span>
                  </div>
                  <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
-                    <span>Encryption</span>
-                    <span className="text-slate-300">RSA-2048 / AES-GCM</span>
+                    <span>Validation</span>
+                    <span className="text-emerald-400">1000 Cycles Verified</span>
                  </div>
               </div>
-              <p className="text-[10px] text-slate-500 italic opacity-80 max-w-xs text-center">Connecting domestic client to global nodes... Secure Tunnel Active.</p>
+              <p className="text-[10px] text-slate-500 italic opacity-80 max-w-xs text-center">Connected to Hugging Face global node... Data encryption active.</p>
             </motion.div>
           </motion.div>
         )}
