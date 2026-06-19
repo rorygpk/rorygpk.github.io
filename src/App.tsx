@@ -5125,9 +5125,8 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Maps Window */}
-                  {gpkosActiveApp === 'maps' && (() => {
-                    const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
+                  {/* DELETING START */}
+                  {gpkosActiveApp === 'maps-legacy-to-delete' && (() => {
 
                     // Proxy Search Function
                     const handleProxySearchSubmit = async (e: React.FormEvent) => {
@@ -6877,8 +6876,7 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
-
+                  {/* DELETING END */}
                   {/* Mobile Search Window */}
                   {gpkosActiveApp === 'mobile-search' && (() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
@@ -6920,8 +6918,9 @@ export default function App() {
                     };
 
                     return (
-                      <div className="bg-black border-[8px] border-slate-800 rounded-[3rem] w-full max-w-[340px] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.8)] flex flex-col h-[650px] animate-fade-in overflow-hidden relative font-sans text-white mx-auto">
-                        {/* Notch */}
+                      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-black border-[8px] border-slate-800 rounded-[3rem] w-full max-w-[340px] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.8)] flex flex-col h-[650px] animate-fade-in overflow-hidden relative font-sans text-white">
+                          {/* Notch */}
                         <div className="absolute top-0 inset-x-0 h-6 bg-transparent flex justify-center z-[60]">
                            <div className="w-32 h-6 bg-slate-800 rounded-b-3xl border-b border-x border-white/5 flex justify-center items-center shadow-md">
                               <div className="w-10 h-1.5 bg-black/50 rounded-full border border-white/5"></div>
