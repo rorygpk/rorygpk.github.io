@@ -5,6 +5,9 @@ colorFrom: cyan
 colorTo: slate
 sdk: docker
 app_port: 3000
+sdk_version: "25"
+python_version: "3.10"
+app_file: app.py
 pinned: false
 ---
 
