@@ -5127,6 +5127,7 @@ export default function App() {
 
                   {/* DELETING START */}
                   {gpkosActiveApp === 'maps-legacy-to-delete' && (() => {
+                    const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
 
                     // Proxy Search Function
                     const handleProxySearchSubmit = async (e: React.FormEvent) => {
@@ -6656,7 +6657,7 @@ export default function App() {
                         </div>
                         <div className="flex-grow p-4 bg-slate-950 flex flex-col">
                            <div className="flex-grow mb-4">
-                              <GoogleMapsWidget />
+                              <GoogleMapsWrapper />
                            </div>
                            <div className="px-4 py-2 bg-slate-900/50 border border-slate-700/50 rounded-xl flex items-center justify-between">
                               <div className="flex items-center gap-4">
@@ -6876,6 +6877,7 @@ export default function App() {
                          </div>
                       </div>
                     );
+                  })()}
                   {/* DELETING END */}
                   {/* Mobile Search Window */}
                   {gpkosActiveApp === 'mobile-search' && (() => {
@@ -7040,8 +7042,9 @@ export default function App() {
                             </div>
                         )}
                       </div>
-                    );
-                  })()}
+                    </div>
+                  );
+                })()}
 
                 </div>
 
