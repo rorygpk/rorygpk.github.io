@@ -1,8 +1,8 @@
 ---
 title: Fatshan Post Global Gateway
 emoji: 🌐
-colorFrom: cyan
-colorTo: slate
+colorFrom: blue
+colorTo: purple
 sdk: docker
 app_port: 3000
 sdk_version: "25"

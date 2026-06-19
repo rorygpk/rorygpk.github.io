@@ -7,8 +7,8 @@ WORKDIR /app
 # 复制 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安装所有依赖（确保开发依赖如 Vite, esbuild 也被安装用于构建流程）
-RUN npm install --include=dev
+# 安装所有依赖（npm ci 比 npm install 更可靠）
+RUN npm ci
 
 # 复制其余源代码
 COPY . .
