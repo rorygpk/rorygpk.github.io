@@ -1370,8 +1370,9 @@ export default function App() {
   );
   const [ideTerminalInput, setIdeTerminalInput] = useState("");
   const [ideLogs, setIdeLogs] = useState<string>(
-    "✨ Starting Rory GPKOS TypeScript Compiler service v3.11.2\nType 'ls' or 'docker ps' into the terminal shell input to audit system active logs."
+    "FATSHAN GPKOS TRANSCEIVER LINK: ONLINE\nREADY FOR RUNTIME EXECUTION."
   );
+  const [compilerLogs, setCompilerLogs] = useState<string>(">> [SYSTEM] ROLLING COMPILER ENGINE STANDBY...");
 
   // MSFS simulator step
   const [msfsWarningOpen, setMsfsWarningOpen] = useState(true);
@@ -2131,23 +2132,61 @@ export default function App() {
 
   const handleIDECompile = async () => {
     try {
+      const ts = new Date().toLocaleTimeString();
+      setCompilerLogs(`>> [${ts}] INITIALIZING GPKOS COMPILER CHAIN...\n>> TARGET: ${ideLanguage.toUpperCase()}\n>> RESOLVING BINDINGS...`);
+      
+      // Auto-open/focus terminal (as output) and logs window
+      const termWin = openedWindows.find(w => w.appId === 'terminal');
+      const logsWin = openedWindows.find(w => w.appId === 'ide-logs');
+      
+      const newWindows = [...openedWindows];
+      let termId = termWin?.id;
+      let logsId = logsWin?.id;
+
+      if (!termWin) {
+        termId = 'win-' + Math.random().toString(36).substr(2, 9);
+        newWindows.push({
+          id: termId, appId: 'terminal', title: 'Runtime Output', x: 200, y: 400, width: 700, height: 300, zIndex: 100, isMinimized: false, isMaximized: false
+        });
+      }
+      if (!logsWin) {
+        logsId = 'win-' + Math.random().toString(36).substr(2, 9);
+        newWindows.push({
+          id: logsId, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false
+        });
+      }
+
+      setOpenedWindows(newWindows);
+      setFocusedWindowId(termId!);
+
       const res = await fetch(getApiBase() + "/api/rory-gpkos/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: ideCode, language: ideLanguage })
       });
       const data = await res.json();
-      setIdeLogs(data.output);
+      
+      // Split mock data if possible or just show all in logs and final in runtime
+      setCompilerLogs(data.output);
+      
+      // Extract what looks like program output for the terminal
+      const outputLines = data.output.split('\n').filter((l: string) => l.includes('[STDOUT]')).map((l: string) => l.replace('[STDOUT] ', ''));
+      if (outputLines.length > 0) {
+        setIdeLogs(prev => prev + "\n" + outputLines.join('\n'));
+      } else {
+        setIdeLogs(prev => prev + "\n[SYSTEM] No console output from program execution.");
+      }
+
     } catch (err: any) {
-      setIdeLogs("❌ Link drop crash compiling. Error: " + err.message);
+      setCompilerLogs(prev => prev + "\n❌ COMPILATION LINK FAILURE: " + err.message);
     }
   };
 
   const handleIDETerminalCmd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ideTerminalInput.trim()) return;
+    const cmd = ideTerminalInput.trim();
+    if (!cmd) return;
 
-    const cmd = ideTerminalInput;
     setIdeTerminalInput("");
     setIdeLogs((prev) => prev + `\n\n$ ${cmd}`);
 
@@ -2155,12 +2194,12 @@ export default function App() {
       const res = await fetch(getApiBase() + "/api/rory-gpkos/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ command: cmd })
+        body: JSON.stringify({ command: cmd, language: ideLanguage })
       });
       const data = await res.json();
-      setIdeLogs((prev) => prev + `\n${data.output}`);
+      setIdeLogs((prev) => prev + "\n" + data.output);
     } catch (err: any) {
-      setIdeLogs((prev) => prev + `\n❌ command failed. ${err.message}`);
+      setIdeLogs((prev) => prev + "\n❌ SUBSYSTEM ERROR: " + err.message);
     }
   };
 
@@ -5026,6 +5065,15 @@ export default function App() {
                             <span>🚀 Gateway Latency Check</span>
                             <span className="text-[8px] opacity-60">⌘P</span>
                           </button>
+                          <button onClick={() => { 
+                            const id = 'win-' + Math.random().toString(36).substr(2, 9);
+                            setOpenedWindows(prev => [...prev, { id, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false }]);
+                            setFocusedWindowId(id);
+                            setGpkosActiveDropdown(null); 
+                          }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+                            <span>📜 View Compiler Logs</span>
+                            <span className="text-[8px] opacity-60">⌘L</span>
+                          </button>
                           <button onClick={() => { setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
                             <span>🔒 Guard SSL Tunnel</span>
                             <span className="text-[10px]">{gpkosEncryptionActive ? "✅" : "❌"}</span>
@@ -5223,36 +5271,47 @@ export default function App() {
                       constraintsRef={desktopRef}
                     >
                       <div className="flex flex-col h-full bg-slate-950">
-                        <div className="flex-grow flex flex-col lg:flex-row shadow-inner overflow-hidden">
-                          <div className="flex-grow p-0 border-r border-white/10 flex flex-col overflow-hidden">
-                            <div className="bg-slate-900 p-2 flex justify-between items-center text-xs shrink-0">
-                               <div className="flex items-center gap-2">
-                                <select 
-                                  value={ideLanguage}
-                                  onChange={(e) => setIdeLanguage(e.target.value)}
-                                  className="bg-slate-800 text-cyan-400 font-mono text-[10px] px-2 py-0.5 rounded border border-white/10 outline-none focus:ring-1 focus:ring-cyan-500"
-                                >
-                                  <option value="typescript">TypeScript</option>
-                                  <option value="javascript">JavaScript</option>
-                                  <option value="python">Python</option>
-                                  <option value="cpp">C++</option>
-                                  <option value="java">Java</option>
-                                  <option value="rust">Rust</option>
-                                  <option value="go">Go</option>
-                                  <option value="csharp">C#</option>
-                                  <option value="ruby">Ruby</option>
-                                  <option value="php">PHP</option>
-                                </select>
-                                <span className="font-mono text-slate-500 text-[10px] hidden sm:inline">main.{ideLanguage === 'typescript' ? 'ts' : ideLanguage === 'javascript' ? 'js' : ideLanguage === 'python' ? 'py' : ideLanguage === 'cpp' ? 'cpp' : 'file'}</span>
-                              </div>
-                              <button onClick={handleIDECompile} className="bg-emerald-500 text-slate-950 px-3 py-1 rounded font-bold flex items-center gap-1 transition active:scale-95"><Play className="h-3 w-3"/> Run</button>
+                        <div className="bg-slate-900 px-4 py-2 flex justify-between items-center text-xs shrink-0 border-b border-white/10">
+                           <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                               <span className="text-cyan-400 font-black uppercase tracking-tighter text-[9px] opacity-70">Language</span>
+                               <select 
+                                value={ideLanguage}
+                                onChange={(e) => setIdeLanguage(e.target.value)}
+                                className="bg-slate-800 text-cyan-400 font-mono text-[10px] px-2 py-0.5 rounded border border-white/20 outline-none focus:ring-1 focus:ring-cyan-500 hover:bg-slate-700 transition cursor-pointer"
+                               >
+                                <option value="typescript">TypeScript</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="python">Python</option>
+                                <option value="cpp">C++</option>
+                                <option value="java">Java</option>
+                                <option value="rust">Rust</option>
+                                <option value="go">Go</option>
+                                <option value="csharp">C#</option>
+                                <option value="ruby">Ruby</option>
+                                <option value="php">PHP</option>
+                               </select>
                             </div>
-                            <textarea value={ideCode} onChange={(e) => setIdeCode(e.target.value)} className="flex-grow bg-transparent text-emerald-400 p-4 font-mono text-xs border-none outline-none resize-none leading-relaxed" spellCheck={false} />
+                            <div className="h-4 w-px bg-white/10 mx-1" />
+                            <span className="font-mono text-slate-400 text-[10px] bg-slate-950/50 px-2 rounded-md">main.{ideLanguage === 'typescript' ? 'ts' : ideLanguage === 'javascript' ? 'js' : ideLanguage === 'python' ? 'py' : ideLanguage === 'cpp' ? 'cpp' :'file'}</span>
                           </div>
-                          <div className="w-full lg:w-1/3 flex flex-col bg-black overflow-hidden shrink-0 font-bold uppercase tracking-widest text-[9px]">
-                            <div className="bg-slate-900 p-2 text-xs font-bold text-slate-400 border-b border-white/10 shrink-0 uppercase tracking-widest">Execution Logs</div>
-                            <div className="flex-grow p-4 font-mono text-[10px] text-slate-300 overflow-y-auto whitespace-pre-wrap">{ideLogs}</div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={handleIDECompile} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-1 rounded-md font-black flex items-center gap-1.5 transition active:scale-95 shadow-lg shadow-emerald-900/20 uppercase tracking-widest text-[10px]">
+                                <Play className="h-3 w-3 fill-current"/> Compile & Run
+                            </button>
                           </div>
+                        </div>
+                        <div className="flex-grow relative overflow-hidden group">
+                           <div className="absolute top-4 left-0 w-8 flex flex-col items-center text-[10px] font-mono text-slate-700 pointer-events-none select-none">
+                              {Array.from({length: 40}).map((_, i) => <div key={i} className="leading-relaxed">{i+1}</div>)}
+                           </div>
+                           <textarea 
+                             value={ideCode} 
+                             onChange={(e) => setIdeCode(e.target.value)} 
+                             className="w-full h-full bg-slate-950 text-emerald-400 pl-10 pr-4 py-4 font-mono text-xs border-none outline-none resize-none leading-relaxed transition-all focus:bg-black placeholder:text-slate-800"
+                             spellCheck={false}
+                             placeholder={`// Write your ${ideLanguage} code here...`}
+                           />
                         </div>
                       </div>
                     </DraggableWindow>
@@ -5306,7 +5365,32 @@ export default function App() {
                     </DraggableWindow>
                   )}
 
-                  {/* Terminal Window */}
+                  {/* Compiler Logs Window */}
+                  {openedWindows.some(w => w.appId === 'ide-logs' && !w.isMinimized) && (
+                    <DraggableWindow
+                      window={openedWindows.find(w => w.appId === 'ide-logs')!}
+                      isFocused={focusedWindowId === openedWindows.find(w => w.appId === 'ide-logs')?.id}
+                      onClose={closeWindow}
+                      onMinimize={minimizeWindow}
+                      onFocus={focusWindow}
+                      onPositionChange={updateWindowPos}
+                      onSizeChange={updateWindowSize}
+                      onMaximize={toggleMaximizeW}
+                      constraintsRef={desktopRef}
+                    >
+                      <div className="flex flex-col h-full bg-[#0a0a0c] font-mono text-[9px] text-blue-400 p-4 border-t border-white/5">
+                         <div className="flex items-center justify-between mb-4 pb-2 border-b border-blue-900/30">
+                            <span className="font-black uppercase tracking-widest text-[#4a4a4c]">System Diagnostics Suite</span>
+                            <span className="text-[8px] opacity-40">v4.2.1-stable</span>
+                         </div>
+                         <div className="flex-grow overflow-y-auto whitespace-pre-wrap leading-relaxed selection:bg-blue-500/30">
+                           {compilerLogs}
+                         </div>
+                      </div>
+                    </DraggableWindow>
+                  )}
+
+                  {/* Terminal Window Overlay */}
                   {openedWindows.some(w => w.appId === 'terminal' && !w.isMinimized) && (
                     <DraggableWindow
                       window={openedWindows.find(w => w.appId === 'terminal')!}
@@ -5319,19 +5403,29 @@ export default function App() {
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
-                      <div className="flex flex-col h-full bg-black font-mono text-[10px] text-emerald-500 p-4 relative">
-                         <div className="absolute top-2 right-4 opacity-20 font-black italic uppercase tracking-[0.3em]">Kernel v4.21</div>
-                         <div className="flex-grow overflow-y-auto whitespace-pre-wrap leading-relaxed">{ideLogs || "FATSHAN GPKOS KERNEL INITIALIZED...\nREADY FOR COMMAND INPUT."}</div>
-                         <div className="flex items-center gap-2 mt-4 border-t border-emerald-900/30 pt-4 bg-black shrink-0">
-                            <span className="opacity-70 font-black">root@gpkos:~$</span>
-                            <input 
-                              type="text" 
-                              value={ideTerminalInput} 
-                              onChange={e => setIdeTerminalInput(e.target.value)}
-                              onKeyDown={(e) => e.key === 'Enter' && handleIDECompile()}
-                              className="flex-grow bg-transparent border-none outline-none text-white font-black"
-                              autoFocus
-                            />
+                      <div className="flex flex-col h-full bg-[#050505] font-mono text-[10px] p-0 relative overflow-hidden">
+                         <div className="bg-[#111] px-4 py-1.5 border-b border-white/5 flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-2">
+                               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                               <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Active Runtime Node</span>
+                            </div>
+                            <span className="text-[8px] text-emerald-500/50">GPKOS Virtualized Shell</span>
+                         </div>
+                         <div className="flex-grow overflow-y-auto p-4 whitespace-pre-wrap leading-relaxed text-emerald-400 selection:bg-emerald-900/40 custom-scrollbar">
+                           {ideLogs || "FATSHAN GPKOS KERNEL READY..."}
+                         </div>
+                         <div className="flex items-center gap-2 px-4 py-3 bg-[#0a0a0a] border-t border-white/5 shrink-0">
+                            <span className="text-emerald-600 font-black shrink-0">gpkos@marvis:~$</span>
+                            <form onSubmit={handleIDETerminalCmd} className="flex-grow">
+                             <input 
+                               type="text" 
+                               value={ideTerminalInput} 
+                               onChange={e => setIdeTerminalInput(e.target.value)}
+                               className="w-full bg-transparent border-none outline-none text-white font-bold placeholder:text-white/10"
+                               placeholder="Type command..."
+                               autoFocus
+                             />
+                            </form>
                          </div>
                       </div>
                     </DraggableWindow>
