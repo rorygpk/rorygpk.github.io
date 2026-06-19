@@ -378,7 +378,7 @@ export function AdminSubpages({ lang, systemState, setSystemState }: { lang: Lan
   );
 }
 
-export function AdminAIAccess({ lang, systemState, setSystemState }: { lang: Language, systemState: SystemState, setSystemState: React.Dispatch<React.SetStateAction<SystemState>> }) {
+export function AdminAIAccess({ lang, systemState, setSystemState, onAIGeminiModify }: { lang: Language, systemState: SystemState, setSystemState: React.Dispatch<React.SetStateAction<SystemState>>, onAIGeminiModify?: () => void }) {
   const [newUserEmail, setNewUserEmail] = useState("");
 
   const authorizedUsers = systemState.aiAuthorizedUsers || [];
@@ -415,14 +415,20 @@ export function AdminAIAccess({ lang, systemState, setSystemState }: { lang: Lan
 
   return (
     <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-6 shadow-xl flex flex-col gap-6 mt-6">
-      <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-        <div className="bg-fuchsia-500/20 p-2 rounded-xl border border-fuchsia-500/30">
-          <Users className="h-6 w-6 text-fuchsia-400" />
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-fuchsia-500/20 p-2 rounded-xl border border-fuchsia-500/30">
+            <Users className="h-6 w-6 text-fuchsia-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white">{lang === 'en' ? 'AI Access Admin' : 'AI 访问权限管理'}</h2>
+            <p className="text-xs text-slate-400">{lang === 'en' ? 'Grant users access to the direct Gemini AI tool' : '授予用户直接使用 Gemini AI 的权限'}</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-black text-white">{lang === 'en' ? 'AI Access Admin' : 'AI 访问权限管理'}</h2>
-          <p className="text-xs text-slate-400">{lang === 'en' ? 'Grant users access to the direct Gemini AI tool' : '授予用户直接使用 Gemini AI 的权限'}</p>
-        </div>
+        
+        <button onClick={onAIGeminiModify} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 px-4 py-2 rounded-xl font-black shadow-[0_0_20px_rgba(16,185,129,0.3)] transition transform hover:scale-105 flex items-center gap-2">
+            <Sparkles className="w-5 h-5"/> Gemini AI 改
+        </button>
       </div>
 
       <div className="flex items-center gap-2">

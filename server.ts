@@ -313,13 +313,21 @@ app.get("/api/emails", (req, res) => {
 
   const db = readDB();
   const userStr = String(username).toLowerCase();
-  const domainStr = String(domain).toLowerCase();
+  
+  // Find the user to check their role
+  const user = db.users?.find((u: any) => u.emailUsername.toLowerCase() === userStr);
+  const isAdmin = user?.role === 'admin';
 
-  // Load emails where user matches the username, regardless of domains (Domain-switch absolute retention!)
-  // Or match active domain or transition oldDomain if Dual overlap is running
+  // Load emails where user matches the username OR user is admin (and folder is not private)
   const userEmails = (db.emails || []).filter((e: any) => {
     const isSender = e.senderUsername.toLowerCase() === userStr;
     const isReceiver = e.receiverUsername.toLowerCase() === userStr;
+    if (isAdmin) {
+      if (e.folder === 'private' && !isSender && !isReceiver) {
+         return false; // Admin cannot see others' private emails
+      }
+      return true; // Admin can see everything else
+    }
     return isSender || isReceiver;
   });
 
@@ -985,6 +993,10 @@ app.post("/api/gmail/send", async (req, res) => {
   }
 
   try {
+    if (accessToken.includes('simulated_dummy_token')) {
+        return res.json({ success: true, data: { id: Date.now().toString(), mock: true } });
+    }
+
     // Basic verification/decryption of the token. In real scenario, we use lib/encryption.ts
     // For this demonstration, we assume accessToken is the raw or basic-encrypted token
     const decodedToken = accessToken.startsWith('SEC_') ? Buffer.from(accessToken.slice(4), 'base64').toString('ascii') : accessToken;
@@ -1025,6 +1037,18 @@ app.post("/api/gmail/inbox", async (req, res) => {
   const { accessToken } = req.body;
   if (!accessToken) return res.status(400).json({ error: "Missing Google Access Token" });
   try {
+    if (accessToken.includes('simulated_dummy_token')) {
+       // Return simulated data
+       return res.json({
+         success: true,
+         messages: [
+           { id: "1", subject: "Welcome to Global Access", from: "Google Services <noreply@google.com>", snippet: "Your domestic secure proxy is fully operative. You can now engage in global communications." },
+           { id: "2", subject: "Important Security Alert", from: "Security Team <security@google.com>", snippet: "We detected a new login from a secure internal node." },
+           { id: "3", subject: "Weekly Developer Digest", from: "Dev Updates <digest@google.com>", snippet: "Here are the top API updates for this week..." }
+         ]
+       });
+    }
+
     const decodedToken = accessToken.startsWith('SEC_') ? Buffer.from(accessToken.slice(4), 'base64').toString('ascii') : accessToken;
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: decodedToken });
@@ -1171,6 +1195,50 @@ app.get("/api/download-source", (req, res) => {
   });
   
   archive.finalize();
+});
+
+// ==================== CLOUD DRIVE STORAGE ====================
+app.get("/api/drive/files", (req, res) => {
+  const { username } = req.query;
+  const db = readDB();
+  const files = (db.cloudFiles || []).filter((f: any) => f.owner === username);
+  res.json({ files });
+});
+
+app.post("/api/drive/upload", (req, res) => {
+  const { username, filename, size, type, dataUrl, isPrivate } = req.body;
+  const db = readDB();
+  
+  if (!db.cloudFiles) db.cloudFiles = [];
+  
+  const newFile = {
+    id: Date.now().toString(),
+    owner: username,
+    filename,
+    size,
+    type,
+    dataUrl: dataUrl || null,
+    isPrivate: !!isPrivate,
+    uploadDate: new Date().toISOString()
+  };
+  
+  db.cloudFiles.push(newFile);
+  writeDB(db);
+  
+  res.json({ success: true, file: newFile });
+});
+
+app.post("/api/drive/delete", express.json({limit: '2mb'}), (req, res) => {
+  const { id, username } = req.body;
+  const db = readDB();
+  
+  if (!db.cloudFiles) return res.json({ success: false });
+  
+  const initialLength = db.cloudFiles.length;
+  db.cloudFiles = db.cloudFiles.filter((f: any) => !(f.id === id && f.owner === username));
+  
+  writeDB(db);
+  res.json({ success: db.cloudFiles.length < initialLength });
 });
 
 // ==================== FRONT-END ROUTING MIDDLEWARES ====================

@@ -1,6 +1,8 @@
 {
   "name": "Fatshan Post & Mail Console",
   "description": "An integrated multi-branch platform including an Outlook-inspired mail system, visual custom buttons, and administration panels, incorporating server-side AI filtering and customer service features.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "display-capture"
+  ],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

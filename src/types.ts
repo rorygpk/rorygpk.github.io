@@ -32,6 +32,17 @@ export interface Attachment {
   dataUrl?: string;
 }
 
+export interface CloudDriveFile {
+  id: string;
+  owner: string;
+  filename: string;
+  size: number;
+  type: string;
+  dataUrl?: string; // or simulated cloud ref
+  isPrivate: boolean;
+  uploadDate: string;
+}
+
 export interface Email {
   id: string;
   senderUsername: string;
@@ -44,7 +55,7 @@ export interface Email {
   timestamp: string;
   isRead: boolean;
   isStarred: boolean;
-  folder: "inbox" | "sent" | "draft" | "trash" | "deleted" | "archive" | "spam";
+  folder: "inbox" | "sent" | "draft" | "trash" | "deleted" | "archive" | "spam" | "private";
   category: "work" | "personal" | "social" | "promotions";
   tags: string[];
   attachments: Attachment[];
@@ -168,6 +179,8 @@ export interface SystemState {
   chatMessages: ChatMessage[];
   navPages?: SubPage[];
   aiAuthorizedUsers?: string[];
+  outerWebAuthorizedUsers?: string[];
+  cloudFiles?: CloudDriveFile[];
   pageBrowserChecks?: PageBrowserCheck[];
   settings: {
     knowledgeBase: { question: string; answer: string }[];
