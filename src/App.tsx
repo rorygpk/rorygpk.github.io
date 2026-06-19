@@ -84,8 +84,11 @@ import { PublicMail } from "./components/PublicMail";
 import { CloudDrive } from "./components/CloudDrive";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleMapsWidget } from "./components/GoogleMapsWidget";
+import { SecureBridge } from "./components/SecureBridge";
 import { encryptData, decryptData } from './lib/encryption';
 import { RichTextEditor } from "./components/RichTextEditor";
+import { motion, AnimatePresence } from "motion/react";
 
 import { VerificationScreen } from "./components/VerificationScreen";
 
@@ -1019,6 +1022,8 @@ export default function App() {
     return null;
   });
 
+  const [isHandshaking, setIsHandshaking] = useState(false);
+
   const fetchGoogleData = async (token: string, service: 'drive' | 'calendar' | 'youtube' | 'gmail' | 'contacts') => {
     setLoadingGoogleData(prev => ({ ...prev, [service]: true }));
     try {
@@ -1064,25 +1069,27 @@ export default function App() {
   };
 
   const loginGoogleProvider = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      const token = tokenResponse.access_token;
-      setGoogleToken(token);
-      localStorage.setItem("fatshan_global_session", encryptData(token));
-      alert("✅ Global secure gateway handshake complete! Your domestic Google proxy is active.");
-      fetchGoogleData(token, 'gmail');
-      fetchGoogleData(token, 'drive');
-      fetchGoogleData(token, 'calendar');
-      fetchGoogleData(token, 'youtube');
-      fetchGoogleData(token, 'contacts');
-    },
-    onError: (error) => {
-      console.error('Google Login Error:', error);
-      alert("Handshake failed. Encryption tunnel not established.");
-    },
-    scope: "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/contacts.readonly",
+    ux_mode: 'redirect',
+    scope: "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/contacts.readonly",
   });
 
   useEffect(() => {
+    // Handle Google OAuth Redirect Response
+    const hash = window.location.hash;
+    if (hash.includes("access_token=")) {
+      const params = new URLSearchParams(hash.substring(1));
+      const token = params.get("access_token");
+      if (token) {
+        setGoogleToken(token);
+        localStorage.setItem("fatshan_global_session", encryptData(token));
+        // Clear the hash but keep the current route if possible
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        
+        setIsHandshaking(true);
+        setTimeout(() => setIsHandshaking(false), 4000);
+      }
+    }
+    
     if (googleToken) {
       fetchGoogleData(googleToken, 'gmail');
       fetchGoogleData(googleToken, 'drive');
@@ -6598,6 +6605,52 @@ export default function App() {
                     );
                   })()}
 
+                  {/* Global Secure Bridge App */}
+                  {gpkosActiveApp === 'global-bridge' && (() => {
+                    return (
+                      <div className="absolute inset-x-8 top-12 bottom-20 bg-[#020617] border border-cyan-500/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-zoom-in z-50 text-left">
+                        <div className="bg-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-cyan-600 p-2 rounded-xl text-white shadow-lg"><Globe className="h-5 w-5" /></div>
+                            <span className="font-bold text-slate-100 text-xl tracking-tighter">Secure Bridge Proxy <span className="text-slate-500 font-normal text-xs ml-2">Global Connectivity Node</span></span>
+                          </div>
+                          <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400 group">
+                            <X className="h-5 w-5 group-hover:scale-110 transition" />
+                          </button>
+                        </div>
+                        <div className="flex-grow p-8 overflow-y-auto bg-slate-950/50">
+                          <div className="max-w-2xl mx-auto">
+                             <SecureBridge />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Google Maps App */}
+                  {googleToken && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden mb-8"
+                    >
+                      <div className="p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-900 to-slate-800 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="bg-green-500/10 p-3 rounded-xl border border-green-500/20">
+                            <MapPin className="w-6 h-6 text-green-400" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Maps <span className="text-slate-500 font-normal text-xs ml-2">Integrated Navigation</span></span>
+                            <p className="text-slate-400 text-xs mt-0.5">Real-time geospatial synchronization via domestic bridge.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-6 bg-slate-950">
+                        <GoogleMapsWidget />
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Google Drive App */}
                   {gpkosActiveApp === 'drive' && (() => {
                     return (
@@ -6984,6 +7037,10 @@ export default function App() {
                     <button onClick={() => setGpkosActiveApp('mobile-search')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'mobile-search' ? 'scale-110' : ''}`}>
                        <div className="bg-purple-900/60 p-2.5 rounded-xl shadow border border-purple-500/30"><Smartphone className="h-6 w-6 text-purple-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mobile Hub</span>
+                    </button>
+                    <button onClick={() => setGpkosActiveApp('global-bridge')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'global-bridge' ? 'scale-110' : ''}`}>
+                       <div className="bg-cyan-900/60 p-2.5 rounded-xl shadow border border-cyan-500/30 font-bold"><Shield className="h-6 w-6 text-cyan-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Secure Bridge</span>
                     </button>
                     <button onClick={() => setGpkosActiveApp('maps')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2 ${gpkosActiveApp === 'maps' ? 'scale-110' : ''}`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><Chrome className="h-6 w-6 text-cyan-400" /></div>
@@ -7748,6 +7805,50 @@ export default function App() {
           )}
         </>
       )}
+
+      {/* Handshake Success Overlay */}
+      <AnimatePresence>
+        {isHandshaking && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-8 text-center"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="max-w-md w-full bg-slate-900 border border-cyan-500/30 p-8 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.15)] flex flex-col items-center"
+            >
+              <div className="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center mb-6 relative shadow-inner">
+                 <Shield className="w-10 h-10 text-cyan-400" />
+                 <motion.div 
+                   animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                   transition={{ duration: 2, repeat: Infinity }}
+                   className="absolute inset-0 rounded-full border-2 border-cyan-500/50"
+                 />
+              </div>
+              <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2 italic underline decoration-cyan-500 underline-offset-8 font-serif">Tunnel Established</h2>
+              <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-6 px-4">Global Handshake Complete</p>
+              <div className="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-2 mb-6 shadow-inner font-mono text-[10px]">
+                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
+                    <span>Protocol</span>
+                    <span className="text-cyan-500 italic">Mutual TLS 1.3</span>
+                 </div>
+                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
+                    <span>Exit Bridge</span>
+                    <span className="text-green-500">Fatshan-SG-01</span>
+                 </div>
+                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
+                    <span>Encryption</span>
+                    <span className="text-slate-300">RSA-2048 / AES-GCM</span>
+                 </div>
+              </div>
+              <p className="text-[10px] text-slate-500 italic opacity-80 max-w-xs text-center">Connecting domestic client to global nodes... Secure Tunnel Active.</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

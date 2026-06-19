@@ -1,9 +1,12 @@
 {
-  "name": "Fatshan Post & Mail Console",
-  "description": "An integrated multi-branch platform including an Outlook-inspired mail system, visual custom buttons, and administration panels, incorporating server-side AI filtering and customer service features.",
+  "name": "Fatshan Post Global Gateway",
+  "description": "Secure domestic bridge for global services, featuring integrated mapping, workspace synchronization, and verified RSA-2048 certificate issuance for encrypted external node access.",
   "requestFramePermissions": [
-    "display-capture",
+    "camera",
+    "microphone",
     "geolocation"
   ],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

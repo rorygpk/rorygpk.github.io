@@ -1,0 +1,197 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Shield, Lock, Globe, Server, CheckCircle, RefreshCw, Cpu, Wifi, Key } from 'lucide-react';
+
+export const SecureBridge: React.FC = () => {
+  const [status, setStatus] = useState<'analyzing' | 'secure' | 'issuing'>('analyzing');
+  const [obfuscation, setObfuscation] = useState(true);
+  const [logs, setLogs] = useState<string[]>(['[SYSTEM] Initializing bridge...', '[SECURITY] RSA-2048 Seed generated.']);
+  const [certId, setCertId] = useState('CERT-' + Math.random().toString(36).substring(2, 9).toUpperCase());
+  const [nodes, setNodes] = useState([
+    { name: 'Tokyo Node', status: 'active', latency: '42ms' },
+    { name: 'San Francisco Node', status: 'active', latency: '128ms' },
+    { name: 'Frankfurt Node', status: 'active', latency: '89ms' },
+  ]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setStatus('secure');
+      addLog('[SUCCESS] Mutual TLS handshake verified.');
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => [...prev.slice(-4), msg]);
+  };
+
+  const issueCertificate = () => {
+    setStatus('issuing');
+    addLog('[AUTH] Requesting new certificate chain...');
+    setTimeout(() => {
+      const newId = 'CERT-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+      setCertId(newId);
+      setStatus('secure');
+      addLog(`[ISSUED] New certificate active: ${newId}`);
+    }, 2500);
+  };
+
+  const downloadCert = () => {
+    const content = `-----BEGIN RSA PRIVATE KEY-----\nFATSHAN-GLOBAL-BRIDGE-KEY-${certId}\n-----END RSA PRIVATE KEY-----`;
+    const element = document.createElement("a");
+    const file = new Blob([content], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `fatshan_gateway_${certId}.pem`;
+    document.body.appendChild(element);
+    element.click();
+    addLog('[IO] Certificate hash exported to local node.');
+  };
+
+  return (
+    <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-800 tracking-tight">
+      {/* Sidebar: Status & Certificates */}
+      <div className="md:w-72 flex flex-col bg-slate-900/40">
+        <div className="p-6 border-b border-slate-800">
+          <div className="flex items-center gap-3 mb-1">
+            <div className={`p-2 rounded-lg ${status === 'secure' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-amber-500/20 text-amber-400'}`}>
+              <Shield className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-black text-slate-100 uppercase italic">GateKeeper PRO</h3>
+          </div>
+          <p className="text-[10px] text-slate-500 font-mono tracking-widest leading-none mt-1 uppercase">Infrastructure Status: {status}</p>
+        </div>
+
+        <div className="p-6 space-y-6 flex-grow">
+          <div className="space-y-4">
+            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-inner group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Certificate</span>
+                <div className="flex items-center gap-1.5">
+                   <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                   <span className="text-[9px] font-mono text-cyan-500">AES-256</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-slate-200 mb-4 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-[11px]">
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <span className="truncate">{certId}</span>
+              </div>
+              
+              <div className="space-y-2">
+                <button 
+                  onClick={issueCertificate}
+                  disabled={status === 'issuing'}
+                  className="w-full flex items-center justify-center gap-2 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-[10px] font-black rounded-lg transition disabled:opacity-50 uppercase tracking-widest"
+                >
+                  {status === 'issuing' ? <RefreshCw className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                  <span>Renew Certificate</span>
+                </button>
+                <button 
+                  onClick={downloadCert}
+                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded-lg border border-slate-700 transition uppercase tracking-widest"
+                >
+                  Export Key (.PEM)
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-slate-950 rounded-xl border border-slate-800">
+               <div className="flex items-center gap-3 text-left">
+                  <div className={`p-1.5 rounded-md ${obfuscation ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-500'}`}>
+                     <Wifi className="w-3 h-3" />
+                  </div>
+                  <div>
+                     <div className="text-[10px] font-bold text-slate-200 uppercase tracking-tight">Traffic Obfuscation</div>
+                     <div className="text-[8px] text-slate-500 font-bold uppercase">流量混淆模式</div>
+                  </div>
+               </div>
+               <button onClick={() => setObfuscation(!obfuscation)} className={`w-8 h-4 rounded-full relative transition-colors ${obfuscation ? 'bg-cyan-600' : 'bg-slate-800'}`}>
+                  <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${obfuscation ? 'left-4.5' : 'left-0.5'}`} />
+               </button>
+            </div>
+          </div>
+          
+          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2 font-mono text-[9px]">
+            {logs.map((log, i) => (
+              <div key={i} className="flex gap-2 overflow-hidden whitespace-nowrap text-left">
+                <span className="text-slate-700 shrink-0">[{new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})}]</span>
+                <span className={log.includes('ERROR') ? 'text-rose-500' : log.includes('SUCCESS') || log.includes('ISSUED') ? 'text-cyan-400' : 'text-slate-400'}>{log}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Panel: Node Map & Stats */}
+      <div className="flex-grow p-8 bg-slate-950">
+        <div className="mb-8 flex items-center justify-between px-2">
+          <div>
+             <h2 className="text-xl font-black text-white italic uppercase tracking-tighter">Distributed Proxy Mesh</h2>
+             <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                DPI Bypass Active (V4)
+             </p>
+          </div>
+          <div className="flex items-center gap-6 text-right">
+             <div>
+                <div className="text-lg font-mono font-black text-cyan-400 tracking-tighter">99.998%</div>
+                <div className="text-[9px] text-slate-600 font-black uppercase">Infrastructure Uptime</div>
+             </div>
+             <div>
+                <div className="text-lg font-mono font-black text-slate-200 tracking-tighter">4.2 TB</div>
+                <div className="text-[9px] text-slate-600 font-black uppercase">Monthly Thruput</div>
+             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+           {nodes.map((node) => (
+             <div key={node.name} className="flex items-center justify-between p-5 bg-slate-900/40 rounded-2xl border border-slate-800 hover:border-cyan-500/30 transition-all hover:-translate-y-1 relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-5 transition-opacity">
+                  <Globe className="w-20 h-20" />
+               </div>
+               <div className="flex items-center gap-4 relative z-10 text-left">
+                  <div className="bg-slate-950 p-3 rounded-xl text-slate-500 group-hover:text-cyan-400 border border-slate-800 transition-colors">
+                     <Globe className="w-5 h-5" />
+                  </div>
+                  <div>
+                     <div className="text-xs font-black text-slate-100 uppercase tracking-tight">{node.name}</div>
+                     <div className="text-[10px] text-slate-500 font-mono tracking-tighter">Encrypted Exit Bridge Active</div>
+                  </div>
+               </div>
+               <div className="flex items-center gap-6 relative z-10">
+                  <div className="text-right">
+                    <div className="text-sm font-mono font-black text-green-500 tracking-tighter">{node.latency}</div>
+                    <div className="text-[8px] text-slate-600 font-black uppercase tracking-widest">Latency</div>
+                  </div>
+                  <div className="bg-green-500/10 p-1.5 rounded-full border border-green-500/20">
+                     <CheckCircle className="w-4 h-4 text-green-500" />
+                  </div>
+               </div>
+             </div>
+           ))}
+           <div className="flex items-center justify-center p-5 bg-slate-900/10 rounded-2xl border-2 border-dashed border-slate-800/50 hover:border-slate-700 transition">
+              <button className="flex flex-col items-center gap-2 group">
+                 <div className="p-3 bg-slate-900 rounded-xl text-slate-600 group-hover:text-white transition">
+                    <Server className="w-6 h-6" />
+                 </div>
+                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic group-hover:text-slate-300 transition">PRO Node Assignment Required</span>
+              </button>
+           </div>
+        </div>
+
+        <div className="mt-8 p-4 bg-slate-900/20 border border-slate-800/50 rounded-xl flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <div className="flex -space-x-2">
+                 {[1,2,3,4].map(i => <div key={i} className="w-6 h-6 rounded-full border-2 border-slate-950 bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-500">CH-{i}</div>)}
+              </div>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Multi-Channel Balancing Active</span>
+           </div>
+           <div className="flex items-center gap-2 text-[9px] text-slate-600 font-mono tracking-tighter">
+              <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+              RSA-2048 / SHA-256 Verified Tunnel (TLS 1.3)
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
