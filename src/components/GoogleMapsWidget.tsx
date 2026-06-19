@@ -11,7 +11,10 @@ const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY' && API_KEY !=
 export const GoogleMapsWidget: React.FC = () => {
   const [location, setLocation] = React.useState<{ lat: number; lng: number } | null>(null);
 
-  React.useEffect(() => {
+  const [isLocating, setIsLocating] = React.useState(false);
+
+  const requestLocation = () => {
+    setIsLocating(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -19,13 +22,17 @@ export const GoogleMapsWidget: React.FC = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
+          setIsLocating(false);
         },
         () => {
           console.error("Geolocation failed");
+          setIsLocating(false);
         }
       );
+    } else {
+      setIsLocating(false);
     }
-  }, []);
+  };
 
   // If no API key, use the simplified embed version that works for search
   if (!hasValidKey) {
@@ -34,18 +41,24 @@ export const GoogleMapsWidget: React.FC = () => {
       : "https://maps.google.com/maps?q=Beijing&output=embed";
 
     return (
-      <div className="h-full w-full rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900">
+      <div className="h-full w-full rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900 flex flex-col">
+        <div className="p-2 flex justify-between items-center text-[10px] text-white/50 bg-slate-950 font-mono">
+            <span>{location ? `LOCATED: ${location.lat.toFixed(2)}, ${location.lng.toFixed(2)}` : "STATIC MAP"}</span>
+            <button 
+                onClick={requestLocation}
+                disabled={isLocating}
+                className="px-2 py-1 rounded bg-emerald-900/50 hover:bg-emerald-600/50 text-emerald-300 transition"
+            >
+                {isLocating ? "定位中..." : "手动定位"}
+            </button>
+        </div>
         <iframe
-          width="100%"
-          height="100%"
+          className="flex-grow w-full"
           style={{ border: 0 }}
           src={mapUrl}
           allowFullScreen
           title="GPKOS Global Map (No-API Mode)"
         ></iframe>
-        <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-black text-cyan-400 uppercase tracking-widest animate-pulse">
-           {location ? "GPS POSITION LOCKED" : "Live Satellite Relay Active"}
-        </div>
       </div>
     );
   }
