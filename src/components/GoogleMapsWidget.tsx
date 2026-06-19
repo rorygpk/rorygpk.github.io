@@ -9,20 +9,42 @@ const API_KEY =
 const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY' && API_KEY !== '<your_maps_api_key>';
 
 export const GoogleMapsWidget: React.FC = () => {
+  const [location, setLocation] = React.useState<{ lat: number; lng: number } | null>(null);
+
+  React.useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => {
+          console.error("Geolocation failed");
+        }
+      );
+    }
+  }, []);
+
   // If no API key, use the simplified embed version that works for search
   if (!hasValidKey) {
+    const mapUrl = location
+      ? `https://maps.google.com/maps?q=${location.lat},${location.lng}&z=15&output=embed`
+      : "https://maps.google.com/maps?q=Beijing&output=embed";
+
     return (
       <div className="h-full w-full rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900">
         <iframe
           width="100%"
           height="100%"
-          style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
-          src="https://maps.google.com/maps?q=Beijing&output=embed"
+          style={{ border: 0 }}
+          src={mapUrl}
           allowFullScreen
           title="GPKOS Global Map (No-API Mode)"
         ></iframe>
         <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-black text-cyan-400 uppercase tracking-widest animate-pulse">
-           Live Satellite Relay Active
+           {location ? "GPS POSITION LOCKED" : "Live Satellite Relay Active"}
         </div>
       </div>
     );
