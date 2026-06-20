@@ -132,12 +132,25 @@ interface WindowProps {
   constraintsRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, onFocus, onPositionChange, onSizeChange, onMaximize, children, isFocused, constraintsRef }) => {
+const DraggableWindow: React.FC<WindowProps> = ({ window: win, onClose, onMinimize, onFocus, onPositionChange, onSizeChange, onMaximize, children, isFocused, constraintsRef }) => {
   const [resizing, setResizing] = useState(false);
   const winRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
 
-  if (window.isMinimized) return null;
+  if (win.isMinimized) return null;
+
+  // Dynamically bound coordinates and sizes so windows cannot run off screen on small displays
+  const screenW = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const screenH = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+  const actualWidth = win.isMaximized ? '100%' : Math.min(win.width, screenW - 32);
+  const actualHeight = win.isMaximized ? '100%' : Math.min(win.height, screenH - 180);
+
+  const numericWidth = typeof actualWidth === 'number' ? actualWidth : 800;
+  const numericHeight = typeof actualHeight === 'number' ? actualHeight : 500;
+
+  const actualX = win.isMaximized ? 0 : Math.max(8, Math.min(win.x, screenW - numericWidth - 8));
+  const actualY = win.isMaximized ? 0 : Math.max(40, Math.min(win.y, screenH - numericHeight - 110));
 
   return (
     <motion.div
@@ -147,48 +160,49 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
         position: 'absolute',
         top: 0,
         left: 0,
-        x: window.isMaximized ? 0 : window.x,
-        y: window.isMaximized ? 0 : window.y,
-        zIndex: window.zIndex,
+        x: actualX,
+        y: actualY,
+        zIndex: win.zIndex,
       }}
       animate={{ 
         opacity: 1, 
         scale: 1,
-        width: window.isMaximized ? '100%' : window.width,
-        height: window.isMaximized ? '100%' : window.height,
-        borderRadius: window.isMaximized ? 0 : 16
+        width: actualWidth,
+        height: actualHeight,
+        borderRadius: win.isMaximized ? 0 : 16
       }}
       transition={{ type: "spring", damping: 30, stiffness: 400, mass: 0.5 }}
-      drag={!resizing && !window.isMaximized}
+      drag={!resizing && !win.isMaximized}
       dragControls={dragControls}
       dragListener={false}
       dragMomentum={false}
       dragElastic={0}
       dragConstraints={constraintsRef}
       onDragEnd={(_, info) => {
-        onPositionChange(window.id, window.x + info.offset.x, window.y + info.offset.y);
+        // Feed back updated position
+        onPositionChange(win.id, actualX + info.offset.x, actualY + info.offset.y);
       }}
-      onPointerDown={() => onFocus(window.id)}
-      className={`bg-slate-950 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${window.isMaximized ? 'border-none' : ''}`}
+      onPointerDown={() => onFocus(win.id)}
+      className={`bg-slate-950 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${win.isMaximized ? 'border-none' : ''}`}
     >
       {/* Window Header */}
       <div 
         className="bg-slate-900/90 p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
-        onPointerDown={(e) => !window.isMaximized && dragControls.start(e)}
-        onDoubleClick={() => onMaximize(window.id)}
+        onPointerDown={(e) => !win.isMaximized && dragControls.start(e)}
+        onDoubleClick={() => onMaximize(win.id)}
       >
         <div className="flex gap-2 shrink-0">
-          <button onClick={(e) => { e.stopPropagation(); onClose(window.id); }} className="h-3 w-3 rounded-full bg-[#ff5f57] hover:bg-[#ff5f57cc] border border-black/10 transition-colors flex items-center justify-center group">
+          <button onClick={(e) => { e.stopPropagation(); onClose(win.id); }} className="h-3 w-3 rounded-full bg-[#ff5f57] hover:bg-[#ff5f57cc] border border-black/10 transition-colors flex items-center justify-center group">
             <X className="w-2 h-2 text-transparent group-hover:text-red-950" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onMinimize(window.id); }} className="h-3 w-3 rounded-full bg-[#ffbd2e] hover:bg-[#ffbd2ecc] border border-black/10 transition-colors flex items-center justify-center group">
+          <button onClick={(e) => { e.stopPropagation(); onMinimize(win.id); }} className="h-3 w-3 rounded-full bg-[#ffbd2e] hover:bg-[#ffbd2ecc] border border-black/10 transition-colors flex items-center justify-center group">
             <Minimize2 className="w-2 h-2 text-transparent group-hover:text-amber-950" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onMaximize(window.id); }} className="h-3 w-3 rounded-full bg-[#28c840] hover:bg-[#28c840cc] border border-black/10 transition-colors flex items-center justify-center group">
+          <button onClick={(e) => { e.stopPropagation(); onMaximize(win.id); }} className="h-3 w-3 rounded-full bg-[#28c840] hover:bg-[#28c840cc] border border-black/10 transition-colors flex items-center justify-center group">
             <Maximize2 className="w-2 h-2 text-transparent group-hover:text-emerald-950" />
           </button>
         </div>
-        <div className={`text-[11px] font-bold tracking-tight px-4 transition-colors ${isFocused ? 'text-white' : 'text-slate-500'}`}>{window.title}</div>
+        <div className={`text-[11px] font-bold tracking-tight px-4 transition-colors ${isFocused ? 'text-white' : 'text-slate-500'}`}>{win.title}</div>
         <div className="w-12"></div>
       </div>
       
@@ -198,7 +212,7 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
       </div>
 
       {/* Resize Handle */}
-      {!window.isMaximized && (
+      {!win.isMaximized && (
         <div 
           className="absolute bottom-0 right-0 w-5 h-5 cursor-nwse-resize z-[100]"
           onPointerDown={(e) => {
@@ -212,7 +226,7 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
             const onPointerMove = (moveEvent: PointerEvent) => {
               const newW = Math.max(400, startW + (moveEvent.clientX - startX));
               const newH = Math.max(300, startH + (moveEvent.clientY - startY));
-              onSizeChange(window.id, newW, newH);
+              onSizeChange(win.id, newW, newH);
             };
 
             const onPointerUp = () => {
@@ -1873,18 +1887,30 @@ export default function App() {
         setFocusedWindowId(existing.id);
         return prev.map(w => w.appId === appId ? { ...w, isMinimized: false, zIndex: (prev.length > 0 ? Math.max(...prev.map(aw => aw.zIndex)) : 10) + 1 } : w);
       }
+
+      // Dynamically calculate friendly coordinates so windows never exceed current viewport bounds
+      const screenW = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      const screenH = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+      const targetW = Math.min(900, Math.max(350, screenW - 60));
+      const targetH = Math.min(600, Math.max(300, screenH - 220));
+
+      const stagger = (prev.length * 25) % 100;
+      const targetX = Math.max(10, Math.min(screenW - targetW - 20, (screenW - targetW) / 2 + stagger));
+      const targetY = Math.max(30, Math.min(screenH - targetH - 120, (screenH - targetH) / 2 + stagger - 20));
+
       const newWin: GpkosAppWindow = {
         id: `win-${Date.now()}`,
         appId,
         title,
         isOpen: true,
         isMinimized: false,
-        isMaximized: false,
+        isMaximized: screenW < 768, // Automatically maximize on smaller tablet/phone screens
         zIndex: (prev.length > 0 ? Math.max(...prev.map(aw => aw.zIndex)) : 10) + 1,
-        x: 100 + (prev.length * 30),
-        y: 100 + (prev.length * 30),
-        width: 900,
-        height: 600
+        x: targetX,
+        y: targetY,
+        width: targetW,
+        height: targetH
       };
       setFocusedWindowId(newWin.id);
       return [...prev, newWin];
@@ -5059,7 +5085,7 @@ export default function App() {
 
         {/* SECTION 3: RORY GPKOS IDE PLAYGROUND screen (macOS theme styling) */}
         {currentHash === "#rory-gpkos" && (
-          <div className="animate-fade-in flex flex-col items-center justify-center min-h-[600px] rounded-3xl overflow-hidden border border-white/10 relative" id="gpkos-ide-workspace">
+          <div className="animate-fade-in flex flex-col w-full h-[calc(100vh-140px)] min-h-[520px] md:min-h-[700px] rounded-3xl overflow-hidden border border-white/10 relative" id="gpkos-ide-workspace">
             {!currentUser ? (
               <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center z-20">
                 <div className="bg-slate-900 border border-white/10 p-8 rounded-3xl max-w-sm w-full">

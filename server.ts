@@ -1340,13 +1340,25 @@ app.get("/api/web/proxy-html", async (req, res) => {
       }
     });
 
+    const contentType = response.headers.get("content-type") || "text/html";
+
+    // If it's not HTML, pass it through directly as a proxy file stream (CSS, JS, images, fonts, etc.)
+    if (!contentType.includes("text/html")) {
+      const arrayBuffer = await response.arrayBuffer();
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("X-Frame-Options", "ALLOWALL");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cache-Control", "public, max-age=86400"); // cache assets for speed
+      return res.send(Buffer.from(arrayBuffer));
+    }
+
     let html = await response.text();
 
     // Disable standard frame-breaking scripts
     html = html.replace(/window\.top\./g, "window.self.");
     html = html.replace(/top\.location/g, "self.location");
 
-    // Inject base tag in head so all relative resources are loaded perfectly relative to original hostname
+    // Inject base tag in head so any uncaptured relative resources still have a fallback relative to original hostname
     const baseTag = `<base href="${targetUrl}">`;
     if (html.includes("<head>")) {
       html = html.replace("<head>", `<head>\n${baseTag}`);
@@ -1356,19 +1368,37 @@ app.get("/api/web/proxy-html", async (req, res) => {
       html = baseTag + html;
     }
 
-    // Dynamic link routing: replace absolute and relative hyperlinks inside HTML so clicking them maintains proxy connection!
-    const linkRegex = /<a\s+([^>]*?)href="([^"]+?)"/gi;
-    html = html.replace(linkRegex, (match, before, link) => {
-      if (link.startsWith("#") || link.startsWith("javascript:") || link.startsWith("mailto:")) {
-        return match;
-      }
+    // Helper to turn relative paths to absolute paths
+    const makeAbsolute = (link: string, base: string) => {
       try {
-        const absoluteUrl = new URL(link, targetUrl).href;
-        return `<a ${before}href="/api/web/proxy-html?url=${encodeURIComponent(absoluteUrl)}"`;
+        return new URL(link, base).href;
       } catch (e) {
-        return match;
+        return link;
       }
-    });
+    };
+
+    // Helper to replace matching attributes with proxied variants
+    const rewriteAttr = (htmlContent: string, attrName: string) => {
+      const regex = new RegExp(`(\\s${attrName}=['"])([^'"]+?)(['"])`, 'gi');
+      return htmlContent.replace(regex, (match, prefix, val, suffix) => {
+        if (
+          val.startsWith("#") || 
+          val.startsWith("javascript:") || 
+          val.startsWith("mailto:") || 
+          val.startsWith("data:") ||
+          val.startsWith("blob:")
+        ) {
+          return match;
+        }
+        const abs = makeAbsolute(val, targetUrl);
+        return `${prefix}/api/web/proxy-html?url=${encodeURIComponent(abs)}${suffix}`;
+      });
+    };
+
+    // Rewrite all major resource paths so they are channeled through our proxy
+    html = rewriteAttr(html, "href");
+    html = rewriteAttr(html, "src");
+    html = rewriteAttr(html, "action");
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("X-Frame-Options", "ALLOWALL");
