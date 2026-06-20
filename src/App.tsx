@@ -100,6 +100,7 @@ import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
 import { GoogleMapsWidget } from "./components/GoogleMapsWidget";
 import { SecureBridge } from "./components/SecureBridge";
+import { GlobalBrowser } from "./components/GlobalBrowser";
 import { encryptData, decryptData } from './lib/encryption';
 import { RichTextEditor } from "./components/RichTextEditor";
 import { motion, AnimatePresence, useDragControls } from "motion/react";
@@ -142,11 +143,17 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
     <motion.div
       ref={winRef}
       initial={false}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        x: window.isMaximized ? 0 : window.x,
+        y: window.isMaximized ? 0 : window.y,
+        zIndex: window.zIndex,
+      }}
       animate={{ 
         opacity: 1, 
         scale: 1,
-        x: window.isMaximized ? 0 : window.x,
-        y: window.isMaximized ? 0 : window.y,
         width: window.isMaximized ? '100%' : window.width,
         height: window.isMaximized ? '100%' : window.height,
         borderRadius: window.isMaximized ? 0 : 16
@@ -162,12 +169,6 @@ const DraggableWindow: React.FC<WindowProps> = ({ window, onClose, onMinimize, o
         onPositionChange(window.id, window.x + info.offset.x, window.y + info.offset.y);
       }}
       onPointerDown={() => onFocus(window.id)}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        zIndex: window.zIndex,
-      }}
       className={`bg-slate-950 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${window.isMaximized ? 'border-none' : ''}`}
     >
       {/* Window Header */}
@@ -3414,43 +3415,81 @@ export default function App() {
                       </form>
                     </div>
 
-                    {/* Registration & Global Integration Column */}
+                    {/* Registration Column */}
                     <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col gap-4">
-                      <h3 className="text-md font-bold text-emerald-300 mb-2 flex items-center gap-1">
-                        Global Secure Auth (Double Encryption)
+                      <h3 className="text-md font-bold text-emerald-300 flex items-center gap-1">
+                        Register New Identity
                       </h3>
-                      <p className="text-xs text-slate-400 mb-2">
-                        Bind your global provider to our secure proxy server. All data uses AES-encrypted transmission tunnels.
+                      <p className="text-xs text-slate-400">
+                        Sign up directly to create a secure, proxy-routed workspace account.
                       </p>
                       
+                      <form onSubmit={handleRegister} className="space-y-4">
+                        <div>
+                          <label className="block text-xs text-slate-400 font-semibold mb-1">Full Name</label>
+                          <input
+                            type="text"
+                            placeholder="John Doe"
+                            value={regFullName}
+                            onChange={(e) => setRegFullName(e.target.value)}
+                            className="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-400"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 font-semibold mb-1">Email / Username</label>
+                          <input
+                            type="text"
+                            placeholder={"username@" + systemState.activeDomain}
+                            value={regContact}
+                            onChange={(e) => setRegContact(e.target.value)}
+                            className="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-400"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 font-semibold mb-1">Password</label>
+                          <input
+                            type="password"
+                            placeholder="••••••••"
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                            className="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-400"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 font-semibold mb-1">Network Privileges (网特权限)</label>
+                          <select 
+                            value={regVerifyType}
+                            onChange={(e) => setRegVerifyType(e.target.value)}
+                            className="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-400"
+                          >
+                            <option value="standard">Standard Domestic (Default)</option>
+                            <option value="huggingface">Hugging Face Global Bridge (Fast)</option>
+                            <option value="enterprise">Full Remote Bypass</option>
+                          </select>
+                        </div>
+                        <button
+                          type="submit"
+                          className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 px-4 rounded-xl text-sm transition shadow-lg"
+                        >
+                          Create Account
+                        </button>
+                      </form>
+
+                      <div className="relative my-2">
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                        <div className="relative flex justify-center"><span className="bg-slate-900 px-2 text-[10px] text-slate-500 uppercase">External Proxy</span></div>
+                      </div>
+
                       <button
                         onClick={() => loginGoogleProvider()}
-                        className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2"
+                        className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2"
                       >
                         <Lock className="w-4 h-4 text-emerald-400" />
                         {googleToken ? 'Connected to Global Gateway' : 'Link Global Provider Securely'}
                       </button>
-
-                      <div className="relative my-2">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-                        <div className="relative flex justify-center"><span className="bg-slate-900 px-2 text-[10px] text-slate-500 uppercase">or CREATE</span></div>
-                      </div>
-
-                      <a
-                        href="https://accounts.google.com/signup"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setActiveBypassUrl("https://accounts.google.com/signup");
-                          setCurrentHash("#rory-gpkos");
-                          setGpkosActiveApp("remote");
-                        }}
-                        className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-lg text-center block cursor-pointer"
-                      >
-                        Register New Identity
-                      </a>
-                      <p className="text-[10px] text-slate-500 text-center mt-2 leading-tight">
-                        Registration requires accessing the global gateway directly. Once established, return here to link it securely.
-                      </p>
                     </div>
 
                   </div>
@@ -7370,9 +7409,20 @@ export default function App() {
                       {window.appId === 'maps' && <GoogleMapsWidget />}
                       {window.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
                       {window.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
-                      {window.appId === 'global-bridge' && <SecureBridge />}
+                      {window.appId === 'global-bridge' && <GlobalBrowser />}
+                      {window.appId === 'gmail' && (
+                         <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+                           <div className="bg-emerald-900/40 border-b border-emerald-500/20 px-3 py-1 flex items-center justify-center gap-2 text-[10px] text-emerald-400 font-bold tracking-widest shrink-0">
+                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 blur-[1px] animate-pulse"></span>
+                               ROUTED VIA GLOBAL HF PROXY NODE (NETWORK OPTIMIZED)
+                           </div>
+                           <div className="flex items-center justify-center flex-grow text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
+                             Gmail / Mail Cloud Workspace Loaded
+                           </div>
+                         </div>
+                      )}
                       {/* Fallback for other apps */}
-                      {!['maps', 'drive', 'settings', 'global-bridge'].includes(window.appId) && (
+                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail'].includes(window.appId) && (
                         <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
                            {window.title} Module Loaded
                         </div>
@@ -7402,9 +7452,9 @@ export default function App() {
                        <div className="bg-purple-900/60 p-2.5 rounded-xl shadow border border-purple-500/30"><Smartphone className="h-6 w-6 text-purple-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Mobile Hub</span>
                     </button>
-                    <button onClick={() => launchApp('global-bridge', 'HF Secure Bridge')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                    <button onClick={() => launchApp('global-bridge', 'Global Browser')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-cyan-900/60 p-2.5 rounded-xl shadow border border-cyan-500/30 font-bold"><Shield className="h-6 w-6 text-cyan-400" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">HF Bridge</span>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Browser</span>
                     </button>
                     <button onClick={() => launchApp('maps', 'Google Maps HUB')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-slate-900 p-2.5 rounded-xl shadow border border-white/10 hover:border-emerald-500/50 transition-colors"><Chrome className="h-6 w-6 text-cyan-400" /></div>

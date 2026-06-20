@@ -42,6 +42,10 @@ export const GoogleMapsWidget: React.FC = () => {
 
     return (
       <div className="h-full w-full rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900 flex flex-col">
+        <div className="bg-emerald-900/40 border-b border-emerald-500/20 px-3 py-1 flex items-center justify-center gap-2 text-[10px] text-emerald-400 font-bold tracking-widest shrink-0">
+           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 blur-[1px] animate-pulse"></span>
+           ROUTED VIA GLOBAL HF PROXY NODE (NETWORK OPTIMIZED)
+        </div>
         <div className="p-2 flex justify-between items-center text-[10px] text-white/50 bg-slate-950 font-mono">
             <span>{location ? `LOCATED: ${location.lat.toFixed(2)}, ${location.lng.toFixed(2)}` : "STATIC MAP"}</span>
             <button 
