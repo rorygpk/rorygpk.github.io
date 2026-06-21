@@ -727,7 +727,7 @@ export function DeploymentHub() {
         
         {activeTab === "docker" && (
           <div className="space-y-2">
-            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">Dockerfile</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px] text-white" onClick={() => navigator.clipboard.writeText(`FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\nEXPOSE 3000\nENV PORT=3000\nENV HOST=0.0.0.0\nCMD ["npm", "start"]`)}>COPY TEXT</button></p>
+            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">Dockerfile</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px] text-white" onClick={() => { try { navigator.clipboard.writeText(`FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\nEXPOSE 3000\nENV PORT=3000\nENV HOST=0.0.0.0\nCMD ["npm", "start"]`) } catch(e) {} }}>COPY TEXT</button></p>
             <pre className="text-xs font-mono text-cyan-300 p-4 bg-black rounded-xl overflow-auto select-all border border-cyan-900 shadow-inner">
 {`FROM node:18-alpine
 WORKDIR /app
@@ -745,7 +745,7 @@ CMD ["npm", "start"]`}
 
         {activeTab === "fly" && (
           <div className="space-y-2">
-            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">fly.toml</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 text-white transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px]" onClick={() => navigator.clipboard.writeText(`app = "fatshan-relay"\nprimary_region = "sin"\n\n[build]\n  builder = "paketobuildpacks/builder:base"\n\n[env]\n  PORT = "3000"\n\n[[services]]\n  internal_port = 3000\n  protocol = "tcp"\n  [[services.ports]]\n    handlers = ["http"]\n    port = 80\n  [[services.ports]]\n    handlers = ["tls", "http"]\n    port = 443\n`)}>COPY TEXT</button></p>
+            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">fly.toml</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 text-white transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px]" onClick={() => { try { navigator.clipboard.writeText(`app = "fatshan-relay"\nprimary_region = "sin"\n\n[build]\n  builder = "paketobuildpacks/builder:base"\n\n[env]\n  PORT = "3000"\n\n[[services]]\n  internal_port = 3000\n  protocol = "tcp"\n  [[services.ports]]\n    handlers = ["http"]\n    port = 80\n  [[services.ports]]\n    handlers = ["tls", "http"]\n    port = 443\n`) } catch(e) {} }}>COPY TEXT</button></p>
             <pre className="text-xs font-mono text-fuchsia-300 p-4 bg-black rounded-xl overflow-auto select-all border border-fuchsia-900 shadow-inner">
 {`app = "fatshan-relay"
 primary_region = "sin"
@@ -771,7 +771,7 @@ primary_region = "sin"
 
         {activeTab === "vercel" && (
           <div className="space-y-2">
-            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">vercel.json</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 text-white transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px]" onClick={() => navigator.clipboard.writeText(`{\n  "version": 2,\n  "builds": [\n    {\n      "src": "package.json",\n      "use": "@vercel/node"\n    }\n  ],\n  "routes": [\n    {\n      "src": "/(.*)",\n      "dest": "server.ts"\n    }\n  ]\n}`)}>COPY TEXT</button></p>
+            <p className="text-[10px] text-slate-500 uppercase font-bold relative group">Copy into <span className="text-emerald-400">vercel.json</span> <button className="absolute right-0 opacity-0 group-hover:opacity-100 text-white transition-opacity bg-white/10 px-2 py-0.5 rounded text-[9px]" onClick={() => { try { navigator.clipboard.writeText(`{\n  "version": 2,\n  "builds": [\n    {\n      "src": "package.json",\n      "use": "@vercel/node"\n    }\n  ],\n  "routes": [\n    {\n      "src": "/(.*)",\n      "dest": "server.ts"\n    }\n  ]\n}`) } catch(e) {} }}>COPY TEXT</button></p>
             <pre className="text-xs font-mono text-amber-300 p-4 bg-black rounded-xl overflow-auto select-all border border-amber-900 shadow-inner">
 {`{
   "version": 2,
