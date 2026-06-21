@@ -222,6 +222,8 @@ export const SecureBridge: React.FC = () => {
                  src={activeBypassUrl} 
                  className="w-full h-full border-none" 
                  title="Secure Bridge Browser"
+                 allowFullScreen
+                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-presentation"
                />
             </div>
           </div>

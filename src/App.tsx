@@ -165,11 +165,11 @@ const DraggableWindow: React.FC<WindowProps> = ({ window: win, onClose, onMinimi
         position: 'absolute',
         top: 0,
         left: 0,
-        x: actualX,
-        y: actualY,
         zIndex: win.zIndex,
       }}
       animate={{ 
+        x: actualX,
+        y: actualY,
         opacity: 1, 
         scale: 1,
         width: actualWidth,
@@ -5671,7 +5671,7 @@ export default function App() {
                                         </div>
                                       ) : (
                                         <div className="flex-grow overflow-hidden bg-white/5 border border-white/10 rounded-2xl relative shadow-inner">
-                                          <iframe src={activeBypassUrl} className="w-full h-full border-0 bg-white" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" title="Outer Web Access" />
+                                          <iframe src={activeBypassUrl} className="w-full h-full border-0 bg-white" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-presentation" allowFullScreen title="Outer Web Access" />
                                           <div className="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur text-white text-[9px] px-2 py-1 rounded bg-black/50 pointer-events-none">Interactive Embedded Browser</div>
                                         </div>
                                       )}
@@ -7284,7 +7284,7 @@ export default function App() {
                                        </div>
                                      </div>
                                      <div className="flex-grow overflow-hidden bg-slate-900 border-none relative isolate shadow-inner w-full h-full">
-                                       <iframe src={activeBypassUrl} className="w-full h-full border-0 bg-white" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" title="Outer Web Access" />
+                                       <iframe src={activeBypassUrl} className="w-full h-full border-0 bg-white" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-presentation" allowFullScreen title="Outer Web Access" />
                                        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur text-white text-[9px] px-2 py-1 rounded pointer-events-none border border-white/10">Mobile iframe Embed</div>
                                      </div>
                                   </div>

@@ -135,16 +135,16 @@ export const GlobalBrowser: React.FC = () => {
       {proxyMode !== 'direct' && (
          <div className="bg-emerald-950/85 border-b border-emerald-500/20 px-3 py-1 flex items-center justify-between gap-2 text-[10px] text-emerald-400 font-medium shrink-0 animate-pulse">
             <div className="flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>ROUTED THROUGH ENCRYPTED TUNNEL PROXY SERVER. SAMEORIGIN BYPASSED.</span>
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              <span>ROUTED THROUGH ENCRYPTED PROXY SERVER. <span className="text-white bg-red-500/80 px-1.5 py-0.5 rounded font-bold">⚠ GOOGLE LOGIN BLOCKS IFRAMES. MUST CLICK "OPEN TAB NATIVE" TO LOGIN.</span></span>
             </div>
             <a 
               href={url} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="flex items-center gap-0.5 text-[9px] hover:underline text-cyan-400 font-bold tracking-wider uppercase shrink-0 px-2 py-0.5 bg-emerald-900/50 rounded"
+              className="flex items-center gap-0.5 text-[9px] hover:bg-emerald-800 transition-colors text-white font-bold tracking-wider uppercase shrink-0 px-2 py-1 bg-emerald-700 rounded shadow-md"
             >
-              Open Tab Native <ExternalLink className="w-2.5 h-2.5" />
+              Open Tab Native <ExternalLink className="w-3 h-3" />
             </a>
          </div>
       )}
@@ -155,8 +155,9 @@ export const GlobalBrowser: React.FC = () => {
           src={iframeSrc}
           className="absolute inset-0 w-full h-full border-0 bg-white"
           title="Global Encrypted Browser View"
-          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads allow-presentation"
           referrerPolicy="no-referrer"
+          allowFullScreen
         ></iframe>
       </div>
     </div>
