@@ -5205,14 +5205,14 @@ export default function App() {
                   {/* Minimized Window Previews - macOS Style Top Bar Display */}
                   <div className="flex-grow flex items-center justify-center pointer-events-none">
                      <div className="pointer-events-auto flex items-center gap-1.5 px-2">
-                        {openedWindows.filter(w => w.isMinimized).map(window => (
+                        {openedWindows.filter(w => w.isMinimized).map(win => (
                            <button 
-                             key={window.id}
-                             onClick={() => minimizeWindow(window.id)}
+                             key={win.id}
+                             onClick={() => minimizeWindow(win.id)}
                              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md border border-white/10 transition animate-in slide-in-from-top-1 duration-300"
                            >
                               <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_5px_rgba(34,211,238,0.5)]" />
-                              <span className="text-[10px] font-black text-white italic tracking-tighter uppercase">{window.title}</span>
+                              <span className="text-[10px] font-black text-white italic tracking-tighter uppercase">{win.title}</span>
                            </button>
                         ))}
                      </div>
