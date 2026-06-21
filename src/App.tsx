@@ -7360,11 +7360,11 @@ export default function App() {
 
                 {/* Main Dynamic Workspace rendering */}
                 <AnimatePresence mode="popLayout">
-                  {openedWindows.filter(w => !['ide', 'remote', 'terminal'].includes(w.appId)).map(window => (
+                  {openedWindows.filter(w => !['ide', 'remote', 'terminal'].includes(w.appId)).map(win => (
                     <DraggableWindow
-                      key={window.id}
-                      window={window}
-                      isFocused={focusedWindowId === window.id}
+                      key={win.id}
+                      window={win}
+                      isFocused={focusedWindowId === win.id}
                       onClose={closeWindow}
                       onMinimize={minimizeWindow}
                       onFocus={focusWindow}
@@ -7373,11 +7373,11 @@ export default function App() {
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
-                      {window.appId === 'maps' && <GoogleMapsWidget />}
-                      {window.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
-                      {window.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
-                      {window.appId === 'global-bridge' && <GlobalBrowser />}
-                      {window.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('Password updated securely with zero-knowledge protocol.')} onUploadAvatar={() => {
+                      {win.appId === 'maps' && <GoogleMapsWidget />}
+                      {win.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
+                      {win.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
+                      {win.appId === 'global-bridge' && <GlobalBrowser />}
+                      {win.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('Password updated securely with zero-knowledge protocol.')} onUploadAvatar={() => {
                           const input = document.createElement('input');
                           input.type = 'file';
                           input.accept = 'image/*';
@@ -7408,8 +7408,8 @@ export default function App() {
                           };
                           input.click();
                       }} />}
-                      {window.appId === 'marketplace' && <MarketplaceApp />}
-                      {window.appId === 'gmail' && (
+                      {win.appId === 'marketplace' && <MarketplaceApp />}
+                      {win.appId === 'gmail' && (
                          <div className="flex flex-col h-full bg-[#f6f8fc] rounded-xl overflow-hidden shadow-lg items-center justify-center relative">
                            <div className="absolute top-0 left-0 right-0 bg-blue-600 px-3 py-2 flex items-center justify-center gap-2 text-xs text-white font-bold tracking-widest shrink-0 shadow-md">
                                <span className="w-1.5 h-1.5 rounded-full bg-white blur-[1px] animate-pulse"></span>
@@ -7434,9 +7434,9 @@ export default function App() {
                          </div>
                       )}
                       {/* Fallback for other apps */}
-                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace'].includes(window.appId) && (
+                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace'].includes(win.appId) && (
                         <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
-                           {window.title} Module Loaded
+                           {win.title} Module Loaded
                         </div>
                       )}
                     </DraggableWindow>
