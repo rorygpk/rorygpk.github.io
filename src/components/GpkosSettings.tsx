@@ -94,6 +94,54 @@ export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode
           </div>
         )}
 
+        {activeTab === 'display' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <section>
+                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Desktop Background</h3>
+                <div className="grid grid-cols-2 gap-4">
+                   {[
+                     { id: 'bg-1', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop', label: 'Neon Circuit' },
+                     { id: 'bg-2', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', label: 'Orbital View' },
+                     { id: 'bg-3', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop', label: 'Abstract Fluid' },
+                     { id: 'bg-4', url: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2070&auto=format&fit=crop', label: 'Dark Hexagon' }
+                   ].map(bg => (
+                     <button 
+                       key={bg.id}
+                       onClick={() => setActiveBackground(bg.url)}
+                       className={`relative group rounded-xl overflow-hidden border-2 transition-all ${activeBackground === bg.url ? 'border-cyan-500 shadow-lg shadow-cyan-900/30' : 'border-transparent hover:border-white/20'}`}
+                     >
+                       <img src={bg.url} alt={bg.label} className="w-full h-24 object-cover transition duration-500 group-hover:scale-110" />
+                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex items-end p-2">
+                          <span className="text-[9px] font-bold text-white uppercase tracking-wider">{bg.label}</span>
+                       </div>
+                       {activeBackground === bg.url && (
+                          <div className="absolute top-2 right-2 w-4 h-4 bg-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                             <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                       )}
+                     </button>
+                   ))}
+                </div>
+             </section>
+             
+             <section>
+                <div className="bg-slate-900/80 border border-white/5 p-4 rounded-2xl">
+                   <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                         <Layout className="w-4 h-4 text-cyan-400" />
+                         <span className="text-white text-xs font-bold">Custom URL</span>
+                      </div>
+                   </div>
+                   <input 
+                      type="text" 
+                      placeholder="Paste image URL here..." 
+                      className="w-full bg-slate-950 border border-white/10 rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-cyan-500"
+                      onChange={(e) => setActiveBackground(e.target.value)}
+                   />
+                </div>
+             </section>
+          </div>
+        )}
         {activeTab === 'energy' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
              <section>
