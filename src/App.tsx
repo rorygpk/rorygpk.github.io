@@ -76,6 +76,7 @@ import {
   Layers,
   Camera,
   Package,
+  ShoppingCart,
   Minimize2,
   Maximize2,
   Power,
@@ -7375,15 +7376,60 @@ export default function App() {
                       {window.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
                       {window.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
                       {window.appId === 'global-bridge' && <GlobalBrowser />}
-                      {window.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('Password updated securely with zero-knowledge protocol.')} onUploadAvatar={() => alert('Opening File Picker...')} />}
+                      {window.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('Password updated securely with zero-knowledge protocol.')} onUploadAvatar={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'image/*';
+                          input.onchange = (e) => {
+                             const file = (e.target as HTMLInputElement).files?.[0];
+                             if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (re) => {
+                                   if (currentUser && re.target?.result) {
+                                      const newAvatarUrl = re.target.result as string;
+                                      const authListStr = localStorage.getItem('gpkos_users_auth_list');
+                                      if (authListStr) {
+                                         const authList = JSON.parse(authListStr);
+                                         const userIndex = authList.findIndex((u: any) => u.id === currentUser.id);
+                                         if (userIndex !== -1) {
+                                            authList[userIndex].avatar = newAvatarUrl;
+                                            localStorage.setItem('gpkos_users_auth_list', JSON.stringify(authList));
+                                            
+                                            const updatedUser = { ...currentUser, avatar: newAvatarUrl };
+                                            localStorage.setItem('gpkos_curr_user', JSON.stringify(updatedUser));
+                                            window.location.reload(); 
+                                         }
+                                      }
+                                   }
+                                };
+                                reader.readAsDataURL(file);
+                             }
+                          };
+                          input.click();
+                      }} />}
                       {window.appId === 'marketplace' && <MarketplaceApp />}
                       {window.appId === 'gmail' && (
-                         <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-                           <div className="bg-emerald-900/40 border-b border-emerald-500/20 px-3 py-1 flex items-center justify-center gap-2 text-[10px] text-emerald-400 font-bold tracking-widest shrink-0">
+                         <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg items-center justify-center relative">
+                           <div className="absolute top-0 left-0 right-0 bg-emerald-900/40 border-b border-emerald-500/20 px-3 py-1 flex items-center justify-center gap-2 text-[10px] text-emerald-400 font-bold tracking-widest shrink-0">
                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 blur-[1px] animate-pulse"></span>
-                               ROUTED VIA GLOBAL HF PROXY NODE (NETWORK OPTIMIZED)
+                               EXTERNAL SECURE GATEWAY ROUTING
                            </div>
-                           <iframe src="https://mail.google.com" className="w-full h-full border-0 absolute inset-0 pt-6"></iframe>
+                           <div className="bg-slate-800 p-8 rounded-2xl border border-white/10 text-center max-w-sm flex flex-col items-center shadow-2xl">
+                              <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border-4 border-emerald-500/30">
+                                 <Mail className="w-10 h-10 text-emerald-400" />
+                              </div>
+                              <h3 className="text-xl font-bold text-white mb-2">Google Mail Services</h3>
+                              <p className="text-xs text-slate-400 mb-8 leading-relaxed">
+                                 For maximum security and to preserve your authenticated session, Gmail must be launched in an isolated secure tab. In-frame execution is blocked by Google's Content Security Policy.
+                              </p>
+                              <button 
+                                onClick={() => window.open('https://mail.google.com', '_blank')}
+                                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                              >
+                                <ExternalLink className="w-5 h-5" />
+                                Launch Gmail Securely
+                              </button>
+                           </div>
                          </div>
                       )}
                       {/* Fallback for other apps */}

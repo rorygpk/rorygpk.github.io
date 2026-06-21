@@ -1374,14 +1374,45 @@ app.get("/api/web/proxy-html", async (req, res) => {
     html = html.replace(/window\.top\./g, "window.self.");
     html = html.replace(/top\.location/g, "self.location");
 
+    // Implement strict navigation hijacking script to intercept link clicks and form submits inside iframe
+    const hijackScript = `
+      <script>
+        document.addEventListener('click', function(e) {
+          const a = e.target.closest('a');
+          if (a && a.href && !a.href.startsWith('javascript:')) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.parent.postMessage({ type: 'PROXY_NAVIGATE', url: a.href }, '*');
+          }
+        }, true);
+        document.addEventListener('submit', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const form = e.target;
+          let actionUrl = form.action || window.location.href;
+          const urlObj = new URL(actionUrl, document.baseURI || window.location.href);
+          
+          if (form.method.toLowerCase() === 'get') {
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData as any).toString();
+            urlObj.search = params;
+            window.parent.postMessage({ type: 'PROXY_NAVIGATE', url: urlObj.href }, '*');
+          } else {
+             // For POST, we currently fallback to standard target or block it. 
+             window.parent.postMessage({ type: 'PROXY_NAVIGATE', url: urlObj.href }, '*');
+          }
+        }, true);
+      </script>
+    `;
+
     // Inject base tag in head so any uncaptured relative resources still have a fallback relative to original hostname
     const baseTag = `<base href="${targetUrl}">`;
     if (html.includes("<head>")) {
-      html = html.replace("<head>", `<head>\n${baseTag}`);
+      html = html.replace("<head>", `<head>\n${baseTag}\n${hijackScript}`);
     } else if (html.includes("<HEAD>")) {
-      html = html.replace("<HEAD>", `<HEAD>\n${baseTag}`);
+      html = html.replace("<HEAD>", `<HEAD>\n${baseTag}\n${hijackScript}`);
     } else {
-      html = baseTag + html;
+      html = `<head>\n${baseTag}\n${hijackScript}\n</head>\n` + html;
     }
 
     // Helper to turn relative paths to absolute paths

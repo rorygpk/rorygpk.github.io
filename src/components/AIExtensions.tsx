@@ -326,7 +326,11 @@ export function AdminSubpages({ lang, systemState, setSystemState }: { lang: Lan
                </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 block">Page Slug / 分支页路径名 (ID)</label>
+                <input type="text" value={page.id} onChange={e => updatePage(page.id, 'id', e.target.value.replace(/[^a-zA-Z0-9-]/g, ''))} className="w-full bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-cyan-300 font-mono focus:border-rose-500 outline-none" placeholder="e.g. my-custom-page" />
+              </div>
               <div>
                 <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 block">Title (EN)</label>
                 <input type="text" value={page.titleEn} onChange={e => updatePage(page.id, 'titleEn', e.target.value)} className="w-full bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-rose-500 outline-none" />

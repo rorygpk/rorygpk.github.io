@@ -6,10 +6,19 @@ export const GlobalBrowser: React.FC = () => {
   const [iframeSrc, setIframeSrc] = useState("");
   const [proxyEnabled, setProxyEnabled] = useState(true);
 
-  // Initialize src
+  // Initialize src and listen for proxied navigations
   useEffect(() => {
     updateIframeSrc(url, proxyEnabled);
-  }, []);
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'PROXY_NAVIGATE' && event.data.url) {
+        updateIframeSrc(event.data.url, proxyEnabled);
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [proxyEnabled]);
 
   const updateIframeSrc = (targetUrl: string, useProxy: boolean) => {
     let finalUrl = targetUrl;
