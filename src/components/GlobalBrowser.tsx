@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, RotateCcw, AlertTriangle, ShieldCheck, Globe, MapPin, Mail, ExternalLink, Unlock } from "lucide-react";
+import { Search, RotateCcw, AlertTriangle, ShieldCheck, Globe, MapPin, Mail, ExternalLink, Unlock, Youtube, Folder, Database } from "lucide-react";
 
 export const GlobalBrowser: React.FC = () => {
   // Using Google webhp with igu=1 bypasses normal x-frame-options for embedding purposes!
@@ -84,25 +84,50 @@ export const GlobalBrowser: React.FC = () => {
         </div>
 
         {/* Preset Navigation Shortcuts */}
-        <div className="flex flex-wrap items-center gap-1.5 px-1 pb-1">
-          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mr-1">Quick Tunnel:</span>
+        <div className="flex flex-wrap items-center gap-1.5 px-2 pb-2">
+          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mr-1">Google Suite:</span>
           <button 
             onClick={() => loadPreset("https://www.google.com/search?igu=1", "direct")}
             className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-blue-300 border border-blue-500/20 transition"
           >
-            <Unlock className="w-3 h-3 text-blue-400" /> Google Search (Unblocked)
+            <Unlock className="w-3 h-3 text-blue-400" /> Search
           </button>
+          <button 
+            onClick={() => loadPreset("https://www.youtube.com", "server-proxy")}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-red-300 border border-red-500/20 transition"
+          >
+            <Youtube className="w-3 h-3 text-red-500" /> YouTube
+          </button>
+          <button 
+            onClick={() => loadPreset("https://mail.google.com", "server-proxy")}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-rose-300 border border-rose-500/20 transition"
+          >
+            <Mail className="w-3 h-3 text-rose-400" /> Gmail
+          </button>
+          <button 
+            onClick={() => loadPreset("https://drive.google.com", "server-proxy")}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-emerald-300 border border-emerald-500/20 transition"
+          >
+            <Folder className="w-3 h-3 text-emerald-400" /> Drive
+          </button>
+          <button 
+            onClick={() => loadPreset("https://maps.google.com", "server-proxy")}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-amber-300 border border-amber-500/20 transition"
+          >
+            <MapPin className="w-3 h-3 text-amber-400" /> Maps
+          </button>
+          <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
           <button 
             onClick={() => loadPreset("https://huggingface.co/spaces/zhoumarvis/roeygpk", "hf-space")}
             className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-cyan-300 border border-cyan-500/20 transition"
           >
-            <Globe className="w-3 h-3 text-cyan-400" /> Space App (roeygpk)
+            <Globe className="w-3 h-3 text-cyan-400" /> HF
           </button>
           <button 
             onClick={() => loadPreset("https://www.wikipedia.org", "direct")}
             className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-850 text-[10px] text-slate-300 border border-slate-500/20 transition"
           >
-             Wikipedia (Native)
+             Wiki
           </button>
         </div>
       </div>
