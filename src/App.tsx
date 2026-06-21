@@ -111,6 +111,7 @@ import { motion, AnimatePresence, useDragControls } from "motion/react";
 
 import { GpkosSettings } from "./components/GpkosSettings";
 import { VerificationScreen } from "./components/VerificationScreen";
+import { GmailApp } from "./components/GpkosReplicas";
 
 const containerStyle = {
   width: '100%',
@@ -7410,28 +7411,21 @@ export default function App() {
                       }} />}
                       {win.appId === 'marketplace' && <MarketplaceApp />}
                       {win.appId === 'gmail' && (
-                         <div className="flex flex-col h-full bg-[#f6f8fc] rounded-xl overflow-hidden shadow-lg items-center justify-center relative">
-                           <div className="absolute top-0 left-0 right-0 bg-blue-600 px-3 py-2 flex items-center justify-center gap-2 text-xs text-white font-bold tracking-widest shrink-0 shadow-md">
-                               <span className="w-1.5 h-1.5 rounded-full bg-white blur-[1px] animate-pulse"></span>
-                               EXTERNAL SECURE GATEWAY
-                           </div>
-                           <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center max-w-sm flex flex-col items-center shadow-xl">
-                              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-                                 <Mail className="w-10 h-10 text-blue-600" />
-                              </div>
-                              <h3 className="text-xl font-bold text-slate-800 mb-2">Google Mail Services</h3>
-                              <p className="text-xs text-slate-500 mb-8 leading-relaxed">
-                                 For maximum security and to preserve your authenticated session, Gmail must be launched in an isolated secure tab. In-frame execution is blocked by Google's Content Security Policy.
-                              </p>
-                              <button 
-                                onClick={() => window.open('https://mail.google.com', '_blank')}
-                                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 flex items-center justify-center gap-2"
-                              >
-                                <ExternalLink className="w-5 h-5" />
-                                Launch Gmail Securely
-                              </button>
-                           </div>
-                         </div>
+                         <GmailApp 
+                            currentUser={currentUser}
+                            mockEmailsList={emails}
+                            setMockEmailsList={setEmails}
+                            installedApps={[]}
+                            setInstalledApps={() => {}}
+                            kernelStats={{}}
+                            desktopWallpaper=""
+                            setDesktopWallpaper={() => {}}
+                            dockAutohide={false}
+                            setDockAutohide={() => {}}
+                            openGPKOSApp={() => {}}
+                            setGpkosWindows={setOpenedWindows}
+                            setEmails={setEmails}
+                         />
                       )}
                       {/* Fallback for other apps */}
                       {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace'].includes(win.appId) && (
