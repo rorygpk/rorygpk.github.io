@@ -7422,7 +7422,7 @@ export default function App() {
                             setDesktopWallpaper={() => {}}
                             dockAutohide={false}
                             setDockAutohide={() => {}}
-                            openGPKOSApp={() => {}}
+                            openGPKOSApp={(id) => launchApp(id, id === 'outlook' ? 'Outlook Mail' : 'Application')}
                             setGpkosWindows={setOpenedWindows}
                             setEmails={setEmails}
                          />

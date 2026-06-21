@@ -39,34 +39,34 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
   const selectedMail = mockEmailsList.find(m => m.id === gmailSelectedId);
 
   return (
-    <div className="flex-grow flex bg-[#f6f8fc] text-[#1f1f1f] overflow-hidden rounded-b-2xl h-full font-sans relative">
+    <div className="flex-grow flex bg-[#131214] text-slate-300 overflow-hidden rounded-b-2xl h-full font-sans relative">
       {/* Compose pop up inside window */}
       {isGmailComposing && (
-        <div className="absolute bottom-4 right-4 w-96 bg-white border border-slate-200 shadow-2xl rounded-2xl flex flex-col z-[100] animate-fade-in font-sans text-xs">
-          <div className="bg-[#2f3542] text-white px-4 py-2.5 rounded-t-2xl flex justify-between items-center font-semibold">
-            <span>新建邮件 Compose</span>
-            <button onClick={() => setIsGmailComposing(false)} className="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+        <div className="absolute bottom-4 right-4 w-96 bg-slate-900 border border-white/10 shadow-2xl shadow-cyan-500/20 rounded-2xl flex flex-col z-[100] animate-fade-in font-sans text-xs">
+          <div className="bg-slate-950 text-emerald-400 px-4 py-2.5 rounded-t-2xl flex justify-between items-center font-bold border-b border-white/10 uppercase tracking-widest text-[10px]">
+            <span className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-500" /> Secure Mail Dispatcher</span>
+            <button onClick={() => setIsGmailComposing(false)} className="text-slate-500 hover:text-white font-bold text-sm">✕</button>
           </div>
-          <div className="p-3.5 space-y-3">
+          <div className="p-3.5 space-y-3 bg-slate-900/90 backdrop-blur-md rounded-b-2xl">
             <input 
               type="text" 
-              placeholder="收件人" 
+              placeholder="Target Tunnel Address (To)" 
               value={gmailComposeTo}
               onChange={e => setGmailComposeTo(e.target.value)}
-              className="w-full border-b border-slate-200 py-1 px-1 focus:outline-none focus:border-blue-500 font-sans text-slate-800"
+              className="w-full bg-slate-950 border border-white/10 py-1.5 px-2.5 focus:outline-none focus:border-emerald-500 text-white rounded font-mono text-[10px]"
             />
             <input 
               type="text" 
-              placeholder="主题" 
+              placeholder="Encryption Subject" 
               value={gmailComposeSub}
               onChange={e => setGmailComposeSub(e.target.value)}
-              className="w-full border-b border-slate-200 py-1 px-1 focus:outline-none focus:border-blue-500 font-sans text-slate-800"
+              className="w-full bg-slate-950 border border-white/10 py-1.5 px-2.5 focus:outline-none focus:border-emerald-500 text-white rounded font-mono text-[10px]"
             />
             <textarea 
-              placeholder="编写邮件内容..." 
+              placeholder="Inject encrypted payload text here..." 
               value={gmailComposeTxt}
               onChange={e => setGmailComposeTxt(e.target.value)}
-              className="w-full h-36 focus:outline-none py-1 px-1 font-sans resize-none text-slate-850"
+              className="w-full h-36 bg-slate-950 border border-white/10 focus:outline-none py-2 px-2.5 resize-none text-emerald-100 rounded text-xs font-mono"
             />
             <button 
               onClick={() => {
@@ -107,20 +107,22 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
                 setGmailComposeTxt("");
                 alert("🎉 邮件成功发出！自动通过 SSL 中转管道离线投递完毕。");
               }}
-              className="w-full bg-[#1b72e8] hover:bg-blue-600 text-white font-bold py-2 rounded-xl transition shadow-lg shadow-blue-500/10 text-xs"
+              className="w-full bg-emerald-600/20 border border-emerald-500/50 hover:bg-emerald-600 text-emerald-400 hover:text-white font-bold py-2 rounded-lg transition text-xs tracking-widest uppercase"
             >
-              发送 Secure Mail
+              Start AES-256 Dispatch
             </button>
           </div>
         </div>
       )}
 
       {/* Gmail Left Sidebar Navigation */}
-      <div className="w-52 bg-[#f6f8fc] border-r border-[#eaf1fb] p-3 flex flex-col gap-1 shrink-0 select-none text-left">
-        <div className="flex items-center gap-2 px-2 py-1 mb-2">
-          <div className="text-xl">✉️</div>
-          <span className="font-extrabold text-base tracking-tight bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent">Gmail</span>
-          <span className="text-[9px] bg-red-100 text-red-600 font-extrabold px-1.5 py-0.5 rounded-full font-mono">SECURE</span>
+      <div className="w-52 bg-slate-950 border-r border-white/10 p-3 flex flex-col gap-1 shrink-0 select-none text-left font-sans">
+        <div className="flex flex-col gap-1 px-1 py-1 mb-3">
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-red-500" />
+            <span className="font-extrabold text-base tracking-tight text-white">Gmail Cloud</span>
+          </div>
+          <span className="text-[9px] text-slate-500 font-bold tracking-widest mt-0.5">极速中转安全主控</span>
         </div>
 
         <button 
@@ -130,49 +132,49 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
             setGmailComposeSub("");
             setGmailComposeTxt("");
           }}
-          className="bg-[#c2e7ff] hover:bg-[#b3dcfa] text-[#001d35] font-extrabold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 transition duration-200 shadow-md hover:shadow-lg text-xs border-none mb-3"
+          className="bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 text-cyan-400 font-extrabold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition duration-200 shadow-md hover:shadow-cyan-500/10 text-xs mb-4"
         >
-          <span>✎</span> 写信 Compose
+          <span>✏️</span> Secure Draft
         </button>
 
         {[
-          { id: "inbox", label: "收件箱 Inbox", icon: "📥", count: currentUnreadCount },
-          { id: "starred", label: "已星标 Starred", icon: "⭐" },
-          { id: "sent", label: "已发送 Sent", icon: "📤" },
-          { id: "drafts", label: "草稿箱 Drafts", icon: "📝" },
-          { id: "trash", label: "垃圾箱 Trash", icon: "🗑️" }
+          { id: "inbox", label: "Tunnel Inbox", icon: "📥", count: currentUnreadCount },
+          { id: "starred", label: "Encrypted Starred", icon: "⭐" },
+          { id: "sent", label: "Dispatched", icon: "📤" },
+          { id: "drafts", label: "Local Vault", icon: "📝" },
+          { id: "trash", label: "Wipe Area", icon: "🗑️" }
         ].map(folderItem => (
           <button 
             key={folderItem.id}
             onClick={() => { setGmailFolder(folderItem.id); setGmailSelectedId(null); }}
-            className={`w-full text-left px-3.5 py-2 rounded-full text-xs font-semibold flex items-center justify-between transition-colors border-none ${gmailFolder === folderItem.id ? "bg-[#d3e3fd] text-[#041e49]" : "text-[#444746] hover:bg-black/5"}`}
+            className={`w-full text-left px-3.5 py-2 rounded-lg text-[10px] font-bold flex items-center justify-between transition-colors uppercase tracking-wider border border-transparent ${gmailFolder === folderItem.id ? "bg-white/10 text-white border-white/20" : "text-slate-500 hover:bg-white/5 hover:text-slate-300"}`}
           >
-            <div className="flex items-center gap-2">
-              <span>{folderItem.icon}</span>
+            <div className="flex items-center gap-2.5">
+              <span className="opacity-80">{folderItem.icon}</span>
               <span>{folderItem.label}</span>
             </div>
             {folderItem.count ? folderItem.count > 0 ? (
-              <span className="bg-[#0b57d0] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full font-mono leading-none">{folderItem.count}</span>
+              <span className="bg-emerald-500 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded font-mono leading-none">{folderItem.count}</span>
             ) : null : null}
           </button>
         ))}
 
-        <div className="mt-auto pt-3 border-t border-slate-200 text-center text-[9px] text-slate-400 font-mono">
-          SSL Tunnel Connection:<br/>
-          <strong className="text-emerald-600">STATIC BYPASS OK</strong>
+        <div className="mt-auto pt-3 border-t border-white/10 text-center text-[9px] text-slate-500 font-mono">
+          Global Transport Relay:<br/>
+          <strong className="text-emerald-500 block mt-1 animate-pulse"><Shield className="w-3 h-3 inline mr-1"/> ACTIVE OK</strong>
         </div>
       </div>
 
       {/* Gmail Content Workspace Grid */}
-      <div className="flex-grow flex overflow-hidden bg-white rounded-tl-3xl shadow-inner border border-[#eaf1fb]">
+      <div className="flex-grow flex overflow-hidden bg-slate-900 border-l border-white/5">
         {/* Emails List */}
-        <div className="w-1/2 border-r border-[#eaf1fb] flex flex-col overflow-hidden">
-          <div className="bg-[#f0f4f9] px-4 py-2 border-b border-[#eaf1fb] flex justify-between items-center shrink-0">
-            <span className="text-[10px] font-bold text-slate-600 uppercase">
-              📁 {gmailFolder} Mailbox
+        <div className="w-[45%] border-r border-white/5 flex flex-col overflow-hidden bg-slate-900/50">
+          <div className="bg-slate-950 px-4 py-2 flex justify-between items-center shrink-0 border-b border-white/5">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <Sliders className="w-3.5 h-3.5 text-slate-500" /> {gmailFolder} Node Data
             </span>
           </div>
-          <div className="flex-grow overflow-y-auto divide-y divide-[#f0f4f9]">
+          <div className="flex-grow overflow-y-auto divide-y divide-white/5">
             {filteredMails.map(mail => (
               <div 
                 key={mail.id}
@@ -180,63 +182,60 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
                   setGmailSelectedId(mail.id);
                   setMockEmailsList(prev => prev.map(m => m.id === mail.id ? { ...m, unread: false } : m));
                 }}
-                className={`p-3 text-left transition-colors cursor-pointer border-l-4 ${mail.id === gmailSelectedId ? "bg-blue-50/55 border-blue-500" : "hover:bg-slate-50 border-transparent"} ${mail.unread ? "font-bold" : ""}`}
+                className={`p-3 text-left transition-colors cursor-pointer border-l-2 ${mail.id === gmailSelectedId ? "bg-white/5 border-emerald-500" : "hover:bg-white/5 border-transparent"} ${mail.unread ? "bg-white/[0.02]" : ""}`}
               >
-                <div className="flex justify-between items-center text-[9px] text-slate-400 mb-1 font-mono">
-                  <span className="font-semibold text-slate-700 truncate max-w-[120px]">{mail.sender}</span>
-                  <span>{mail.date}</span>
+                <div className="flex justify-between items-center text-[9px] text-slate-500 mb-1 font-mono uppercase tracking-tight">
+                  <span className={`font-bold truncate max-w-[120px] ${mail.unread ? "text-white" : "text-slate-400"}`}>{mail.sender}</span>
+                  <span className={mail.unread ? "text-emerald-500 font-bold" : "opacity-60"}>{mail.date}</span>
                 </div>
-                <h4 className="text-xs text-slate-900 line-clamp-1 mb-0.5 font-bold">{mail.subject}</h4>
-                <p className="text-[10px] text-slate-400 line-clamp-1 font-normal">{mail.body}</p>
+                <h4 className={`text-xs line-clamp-1 mb-1 ${mail.unread ? "text-white font-extrabold" : "text-slate-300 font-medium"}`}>{mail.subject}</h4>
+                <p className="text-[10px] text-slate-500 line-clamp-1 font-normal font-mono">{mail.body}</p>
               </div>
             ))}
             {filteredMails.length === 0 && (
-              <div className="text-center py-20 text-slate-400 font-mono text-[10px]">No mail in this folder.</div>
+              <div className="text-center py-20 text-slate-500 font-mono text-[10px] tracking-widest uppercase">No payloads in this stream.</div>
             )}
           </div>
         </div>
 
         {/* Email Detail Reader Pane */}
-        <div className="w-1/2 flex flex-col overflow-hidden bg-white">
+        <div className="w-[55%] flex flex-col overflow-hidden bg-[#131214]">
           {selectedMail ? (
-            <div className="flex-grow flex flex-col overflow-y-auto p-4 text-left text-xs text-slate-750 leading-relaxed font-sans">
-              <div className="border-b border-[#eaf1fb] pb-3 mb-3 select-text">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-1">
-                    <span className="font-extrabold text-slate-900">{selectedMail.sender}</span>
-                    <span className="text-[9px] text-slate-400 font-mono">{"<"}{selectedMail.senderEmail}{">"}</span>
+            <div className="flex-grow flex flex-col overflow-y-auto p-5 text-left text-xs bg-slate-950">
+              <div className="border-b border-white/10 pb-4 mb-4 select-text">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white text-sm">{selectedMail.sender}</span>
+                    <span className="text-[10px] bg-slate-900 border border-white/10 px-2 py-0.5 rounded text-slate-400 font-mono">{"<"}{selectedMail.senderEmail}{">"}</span>
                   </div>
-                  <span className="text-[9px] text-slate-400 font-mono">{selectedMail.date}</span>
+                  <span className="text-[10px] text-slate-500 font-mono">{selectedMail.date}</span>
                 </div>
-                <h2 className="text-xs font-black text-slate-900 leading-snug">{selectedMail.subject}</h2>
+                <h2 className="text-sm font-black text-white leading-snug tracking-tight">{selectedMail.subject}</h2>
               </div>
               
-              <div className="flex-grow whitespace-pre-wrap select-text leading-relaxed text-slate-600 bg-slate-50/70 p-3 rounded-lg border border-slate-100 font-sans text-[11px]">
+              <div className="flex-grow whitespace-pre-wrap select-text leading-relaxed text-slate-300 font-mono text-[11px]">
                 {selectedMail.body}
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#eaf1fb] flex gap-1.5 shrink-0">
+              <div className="mt-4 pt-4 border-t border-white/10 flex gap-2 shrink-0 object-bottom">
                 <button 
                   onClick={() => {
                     setGmailComposeTo(selectedMail.senderEmail);
                     setGmailComposeSub("Re: " + selectedMail.subject);
                     setIsGmailComposing(true);
                   }}
-                  className="bg-[#1b72e8] hover:bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition border-none cursor-pointer"
+                  className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold px-4 py-2 rounded-lg text-[10px] transition border border-emerald-500/20 uppercase tracking-widest flex items-center justify-center auto-cols-auto gap-1"
                 >
-                  ↩ 回复 Reply
+                  ↩ Secure Reply
                 </button>
                 <button 
                   onClick={() => {
-                    setGpkosWindows(prev => ({
-                      ...prev,
-                      outlook: { ...prev!.outlook, isOpen: true, zIndex: Math.max(...Object.values(prev as any).map((w: any) => w.zIndex || 0)) + 1 }
-                    }));
+                    openGPKOSApp("outlook");
                     alert("Exporting content context securely to Outlook pipeline...");
                   }}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg text-[10px] transition border-none cursor-pointer"
+                  className="bg-white/5 hover:bg-white/10 text-slate-300 font-bold px-4 py-2 rounded-lg text-[10px] transition border border-white/10 uppercase tracking-widest"
                 >
-                  ➡️ 转发至 Outlook
+                  ➡️ Relay To Outlook
                 </button>
                 <button 
                   onClick={() => {
@@ -244,16 +243,16 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
                     setGmailSelectedId(null);
                     alert("Moved to Trash folder.");
                   }}
-                  className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-2.5 py-1.5 rounded-lg text-[10px] transition ml-auto border-none cursor-pointer"
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold px-4 py-2 rounded-lg text-[10px] transition border border-red-500/20 uppercase tracking-widest ml-auto"
                 >
-                  🗑️ Trash
+                  🗑️ Wipe
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex-grow flex flex-col items-center justify-center p-6 text-center text-slate-400 text-[10px] gap-2">
-              <Mail className="w-10 h-10 text-slate-300" />
-              <p className="font-sans leading-relaxed">请点击左侧列表的邮件，即可直接在沙箱原界面内极速阅读内容正文。</p>
+            <div className="flex-grow flex flex-col items-center justify-center p-6 text-center text-slate-500 font-mono uppercase tracking-widest text-[9px] gap-3">
+              <Shield className="w-12 h-12 text-slate-700/50" />
+              <p className="leading-relaxed max-w-[200px]">Node Standby.<br/>Select an encrypted payload from the left stream to intercept and view content context.</p>
             </div>
           )}
         </div>
