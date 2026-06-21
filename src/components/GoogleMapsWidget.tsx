@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
-import { Navigation, MapPin, Search, Car, Train, Bike, Footprints } from 'lucide-react';
+import { Navigation, MapPin, Search, Car, Train, Bike, Footprints, Sparkles } from 'lucide-react';
 
 const API_KEY =
   process.env.GOOGLE_MAPS_PLATFORM_KEY ||
@@ -52,11 +52,31 @@ export const GoogleMapsWidget: React.FC = () => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const [placeIntro, setPlaceIntro] = useState<string | null>(null);
+  const [isFetchingIntro, setIsFetchingIntro] = useState(false);
+
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (searchInput.trim()) {
       setSearchQuery(searchInput.trim());
       setUseRouting(false);
+      setPlaceIntro(null);
+      setIsFetchingIntro(true);
+      
+      try {
+        const query = encodeURIComponent(searchInput.trim());
+        const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${query}`);
+        const data = await response.json();
+        if (data && data.extract) {
+           setPlaceIntro(data.extract);
+        } else {
+           setPlaceIntro("No detailed introduction available for this specific location.");
+        }
+      } catch (err) {
+        setPlaceIntro("Could not load introduction data.");
+      } finally {
+        setIsFetchingIntro(false);
+      }
     }
   };
 
@@ -180,8 +200,24 @@ export const GoogleMapsWidget: React.FC = () => {
           )}
         </div>
 
+        {activeTab === 'search' && (isFetchingIntro || placeIntro) && (
+          <div className="bg-slate-800 border-b border-white/10 p-3 shrink-0 flex flex-col gap-1 text-sm animate-fade-in relative shadow-md z-10">
+            <h4 className="text-white font-bold flex items-center gap-2">
+               <Sparkles className="w-4 h-4 text-amber-400" />
+               About {searchQuery || "this place"}
+            </h4>
+            {isFetchingIntro ? (
+               <div className="text-slate-400 text-xs py-2 animate-pulse">Loading location context from Wikipedia nodes...</div>
+            ) : (
+               <div className="text-slate-300 text-xs leading-relaxed max-h-32 overflow-y-auto pr-2 scrollbar-hide">
+                 {placeIntro}
+               </div>
+            )}
+          </div>
+        )}
+
         <iframe
-          className="flex-grow w-full bg-white"
+          className="flex-grow w-full bg-slate-900"
           style={{ border: 0 }}
           src={mapUrl}
           allowFullScreen
