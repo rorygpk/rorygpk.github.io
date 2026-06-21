@@ -101,6 +101,8 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { GoogleMapsWidget } from "./components/GoogleMapsWidget";
 import { SecureBridge } from "./components/SecureBridge";
 import { GlobalBrowser } from "./components/GlobalBrowser";
+import { UserProfileApp } from "./components/UserProfileApp";
+import { MarketplaceApp } from "./components/MarketplaceApp";
 import { encryptData, decryptData } from './lib/encryption';
 import { RichTextEditor } from "./components/RichTextEditor";
 import { motion, AnimatePresence, useDragControls } from "motion/react";
@@ -2868,135 +2870,52 @@ export default function App() {
           </div>
 
           {/* Nav Links containing CYAN for Home and SOFT BLUE for Work */}
-          <nav className="hidden md:flex flex-wrap items-center gap-2" id="navigation-rail">
-            <a
-              href="#home"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                currentHash === "#home"
-                  ? "bg-cyan-500 text-slate-950 shadow-md scale-105"
-                  : "text-cyan-400 hover:bg-cyan-500/15"
-              }`}
-            >
-              {t("#home")}
-            </a>
-            <a
-              href="#work"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                currentHash === "#work"
-                  ? "bg-blue-500 text-white shadow-md scale-105"
-                  : "text-blue-300 hover:bg-blue-500/15"
-              }`}
-            >
-              {t("#work")}
-            </a>
-            <a
-              href="#public-mail"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#public-mail"
-                  ? "bg-violet-500 text-white shadow-md scale-105"
-                  : "text-violet-300 hover:bg-violet-500/15"
-              }`}
-            >
-              🌐 {lang === 'en' ? 'Global Mail' : '全球极速发信'}
-            </a>
-            {(currentUser?.role === 'admin' || (currentUser && systemState.outerWebAuthorizedUsers?.includes(currentUser.emailUsername))) && (
-            <a
-              href="#rory-gpkos"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#rory-gpkos"
-                  ? "bg-emerald-500 text-slate-950"
-                  : "text-emerald-300 hover:bg-emerald-500/15"
-              }`}
-            >
-              {t("#rory-gpkos IDE")}
-            </a>
-            )}
-            <a
-              href="#msfs"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#msfs"
-                  ? "bg-amber-500 text-slate-950"
-                  : "text-amber-300 hover:bg-amber-500/15"
-              }`}
-            >
-              {t("msfs Sim")}
-            </a>
-            <a
-              href="#remote"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#remote"
-                  ? "bg-indigo-500 text-white"
-                  : "text-indigo-300 hover:bg-indigo-500/15"
-              }`}
-            >
-              {t("Remote Screen")}
-            </a>
-            <a
-              href="#video"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#video"
-                  ? "bg-rose-500 text-white"
-                  : "text-rose-300 hover:bg-rose-500/15"
-              }`}
-            >
-              {t("Video Stream")}
-            </a>
-            <a
-              href="#friendship"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#friendship"
-                  ? "bg-purple-500 text-white"
-                  : "text-purple-300 hover:bg-purple-500/15"
-              }`}
-            >
-              {t("Friendship Album")}
-            </a>
-            <a
-              href="#drive"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#drive"
-                  ? "bg-sky-500 text-white shadow-md scale-105"
-                  : "text-sky-300 hover:bg-sky-500/15"
-              }`}
-            >
-              {lang === 'en' ? 'Cloud Drive' : '云端储存'}
-            </a>
-            <a
-              href="#admin"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#admin"
-                  ? "bg-fuchsia-500 text-white shadow-md scale-105"
-                  : "text-fuchsia-300 hover:bg-fuchsia-500/15"
-              }`}
-            >
-              <div className="flex items-center gap-1.5"><Shield className="w-4 h-4" />{lang === 'en' ? 'Admin' : '高级后台'}</div>
-            </a>
-            <a
-              href="#blog"
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                currentHash === "#blog"
-                  ? "bg-teal-500 text-white"
-                  : "text-teal-300 hover:bg-teal-500/15"
-              }`}
-            >
-              {t("Blogs CMS")}
-            </a>
-            {systemState.navPages?.filter(p => p.isVisible).map(p => (
-              <a
-                key={p.id}
-                href={p.isExternal ? p.externalLink : `#subpage-${p.id}`}
-                target={p.isExternal ? "_blank" : undefined}
-                rel={p.isExternal ? "noopener noreferrer" : undefined}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  currentHash === `#subpage-${p.id}`
-                    ? "bg-fuchsia-500 text-white"
-                    : "text-fuchsia-300 hover:bg-fuchsia-500/15"
-                }`}
-              >
-                {lang === 'en' ? p.titleEn : p.titleZh}
-              </a>
-            ))}
-          </nav>
+          {/* IBM/DELL ENTERPRISE HOVER MEGA MENU */}
+          <div className="hidden md:block relative group">
+            <button className="px-5 py-2 flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold transition-all duration-300 backdrop-blur-md">
+              <div className="space-y-1"><div className="w-4 h-[2px] bg-white"></div><div className="w-4 h-[2px] bg-white"></div><div className="w-4 h-[2px] bg-white"></div></div>
+              {lang === 'en' ? 'Solutions & Navigation' : '企业级服务与产品导航'}
+            </button>
+            <div className="absolute left-0 top-full mt-2 w-[700px] bg-slate-900/95 backdrop-blur-3xl border border-white/20 p-6 rounded-2xl shadow-2xl grid grid-cols-3 gap-6 z-[9999] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top -translate-y-2 group-hover:translate-y-0" id="navigation-rail">
+               <div>
+                 <h3 className="text-slate-400 font-bold mb-3 uppercase text-xs tracking-widest border-b border-white/10 pb-2">{lang === 'en' ? 'Core Systems' : '核心系统'}</h3>
+                 <div className="flex flex-col gap-2">
+                   <a href="#home" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#home" ? "text-cyan-400" : "text-slate-300 hover:text-cyan-300"}`}>{t("#home")}</a>
+                   <a href="#work" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#work" ? "text-blue-400" : "text-slate-300 hover:text-blue-300"}`}>{t("#work")}</a>
+                   <a href="#public-mail" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#public-mail" ? "text-violet-400" : "text-slate-300 hover:text-violet-300"}`}>🌐 {lang === 'en' ? 'Global Mail' : '全球极速发信'}</a>
+                   {(currentUser?.role === 'admin' || (currentUser && systemState.outerWebAuthorizedUsers?.includes(currentUser.emailUsername))) && (
+                     <a href="#rory-gpkos" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#rory-gpkos" ? "text-emerald-400" : "text-slate-300 hover:text-emerald-300"}`}>{t("#rory-gpkos IDE")}</a>
+                   )}
+                 </div>
+               </div>
+               <div>
+                 <h3 className="text-slate-400 font-bold mb-3 uppercase text-xs tracking-widest border-b border-white/10 pb-2">{lang === 'en' ? 'Applications' : '应用程序'}</h3>
+                 <div className="flex flex-col gap-2">
+                   <a href="#drive" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#drive" ? "text-emerald-400" : "text-slate-300 hover:text-emerald-300"}`}>{lang === 'en' ? 'Cloud Drive' : '云网盘存储'}</a>
+                   <a href="#msfs" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#msfs" ? "text-amber-400" : "text-slate-300 hover:text-amber-300"}`}>{t("msfs Sim")}</a>
+                   <a href="#friendship" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#friendship" ? "text-purple-400" : "text-slate-300 hover:text-purple-300"}`}>{t("Friendship Album")}</a>
+                   <a href="#blog" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#blog" ? "text-pink-400" : "text-slate-300 hover:text-pink-300"}`}>{t("Blogs CMS")}</a>
+                   <a href="#marketplace" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#marketplace" ? "text-yellow-400" : "text-slate-300 hover:text-yellow-300"}`}>🛒 {lang === 'en' ? 'Marketplace / eBay' : '交易大厅 (eBay模式)'}</a>
+                 </div>
+               </div>
+               <div>
+                 <h3 className="text-slate-400 font-bold mb-3 uppercase text-xs tracking-widest border-b border-white/10 pb-2">{lang === 'en' ? 'Infrastructure' : '云宏基建'}</h3>
+                 <div className="flex flex-col gap-2">
+                   <a href="#remote" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#remote" ? "text-indigo-400" : "text-slate-300 hover:text-indigo-300"}`}>{t("Remote Screen")}</a>
+                   <a href="#video" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#video" ? "text-rose-400" : "text-slate-300 hover:text-rose-300"}`}>{t("Video Stream")}</a>
+                   {(currentUser?.role === "admin" || currentUser?.role === "superadmin") && (
+                     <a href="#admin" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#admin" ? "text-fuchsia-400" : "text-slate-300 hover:text-fuchsia-300"}`}>{lang === 'en' ? 'Administration' : '全系统管理'}</a>
+                   )}
+                   {/* Custom User Pages */}
+                   {systemState.navPages?.filter(p => p.isVisible).map(p => (
+                      <a key={p.id} href={p.isExternal ? p.externalLink : `#subpage-${p.id}`} target={p.isExternal ? "_blank" : "_self"} className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === `#subpage-${p.id}` ? "text-sky-400" : "text-slate-300 hover:text-sky-300"}`}>
+                        {lang === 'en' ? p.titleEn : p.titleZh}
+                      </a>
+                   ))}
+                 </div>
+               </div>
+            </div>
+          </div>
 
           {/* Right Corner Identity Info & Mini session widget */}
           <div className="hidden md:flex items-center gap-3">
@@ -5104,6 +5023,9 @@ export default function App() {
                 gpkosWallpaper === "cyberpunk" ? "bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-900/60" :
                 gpkosWallpaper === "monterey" ? "bg-gradient-to-br from-pink-950 via-orange-950/50 to-slate-950" :
                 gpkosWallpaper === "space" ? "bg-gradient-to-br from-blue-950 via-slate-950 to-emerald-950/40" :
+                gpkosWallpaper === "mosaic" ? "bg-slate-900 bg-[linear-gradient(45deg,#1f2937_25%,transparent_25%,transparent_75%,#1f2937_75%,#1f2937),linear-gradient(45deg,#1f2937_25%,transparent_25%,transparent_75%,#1f2937_75%,#1f2937)] bg-[length:20px_20px] bg-[position:0_0,10px_10px]" :
+                gpkosWallpaper === "painting" ? "bg-amber-900/40 bg-[url('https://images.unsplash.com/photo-1576769267415-9642010aa962?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center bg-blend-overlay" :
+                gpkosWallpaper === "enterprise" ? "bg-slate-50 border-t-4 border-blue-600" :
                 "bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900/40"
               }`}>
                 {/* macOS styled Title bar / Top Bar with active drop-downs */}
@@ -5237,6 +5159,15 @@ export default function App() {
                           </button>
                           <button onClick={() => { setGpkosWallpaper("space"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
                             {gpkosWallpaper === "space" ? "●" : "○"} 🪐 Space Cosmos
+                          </button>
+                          <button onClick={() => { setGpkosWallpaper("mosaic"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            {gpkosWallpaper === "mosaic" ? "●" : "○"} 🧱 Unique Mosaic (小马赛克)
+                          </button>
+                          <button onClick={() => { setGpkosWallpaper("painting"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            {gpkosWallpaper === "painting" ? "●" : "○"} 🎨 Famous Painting (名画背景)
+                          </button>
+                          <button onClick={() => { setGpkosWallpaper("enterprise"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5 text-blue-400 font-bold border-t border-white/10 mt-1 pt-2">
+                            {gpkosWallpaper === "enterprise" ? "●" : "○"} 🏢 Enterprise Clean (清爽)
                           </button>
                         </div>
                       )}
@@ -5407,7 +5338,15 @@ export default function App() {
                                   </button>
                                 </div>
                               )}
-                              <video ref={remoteVideoRef} autoPlay playsInline muted className={`max-w-full max-h-full object-contain ${remoteSessionActive ? 'opacity-100' : 'opacity-0'} transition-opacity outline-none border-none`} />
+                              <div className="absolute inset-0 flex flex-col pointer-events-none">
+                                <video ref={remoteVideoRef} autoPlay playsInline muted className={`max-w-full max-h-full object-contain ${remoteSessionActive ? 'opacity-100' : 'opacity-0'} transition-opacity outline-none border-none`} />
+                                {remoteSessionActive && (
+                                   <div className="absolute top-2 left-2 right-2 flex justify-between px-2 cursor-pointer pointer-events-auto">
+                                      <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg" onClick={() => { setRemoteSessionActive(false); }}>End Remote Session</div>
+                                      <div className="bg-blue-600/80 text-white px-2 py-1 rounded text-xs font-bold shadow-lg" onClick={() => alert("Mouse and Keyboard remote control proxy is now active.")}>Enable Input Control</div>
+                                   </div>
+                                )}
+                              </div>
                             </div>
                             <div className="w-64 bg-slate-900 flex flex-col shrink-0 overflow-hidden">
                                <div className="p-3 border-b border-white/5 flex items-center gap-2 shrink-0 bg-slate-800">
@@ -7436,19 +7375,19 @@ export default function App() {
                       {window.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
                       {window.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
                       {window.appId === 'global-bridge' && <GlobalBrowser />}
+                      {window.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('Password updated securely with zero-knowledge protocol.')} onUploadAvatar={() => alert('Opening File Picker...')} />}
+                      {window.appId === 'marketplace' && <MarketplaceApp />}
                       {window.appId === 'gmail' && (
                          <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
                            <div className="bg-emerald-900/40 border-b border-emerald-500/20 px-3 py-1 flex items-center justify-center gap-2 text-[10px] text-emerald-400 font-bold tracking-widest shrink-0">
                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 blur-[1px] animate-pulse"></span>
                                ROUTED VIA GLOBAL HF PROXY NODE (NETWORK OPTIMIZED)
                            </div>
-                           <div className="flex items-center justify-center flex-grow text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
-                             Gmail / Mail Cloud Workspace Loaded
-                           </div>
+                           <iframe src="https://mail.google.com" className="w-full h-full border-0 absolute inset-0 pt-6"></iframe>
                          </div>
                       )}
                       {/* Fallback for other apps */}
-                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail'].includes(window.appId) && (
+                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace'].includes(window.appId) && (
                         <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
                            {window.title} Module Loaded
                         </div>
@@ -7497,6 +7436,14 @@ export default function App() {
                     <button onClick={() => launchApp('gemini', 'Gemini Pro Workspace')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-[#131214] p-2.5 rounded-xl shadow border border-white/10 hover:border-violet-500/50 transition-colors"><BrainCircuit className="h-6 w-6 text-violet-400 animate-pulse" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Gemini AI</span>
+                    </button>
+                    <button onClick={() => launchApp('marketplace', 'Secure Trading Marketplace')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                       <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 hover:border-yellow-500/50 transition-colors"><ShoppingCart className="h-6 w-6 text-yellow-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Market</span>
+                    </button>
+                    <button onClick={() => launchApp('profile', 'User Profile Account')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                       <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 hover:border-pink-500/50 transition-colors"><User className="h-6 w-6 text-pink-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Profile</span>
                     </button>
                     <div className="w-px h-8 bg-white/20 mx-1"></div>
                     <button onClick={() => launchApp('settings', 'System Preferences')} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2">

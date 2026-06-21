@@ -476,10 +476,7 @@ export function DynamicSubPage({ page, lang }: { page: SubPage, lang: Language }
           {lang === 'en' ? page.titleEn : page.titleZh}
         </h1>
       </div>
-      <div className="prose prose-invert max-w-none text-slate-300 leading-loose">
-        {(lang === 'en' ? page.contentEn : page.contentZh).split('\n').map((para, i) => (
-          <p key={i} className="mb-4">{para}</p>
-        ))}
+      <div className="prose prose-invert max-w-none text-slate-300 leading-loose" dangerouslySetInnerHTML={{ __html: lang === 'en' ? page.contentEn : page.contentZh }}>
       </div>
     </div>
   );
