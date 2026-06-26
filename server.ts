@@ -6,7 +6,6 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { google } from "googleapis";
 import * as archiver from "archiver";
-import { createProxyMiddleware } from "http-proxy-middleware";
 
 dotenv.config();
 
@@ -36,21 +35,7 @@ function readDB() {
     chatMessages: db.chatMessages || [],
     friendshipRecords: db.friendshipRecords || [],
     customButtons: db.customButtons || [],
-    backgrounds: db.backgrounds || [
-      { id: "default-dark", name: "Default Dark", color: "bg-slate-900 text-slate-100", price: "Free" },
-      { id: "default-light", name: "Default Light", color: "bg-slate-50 text-slate-900", price: "Free" },
-      { id: "russian", name: "多彩俄罗斯风格(块)背景", imageUrl: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "mosaic", name: "黑白马赛克图案背景", imageUrl: "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "monet", name: "莫奈名画背景", imageUrl: "https://images.unsplash.com/photo-1578926288207-a90a5366759d?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "vangogh", name: "梵高名画背景", imageUrl: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "forest", name: "森树背景", imageUrl: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "grassland", name: "草原背景", imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "hunan", name: "湖南楼房背景", imageUrl: "https://images.unsplash.com/photo-1552726053-bc2a2ec96fb7?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "river", name: "江河背景", imageUrl: "https://images.unsplash.com/photo-1455243575306-03f44ec7c6b9?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "mingsha", name: "鸣沙山/莫高背景", imageUrl: "https://images.unsplash.com/photo-1542401886-65d6c61db217?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "uk", name: "英国背景", imageUrl: "https://images.unsplash.com/photo-1513635269975-59693e2d8ce0?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
-      { id: "shenzhen", name: "深圳背景", imageUrl: "https://images.unsplash.com/photo-1520668049280-9ce3db8d5b88?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" }
-    ],
+    backgrounds: db.backgrounds || [{ id: "slate-classic", name: "Slate Classic", color: "bg-slate-900 text-slate-100" }],
     activeDomain: db.activeDomain || "fatshanpost.com",
     oldDomain: db.oldDomain || "outlook.com",
     dualDomainOverlap: db.dualDomainOverlap ?? true,
@@ -1588,33 +1573,6 @@ app.post("/api/drive/delete", express.json({limit: '2mb'}), (req, res) => {
   writeDB(db);
   res.json({ success: db.cloudFiles.length < initialLength });
 });
-
-// ==================== CLOUD PROXY & BYPASS ====================
-app.use(
-  "/api/proxy",
-  createProxyMiddleware({
-    router: (req) => {
-      let target = req.query.url;
-      if (!target) return "https://www.google.com";
-      if (!target.toString().startsWith("http")) return "https://" + target;
-      return target.toString();
-    },
-    changeOrigin: true,
-    ws: true,
-    pathRewrite: (path, req) => {
-      // Remove the /api/proxy prefix and the ?url=...
-      return "/";
-    },
-    onProxyReq: (proxyReq, req, res) => {
-       // Spoof user agent to bypass some blocks
-       proxyReq.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-    },
-    onError: (err, req, res) => {
-      res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end("GPKOS Relay Proxy Error: " + err.message);
-    }
-  })
-);
 
 // ==================== FRONT-END ROUTING MIDDLEWARES ====================
 
