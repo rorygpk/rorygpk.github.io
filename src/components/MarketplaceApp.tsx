@@ -2,9 +2,44 @@ import React, { useState } from "react";
 import { Search, Tag, Filter, ShoppingCart, DollarSign, Star, Zap, Upload, CreditCard, ArrowRightLeft, CheckCircle2 } from "lucide-react";
 
 export const MarketplaceApp = () => {
-   const [search, setSearch] = useState("");
-   const [view, setView] = useState<"browse" | "sell" | "cart" | "checkout" | "success">("browse");
-   const [cart, setCart] = useState<any[]>([{ id: 'mock-1', title: 'Vintage IBM ThinkPad 760ED', price: 125.50 }]);
+  const [search, setSearch] = useState("");
+  const [view, setView] = useState<"browse" | "sell" | "cart" | "checkout" | "success">("browse");
+  const [cart, setCart] = useState<any[]>([{ id: 'mock-1', title: 'Vintage IBM ThinkPad 760ED', price: 125.50 }]);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState("");
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  const handleFile = (file: File) => {
+    const MAX_SIZE = 5 * 1024 * 1024 * 1024; // 5GB
+    if (file.size > MAX_SIZE) {
+      alert("File size exceeds 5GB limit.");
+      return;
+    }
+    setUploadedFileName(file.name);
+  };
    
    return (
      <div className="flex flex-col h-full bg-slate-100 text-slate-900 border border-slate-300 rounded-xl overflow-hidden shadow-2xl">
@@ -126,10 +161,19 @@ export const MarketplaceApp = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Upload Photos</label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center bg-slate-50 cursor-pointer hover:bg-slate-100 transition">
-                       <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                       <span className="text-sm font-medium text-slate-600">Drag and drop photos or click to browse</span>
-                    </div>
+                    <label 
+                      className={`block border-2 border-dashed ${isDraggingFile ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'} rounded-xl p-8 text-center cursor-pointer hover:bg-slate-100 transition`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                       <Upload className={`w-8 h-8 mx-auto mb-2 ${isDraggingFile ? 'text-blue-500' : 'text-slate-400'}`} />
+                       <span className="text-sm font-medium text-slate-600">
+                         {uploadedFileName ? `Ready: ${uploadedFileName}` : "Drag and drop photos or click to browse"}
+                       </span>
+                       <p className="text-xs text-slate-400 mt-1">Supports files up to 5GB</p>
+                       <input type="file" className="hidden" onChange={handleFileChange} />
+                    </label>
                   </div>
                   <button onClick={() => { alert("Item listed successfully!"); setView("browse"); }} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition text-lg mt-4">List Item</button>
                </div>

@@ -5,6 +5,7 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
   const [activeTab, setActiveTab] = useState("public");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [isDraggingAdmin, setIsDraggingAdmin] = useState(false);
 
   if (!currentUser) {
     return <div className="flex h-full items-center justify-center text-slate-400 bg-slate-900">Please login to view profile.</div>;
@@ -15,7 +16,19 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
       {/* Sidebar */}
       <div className="w-48 bg-slate-800 border-r border-slate-700 flex flex-col shrink-0">
         <div className="p-4 flex flex-col items-center gap-2 border-b border-white/5">
-          <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-500 shadow-inner group relative cursor-pointer" onClick={() => onUploadAvatar()}>
+          <div 
+            className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-500 shadow-inner group relative cursor-pointer" 
+            onClick={() => onUploadAvatar()}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const file = e.dataTransfer.files?.[0];
+              if (file && onUploadAvatar) {
+                 onUploadAvatar(file);
+              }
+            }}
+          >
             {currentUser.avatarUrl ? (
               <img src={currentUser.avatarUrl} className="w-full h-full object-cover" alt="avatar" />
             ) : localStorage.getItem('gpkos_default_avatar') ? (
@@ -130,9 +143,33 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
           <div className="space-y-4 animate-in fade-in duration-300">
             <h2 className="text-xl font-bold border-b border-red-500/30 pb-2 mb-4 text-red-400">Admin: Avatar Moderation</h2>
             <div className="space-y-4">
-              <div className="bg-slate-800 p-4 rounded border border-white/5 flex flex-col gap-3">
+              <div 
+                className={`p-4 rounded border flex flex-col gap-3 transition-colors ${isDraggingAdmin ? 'bg-red-500/10 border-red-500' : 'bg-slate-800 border-white/5'}`}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingAdmin(true); }}
+                onDragLeave={(e) => { e.preventDefault(); setIsDraggingAdmin(false); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDraggingAdmin(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) {
+                    const MAX_SIZE = 5 * 1024 * 1024 * 1024;
+                    if (file.size > MAX_SIZE) {
+                      alert("File size exceeds 5GB limit.");
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (re) => {
+                      if (re.target?.result) {
+                        localStorage.setItem('gpkos_default_avatar', re.target.result as string);
+                        alert("Global default avatar updated successfully.");
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              >
                 <h3 className="text-sm font-bold text-white">Default Avatar Management</h3>
-                <p className="text-xs text-slate-400">Upload an image to serve as the default avatar for all new users.</p>
+                <p className="text-xs text-slate-400">Drag and drop or select an image to serve as the default avatar for all new users. Supports up to 5GB.</p>
                 <input 
                   type="file" 
                   accept="image/*"
@@ -140,6 +177,11 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
+                      const MAX_SIZE = 5 * 1024 * 1024 * 1024;
+                      if (file.size > MAX_SIZE) {
+                        alert("File size exceeds 5GB limit.");
+                        return;
+                      }
                       const reader = new FileReader();
                       reader.onload = (re) => {
                         if (re.target?.result) {

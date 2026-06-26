@@ -64,11 +64,15 @@ export function CloudDrive({ currentUser }: { currentUser: User | null }) {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !currentUser) return;
-    const file = e.target.files[0];
+    await uploadFile(e.target.files[0]);
+  };
+
+  const uploadFile = async (file: File) => {
+    if (!currentUser) return;
     
-    const MAX_SIZE = 5 * 1024 * 1024 * 1024;
-    if (file.size > 10 * 1024 * 1024) {
-       alert("Size limit exceeded for preview environment (10MB limit).");
+    const MAX_SIZE = 5 * 1024 * 1024 * 1024; // 5GB Limit
+    if (file.size > MAX_SIZE) {
+       alert("Size limit exceeded for preview environment (5GB limit).");
        return;
     }
 
@@ -97,6 +101,25 @@ export function CloudDrive({ currentUser }: { currentUser: User | null }) {
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+    await uploadFile(e.dataTransfer.files[0]);
   };
 
   const handleDelete = async (id: string) => {
@@ -132,7 +155,22 @@ export function CloudDrive({ currentUser }: { currentUser: User | null }) {
   const totalMB = (totalBytes / (1024 * 1024)).toFixed(2);
 
   return (
-    <div className="animate-fade-in flex flex-col gap-6 relative" id="drive-dashboard">
+    <div 
+      className={`animate-fade-in flex flex-col gap-6 relative p-2 transition-all ${isDragging ? 'ring-4 ring-sky-500 bg-sky-900/20 rounded-2xl' : ''}`} 
+      id="drive-dashboard"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-2xl border-4 border-dashed border-sky-500">
+          <div className="bg-slate-900 p-8 rounded-3xl flex flex-col items-center shadow-2xl">
+            <UploadCloud className="w-16 h-16 text-sky-400 mb-4 animate-bounce" />
+            <h2 className="text-2xl font-bold text-white mb-2">Drop files to upload</h2>
+            <p className="text-slate-400">Supports files up to 5GB</p>
+          </div>
+        </div>
+      )}
       {/* Privacy Protocol Modal */}
       {showPrivacyProtocol && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
