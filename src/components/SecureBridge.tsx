@@ -106,11 +106,11 @@ export const SecureBridge: React.FC = () => {
   };
 
   const downloadCert = () => {
-    const content = `-----BEGIN RSA PRIVATE KEY-----\nFATSHAN-GLOBAL-BRIDGE-KEY-${certId}\n-----END RSA PRIVATE KEY-----`;
+    const content = `-----BEGIN RSA PRIVATE KEY-----\nRORYGPKOS VIRTUAL-GLOBAL-BRIDGE-KEY-${certId}\n-----END RSA PRIVATE KEY-----`;
     const element = document.createElement("a");
     const file = new Blob([content], {type: 'text/plain'});
     element.href = URL.createObjectURL(file);
-    element.download = `fatshan_gateway_${certId}.pem`;
+    element.download = `rorygpkos virtual_gateway_${certId}.pem`;
     document.body.appendChild(element);
     element.click();
     addLog('[IO] Certificate hash exported to local node.');

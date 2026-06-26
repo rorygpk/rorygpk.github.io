@@ -1,0 +1,223 @@
+96:import { GpkosAppWindow, GpkosPowerMode, User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact } from "./types";
+112:import { GpkosSettings } from "./components/GpkosSettings";
+114:import { GmailApp } from "./components/GpkosReplicas";
+122:  lat: 23.0215, // rorygpkos virtual coordinates roughly
+126:// --- GPKOS Multi-Window System Component ---
+128:  window: GpkosAppWindow;
+281:    { id: "Foshan", name: "rorygpkos virtual Core Hub", lat: 23.0215, lng: 113.1214, desc: "Global Secure Dispatch Terminal (Foshan)" },
+534:          }).addTo(map).bindPopup("<b>📍 GPKOS Network Node: " + key + "</b><br/><span style='font-size:11px;color:#94a3b8;'>Lat/Lng: " + relays[key][0] + ", " + relays[key][1] + "</span>");
+1165:    const st = localStorage.getItem("rorygpkos virtual_global_session");
+1233:        localStorage.setItem("rorygpkos virtual_global_session", encryptData(token));
+1239:        const activeApp = localStorage.getItem("rorygpkos virtual_active_app");
+1241:          setGpkosActiveApp("global-bridge");
+1260:    const saved = localStorage.getItem("gpkos_curr_user");
+1266:    return localStorage.getItem("gpkos_glass") === "true" || true;
+1269:    return localStorage.getItem("gpkos_bgmode") || "static"; // static, video, slideshow
+1274:    activeDomain: "rorygpkos virtualpost.com",
+1275:    oldDomain: "rorygpkos virtual.onmicrosoft.com",
+1304:    { sender: "ai", text: "Welcome to rorygpkos virtual helper. How can I assist you with your simulator or terminal credentials today? (System Validation Token: rorygpkos virtual)", id: "init-ch" }
+1336:      const storedTemplates = localStorage.getItem("rorygpkos virtual_email_templates");
+1345:            subject: "Collaboration Proposal: Secure Integration with rorygpkos virtual Hub",
+1356:        localStorage.setItem("rorygpkos virtual_email_templates", JSON.stringify(initialTemplates));
+1359:      const storedSignatures = localStorage.getItem("rorygpkos virtual_email_signatures");
+1368:            content: "<hr/><p style='font-size: 12px; color: #38bdf8;'><strong>Master Marcus Zhou</strong><br/>Chief Executive Administrator, rorygpkos virtual<br/><span style='color: #94a3b8;'>Validation Code: rorygpkos virtual</span></p>",
+1373:        localStorage.setItem("rorygpkos virtual_email_signatures", JSON.stringify(initialSignatures));
+1383:    localStorage.setItem("rorygpkos virtual_email_templates", JSON.stringify(newTemplates));
+1388:    localStorage.setItem("rorygpkos virtual_email_signatures", JSON.stringify(newSignatures));
+1392:  // Rory GPKOS state
+1395:    `// Rory GPKOS IDE sandboxed compiler entrypoint\nexport function main() {\n  console.log("Validation Token: rorygpkos virtual");\n  console.log("Workspace connected to standard Docker hub");\n}`
+1399:    "rorygpkos virtual GPKOS TRANSCEIVER LINK: ONLINE\nREADY FOR RUNTIME EXECUTION."
+1410:    { id: 1, name: "Configure rorygpkos virtual standard routing check", done: true },
+1420:  const [videoSubtitle, setVideoSubtitle] = useState("rorygpkos virtual: Commencing final checklist parameters.");
+1442:  const [adminActiveDomain, setAdminActiveDomain] = useState("rorygpkos virtualpost.com");
+1453:    return localStorage.getItem("gpkos_custom_backend_url") || "";
+1528:           localStorage.removeItem("gpkos_custom_backend_url");
+1579:          localStorage.removeItem("gpkos_custom_backend_url");
+1615:          localStorage.removeItem("gpkos_custom_backend_url");
+1654:      localStorage.setItem("gpkos_curr_user", JSON.stringify(data.user));
+1673:    localStorage.removeItem("gpkos_curr_user");
+1708:      localStorage.setItem("gpkos_curr_user", JSON.stringify(data.user));
+1877:          text: "The gateway router was disrupted temporarily. Verification String code check: rorygpkos virtual.",
+1888:  const [openedWindows, setOpenedWindows] = useState<GpkosAppWindow[]>([]);
+1890:  const [powerMode, setPowerMode] = useState<GpkosPowerMode>("on");
+1913:      const newWin: GpkosAppWindow = {
+1958:  const [gpkosActiveApp, setGpkosActiveApp] = useState<string>(() => {
+1959:    return localStorage.getItem("rorygpkos virtual_active_app") || "desktop";
+1963:    localStorage.setItem("rorygpkos virtual_active_app", gpkosActiveApp);
+1964:  }, [gpkosActiveApp]);
+1992:  const [gmailActiveEmail, setGmailActiveEmail] = useState<string>(() => localStorage.getItem("gpkos_active_gmail_account") || "marvis_zhou2014@gmail.com");
+1998:  const [gmailSig, setGmailSig] = useState(() => localStorage.getItem("gpkos_gmail_sig") || "Securely Sent via GPKOS Secure Node Relay");
+2009:  // GPKOS macOS top-bar menu options & custom desktop settings are state-backed for high-fidelity native feeling
+2010:  const [gpkosActiveDropdown, setGpkosActiveDropdown] = useState<"gpkos" | "file" | "edit" | "view" | "kernel" | null>(null);
+2011:  const [gpkosWallpaper, setGpkosWallpaper] = useState<string>("dark-slate");
+2012:  const [customWallpaperBase64, setCustomWallpaperBase64] = useState<string | null>(localStorage.getItem("gpkos_custom_wallpaper"));
+2013:  const [gpkosEncryptionActive, setGpkosEncryptionActive] = useState(true);
+2014:  const [gpkosLatencyMonitorOpen, setGpkosLatencyMonitorOpen] = useState(false);
+2015:  const [gpkosDiagnosticsModalOpen, setGpkosDiagnosticsModalOpen] = useState(false);
+2016:  const [gpkosSystemInfoModalOpen, setGpkosSystemInfoModalOpen] = useState(false);
+2017:  const [gpkosSecureTunnelState, setGpkosSecureTunnelState] = useState(true);
+2018:  const [gpkosLatencyHistory, setGpkosLatencyHistory] = useState<number[]>([14, 15, 12, 16, 13, 14, 15]);
+2035:      const saved = localStorage.getItem("gpkos_installed_play_apps");
+2046:    return localStorage.getItem("gpkos_web_builder_code") || `<!DOCTYPE html>
+2175:      setCompilerLogs(`>> [${ts}] INITIALIZING GPKOS COMPILER CHAIN...\n>> TARGET: ${ideLanguage.toUpperCase()}\n>> RESOLVING BINDINGS...`);
+2201:      const res = await fetch(getApiBase() + "/api/rory-gpkos/compile", {
+2233:      const res = await fetch(getApiBase() + "/api/rory-gpkos/compile", {
+2853:                {t("rorygpkos virtual")} <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
+2905:                     <a href="#rory-gpkos" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#rory-gpkos" ? "text-emerald-400" : "text-slate-300 hover:text-emerald-300"}`}>{t("#rory-gpkos IDE")}</a>
+2965:                ) : localStorage.getItem('gpkos_default_avatar') ? (
+2966:                  <img src={localStorage.getItem('gpkos_default_avatar') as string} alt="default avatar" className="w-6 h-6 rounded-full object-cover border border-white/20 opacity-70" />
+3020:                  <div className="font-bold text-white text-lg tracking-tight">rorygpkos virtual Menu</div>
+3062:                  href="#rory-gpkos"
+3065:                    currentHash === "#rory-gpkos"
+3070:                  {t("#rory-gpkos IDE")}
+3174:                      ) : localStorage.getItem('gpkos_default_avatar') ? (
+3175:                         <img src={localStorage.getItem('gpkos_default_avatar') as string} alt="default avatar" className="w-10 h-10 rounded-full object-cover border border-white/20 opacity-70" />
+3343:                      <h2 className="text-2xl font-bold text-white tracking-tight">rorygpkos virtual Digital Postal Clearance Desk</h2>
+4049:                    Verification: rorygpkos virtual
+4122:                            setCurrentHash("#rory-gpkos");
+4123:                            setGpkosActiveApp("remote");
+4334:                      placeholder="guest_tester@rorygpkos virtualpost.com"
+4458:                          placeholder="rorygpkos virtualpost.com"
+4791:                                localStorage.setItem("gpkos_custom_backend_url", customApiUrl.trim());
+4808:                            localStorage.removeItem("gpkos_custom_backend_url");
+4902:                                  <li><strong>极速登录：</strong>极速安全节点访问 <a href="https://render.com" onClick={(e) => { e.preventDefault(); setActiveBypassUrl("https://render.com"); setCurrentHash("#rory-gpkos"); setGpkosActiveApp("remote"); }} className="text-purple-400 font-bold hover:underline cursor-pointer">Render.com</a>，直接用您刚才的 GitHub 授权登录，绝不会卡顿报错。</li>
+4918:                                  <li>注册并登录 <a href="https://huggingface.co/spaces" onClick={(e) => { e.preventDefault(); setActiveBypassUrl("https://huggingface.co/spaces"); setCurrentHash("#rory-gpkos"); setGpkosActiveApp("remote"); }} className="text-emerald-400 font-bold hover:underline cursor-pointer">Hugging Face Spaces</a>。</li>
+5027:        {/* SECTION 3: RORY GPKOS IDE PLAYGROUND screen (macOS theme styling) */}
+5028:        {currentHash === "#rory-gpkos" && (
+5029:          <div className="animate-fade-in flex flex-col w-full h-[calc(100vh-140px)] min-h-[520px] md:min-h-[700px] rounded-3xl overflow-hidden border border-white/10 relative" id="gpkos-ide-workspace">
+5036:                  <h2 className="text-xl font-bold text-white mb-2">Rory GPKOS Locked</h2>
+5047:                  backgroundColor: gpkosWallpaper === 'light' ? '#f8fafc' : gpkosWallpaper === 'dark-slate' ? '#0f172a' : '#020617',
+5049:                    gpkosWallpaper === 'custom' && customWallpaperBase64 ? `url(${customWallpaperBase64})` :
+5050:                    gpkosWallpaper === 'russian' ? `url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1920&q=80')` :
+5051:                    gpkosWallpaper === 'monet' ? `url('https://images.unsplash.com/photo-1576769267415-9642010aa962?auto=format&fit=crop&w=1920&q=80')` :
+5052:                    gpkosWallpaper === 'vangogh' ? `url('https://images.unsplash.com/photo-1578301978693-85fa9c026f19?auto=format&fit=crop&w=1920&q=80')` :
+5053:                    gpkosWallpaper === 'forest' ? `url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=80')` :
+5054:                    gpkosWallpaper === 'grassland' ? `url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80')` :
+5055:                    gpkosWallpaper === 'hunan' ? `url('https://images.unsplash.com/photo-1555899434-94d1368aa7af?auto=format&fit=crop&w=1920&q=80')` :
+5056:                    gpkosWallpaper === 'river' ? `url('https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?auto=format&fit=crop&w=1920&q=80')` :
+5057:                    gpkosWallpaper === 'mingsha' ? `url('https://images.unsplash.com/photo-1547333590-bc4d2c80fb14?auto=format&fit=crop&w=1920&q=80')` :
+5058:                    gpkosWallpaper === 'uk' ? `url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1920&q=80')` :
+5059:                    gpkosWallpaper === 'shenzhen' ? `url('https://images.unsplash.com/photo-1506377711776-dbfc2f939dd1?auto=format&fit=crop&w=1920&q=80')` :
+5060:                    gpkosWallpaper === 'local' ? `url('https://images.unsplash.com/photo-1477959858617-67f851086b9f?auto=format&fit=crop&w=1920&q=80')` :
+5061:                    gpkosWallpaper === 'map' ? `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1920&q=80')` :
+5062:                    gpkosWallpaper === 'bw-mosaic' ? 'linear-gradient(45deg,#1f2937 25%,transparent 25%,transparent 75%,#1f2937 75%,#1f2937),linear-gradient(45deg,#1f2937 25%,transparent 25%,transparent 75%,#1f2937 75%,#1f2937)' : 'none',
+5063:                  backgroundSize: gpkosWallpaper === 'bw-mosaic' ? '20px 20px' : 'cover',
+5064:                  backgroundPosition: gpkosWallpaper === 'bw-mosaic' ? '0 0, 10px 10px' : 'center',
+5068:                {gpkosActiveDropdown && (
+5071:                    onClick={() => setGpkosActiveDropdown(null)}
+5078:                    {/* GPKOS Item */}
+5081:                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "gpkos" ? null : "gpkos")}
+5082:                        className={`flex items-center gap-1 opacity-90 hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "gpkos" ? "bg-white/10" : ""}`}
+5084:                        <Command className="h-3 w-3 text-cyan-400" /> GPKOS
+5086:                      {gpkosActiveDropdown === "gpkos" && (
+5091:                          <button onClick={() => { setGpkosSystemInfoModalOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+5095:                          <button onClick={() => { setGpkosLatencyMonitorOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+5103:                            setGpkosActiveDropdown(null); 
+5108:                          <button onClick={() => { setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+5110:                            <span className="text-[10px]">{gpkosEncryptionActive ? "✅" : "❌"}</span>
+5113:                          <button onClick={() => { localStorage.removeItem("gpkos_active_gmail_account"); window.location.reload(); }} className="w-full text-left px-3 py-1.5 hover:bg-red-500 hover:text-white transition text-red-400">
+5123:                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "file" ? null : "file")}
+5124:                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "file" ? "bg-white/10" : "opacity-85"}`}
+5128:                      {gpkosActiveDropdown === "file" && (
+5133:                          <button onClick={() => { alert("Created New GPKOS Node Sandbox workspace successfully. System ready for deployment."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+5136:                          <button onClick={() => { setGpkosSecureTunnelState(!gpkosSecureTunnelState); setGpkosActiveDropdown(null); alert(`SSL Tunnel status updated: ${!gpkosSecureTunnelState ? 'CONNECTED' : 'DISCONNECTED'}`); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
+5138:                            <span>{gpkosSecureTunnelState ? "Online" : "Off"}</span>
+5141:                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: rorygpkos virtual Core\nStatus: Secure tunnel established\nPings: 14ms\nEncryption: 4096-bit AES Handshake"], {type: "text/plain"});
+5144:                            link.download = "gpkos_defense_report.txt";
+5147:                            setGpkosActiveDropdown(null);
+5158:                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "edit" ? null : "edit")}
+5159:                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "edit" ? "bg-white/10" : "opacity-85"}`}
+5163:                      {gpkosActiveDropdown === "edit" && (
+5168:                          <button onClick={() => { setIsEditingSig(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+5171:                          <button onClick={() => { alert("DNS Flush Completed. Flush value: 4 entries."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+5174:                          <button onClick={() => { alert("Regenerated secure 4096-bit SSH Tunnel key pair."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+5184:                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "view" ? null : "view")}
+5185:                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "view" ? "bg-white/10" : "opacity-85"}`}
+5189:                      {gpkosActiveDropdown === "view" && (
+5194:                          <button onClick={() => { launchApp('settings', 'System Preferences'); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+5204:                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "kernel" ? null : "kernel")}
+5205:                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "kernel" ? "bg-white/10" : "opacity-85"}`}
+5209:                      {gpkosActiveDropdown === "kernel" && (
+5214:                          <button onClick={() => { setGpkosDiagnosticsModalOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+5217:                          <button onClick={() => { alert("SHA256 signature Verified: 8b04a09c... Root authority checks out OK."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
+5254:                      <Wifi className="h-3 w-3 text-emerald-400" /> Gateway: {gpkosSecureTunnelState ? "ON" : "OFF"}
+5441:                            <span className="text-[8px] text-emerald-500/50">rorygpkos virtual shell</span>
+5444:                           {ideLogs || "RORYGPKOS VIRTUAL KERNEL READY..."}
+5447:                            <span className="text-emerald-600 font-black shrink-0">gpkos@marvis:~$</span>
+5464:                  {gpkosActiveApp === 'maps-legacy-to-delete' && (() => {
+5588:                            <button onClick={() => setGpkosActiveApp('desktop')} className="h-3 w-3 rounded-full bg-red-500 hover:bg-red-400" />
+5619:                            <button onClick={() => setGpkosActiveApp('desktop')} className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-bold rounded-xl transition">
+5772:                                    const saved = localStorage.getItem("gpkos_gmail_starred");
+5778:                                    const saved = localStorage.getItem("gpkos_gmail_deleted");
+5785:                                  localStorage.setItem("gpkos_gmail_starred", JSON.stringify(ids));
+5790:                                  localStorage.setItem("gpkos_gmail_deleted", JSON.stringify(ids));
+5831:                                  localStorage.setItem("gpkos_active_gmail_account", formattedEmail);
+5835:                                  localStorage.setItem("rorygpkos virtual_global_session", encryptData(dummyToken));
+5847:                                      subject: "🔑 Security Checkpoint: Rory GPKOS node auth handshake verified",
+5849:                                      body: "Your Gmail secure interface is active. Tunnel proxy throughput: 1.2Gbps. Encryption Standard: AES-256 GCM. Ensure your rorygpkos terminal operates in high security mode.",
+5861:                                      subject: "🛸 GPKOS Operations Core Briefing memo",
+5894:                                    const savedStr = localStorage.getItem("gpkos_registered_google_accounts") || "[]";
+5901:                                    localStorage.setItem("gpkos_registered_google_accounts", JSON.stringify(savedList));
+5906:                                  localStorage.setItem("gpkos_active_gmail_account", desiredGmail);
+5910:                                  localStorage.setItem("rorygpkos virtual_global_session", encryptData(dummyToken));
+5923:                                      snippet: "Your Google/Gmail bridge account is active inside GPKOS",
+5924:                                      body: "<div style='color:#ffffff; font-family:sans-serif;'><h2 style='color:#22d3ee; margin-bottom:12px;'>Welcome to Google!</h2><p>Your brand new account is successfully created. You can now use your credentials to communicate securely.</p><p>Account Username: <b>" + desiredGmail + "</b><br/>Encryption level: <b>SSL Handshake Sandbox</b></p><hr style='border:0; border-top:1px solid #334155; margin:16px 0;'/><p style='font-size:11px; color:#94a3b8;'>Security Note: Keep your password safe. GPKOS has generated backup seeds automatically.</p></div>",
+6005:                                  localStorage.removeItem("rorygpkos virtual_global_session");
+6012:                                  setLoginPassInput("gpkos_master_security_key");
+6091:                                              <span className="text-slate-400 font-medium text-xs font-mono ml-1.5 bg-white/5 border border-white/5 px-2 py-0.5 rounded-md">GPKOS Bridge</span>
+6151:                                                    onClick={() => handleApplyPresetAccount("gpkos.sysadmin@gmail.com")}
+6154:                                                    gpkos.sysadmin
+6311:                                                  onChange={e => { setGmailSig(e.target.value); localStorage.setItem("gpkos_gmail_sig", e.target.value); }}
+6789:                  {gpkosActiveApp === 'google-play' && (() => {
+6797:                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-slate-200 rounded-full transition"><X className="h-5 w-5 text-slate-500" /></button>
+6836:                  {gpkosActiveApp === 'gmail' && (() => {
+6845:                             <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-bold text-slate-400 transition border border-white/5 uppercase tracking-widest">Close App</button>
+6849:                                <button onClick={() => { setGoogleToken(null); localStorage.removeItem("rorygpkos virtual_global_session"); }} className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Logout</button>
+6904:                  {gpkosActiveApp === 'gemini' && (() => {
+6912:                          <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1 gap-1.5 bg-slate-900 hover:bg-slate-800 rounded-full text-[10px] font-bold text-slate-500 transition border border-white/5 flex items-center">
+6919:                                 <div className="text-blue-400 text-sm font-bold mb-2">Welcome to GPKOS Artificial Intelligence</div>
+6920:                                 <div className="text-slate-400 text-xs">How can I assist you with the rorygpkos virtual node operations today?</div>
+6926:                                       Hello! I am Gemini, your dedicated AI core for this workspace. I can help with log analysis, security auditing, or general queries about the rorygpkos virtual Post console.
+6956:                  {gpkosActiveApp === 'global-bridge' && (() => {
+6964:                          <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400 group">
+6978:                  {gpkosActiveApp === 'maps' && (() => {
+6988:                             <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400 group">
+7017:                  {gpkosActiveApp === 'drive' && (() => {
+7026:                               <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+7066:                  {gpkosActiveApp === 'calendar' && (() => {
+7074:                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+7104:                  {gpkosActiveApp === 'photos' && (() => {
+7112:                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-500"><X className="h-5 w-5" /></button>
+7119:                                       <div className="text-[9px] font-bold text-white uppercase tracking-widest">rorygpkos virtual_SURVEY_{i}.PNG</div>
+7134:                  {gpkosActiveApp === 'youtube' && (() => {
+7142:                            <button onClick={() => setGpkosActiveApp('desktop')} className="px-4 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 transition border border-white/5 uppercase tracking-widest">Exit</button>
+7176:                  {gpkosActiveApp === 'contacts' && (() => {
+7184:                            <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
+7218:                  {gpkosActiveApp === 'mobile-search' && (() => {
+7273:                               setGpkosActiveApp('desktop'); 
+7401:                      {win.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
+7414:                                   const authListStr = localStorage.getItem('gpkos_users_auth_list');
+7420:                                         localStorage.setItem('gpkos_users_auth_list', JSON.stringify(authList));
+7423:                                         localStorage.setItem('gpkos_curr_user', JSON.stringify(updatedUser));
+7460:                            openGPKOSApp={(id) => launchApp(id, id === 'outlook' ? 'Outlook Mail' : 'Application')}
+7461:                            setGpkosWindows={setOpenedWindows}
+7484:                    <button onClick={() => launchApp('terminal', 'GPKOS Kernel Terminal')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+7488:                    <button onClick={() => launchApp('ide', 'GPKOS Code Sandbox')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+7508:                    <button onClick={() => launchApp('drive', 'GPKOS Cloud Drive')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+7638:                    <strong>Preflight Directive Instructions:</strong> Checklists must resolve entirely. All user account coordinate logs must bind under constant string token: <strong>rorygpkos virtual</strong>.
+7670:                You are securely linked to user support. Operational validator key: <strong>rorygpkos virtual</strong> is initialized securely.
+7704:                Verification code: rorygpkos virtual
+7717:                    GPKOS Air Flight Simulation Tutorial
+7762:                          if (spd === 1.0) setVideoSubtitle("rorygpkos virtual: Commencing final flight trim coordination.");
+7763:                          if (spd === 1.25) setVideoSubtitle("rorygpkos virtual: Commencing speed adjustments... Fuel values mapped.");
+7764:                          if (spd === 1.5) setVideoSubtitle("rorygpkos virtual: Deploying checklist models... All terminals responsive.");
+7765:                          if (spd === 2.0) setVideoSubtitle("rorygpkos virtual: Compiler sandboxes fully operational inside Docker runtime.");
+7855:                      placeholder="To all pilots and terminal hackers, let's make verification standard checking: rorygpkos virtual..."
+7946:                        placeholder="Rory GPKOS Terminal coordination"
+7957:                        placeholder="Configure validation codes nicely. String reference rorygpkos virtual works."
+8139:           <PublicMail currentActiveDomain={systemState.activeDomain || "rorygpkos virtualpost.com"} />
+8163:                 setCurrentHash("#rory-gpkos");
+8164:                 setGpkosActiveApp("remote");
+8203:            <strong>rorygpkos virtual Operational Desk</strong> • Verification Check constant standard: <strong>rorygpkos virtual</strong>
+8265:                         setCurrentHash("#rory-gpkos");
+8266:                         setGpkosActiveApp("remote");

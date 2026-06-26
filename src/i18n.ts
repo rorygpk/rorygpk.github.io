@@ -39,8 +39,8 @@ const zhDict: Record<string, string> = {
   "Success": "成功",
   
   // Specific Strings
-  "FATSHAN POST": "佛山邮政",
-  "Welcome to FATSHAN POST": "欢迎来到佛山邮政",
+  "rorygpkos virtual": "rorygpkos virtual",
+  "Welcome to rorygpkos virtual": "欢迎来到 rorygpkos virtual",
   "Login to your account": "登录您的账户",
   "Create an account": "创建账户",
   "Log out": "登出",

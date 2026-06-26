@@ -233,7 +233,7 @@ export const GoogleMapsWidget: React.FC = () => {
         <Map
           defaultCenter={{ lat: 37.42, lng: -122.08 }}
           defaultZoom={12}
-          mapId="FATSHAN_MAP_ID"
+          mapId="RORYGPKOS VIRTUAL_MAP_ID"
           internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
           style={{ width: '100%', height: '100%' }}
           gestureHandling={'greedy'}

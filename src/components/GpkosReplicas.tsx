@@ -71,7 +71,7 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
               <button 
                 onClick={() => {
                   if(!gmailComposeTo || !gmailComposeTxt) {
-                    alert("Please specify at least one recipient and some content."); return;
+                    alert("请至少指定一个收件人和一些内容。"); return;
                   }
                   const newMail = {
                     id: "m_sent_" + Date.now(),
@@ -105,7 +105,7 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
                   setGmailComposeTo("");
                   setGmailComposeSub("");
                   setGmailComposeTxt("");
-                  alert("Message sent.");
+                  alert("邮件已发送。");
                 }}
                 className="bg-[#0b57d0] hover:bg-[#0842a0] text-white font-medium px-6 py-2 rounded-full transition text-xs shadow-sm"
               >
@@ -314,7 +314,7 @@ export const OutlookApp: React.FC<GpkosReplicasProps> = ({
             <button 
               onClick={() => {
                 if(!outlookComposeTo || !outlookComposeTxt) {
-                  alert("To and Message fields are required !"); return;
+                  alert("收件人和内容是必填项！"); return;
                 }
                 const newMail = {
                   id: "m_sent_ot_" + Date.now(),
@@ -333,7 +333,7 @@ export const OutlookApp: React.FC<GpkosReplicasProps> = ({
                 setOutlookComposeTo("");
                 setOutlookComposeSub("");
                 setOutlookComposeTxt("");
-                alert("🎉 Outlook message dispatched through preloaded server relay successfully!");
+                alert("🎉 Outlook 邮件已成功通过预置服务器中继发出！");
               }}
               className="w-full bg-[#0078d4] hover:bg-blue-700 text-white font-bold py-2 rounded transition shadow-lg text-xs border-none cursor-pointer"
             >
@@ -346,9 +346,9 @@ export const OutlookApp: React.FC<GpkosReplicasProps> = ({
       {/* Blue Header side */}
       <div className="w-12 bg-[#1f1f1f] text-slate-400 flex flex-col items-center py-4 gap-5 shrink-0 select-none">
         <div className="text-white text-lg font-black bg-[#0078d4] w-8 h-8 rounded flex items-center justify-center">O</div>
-        <button onClick={() => { setOutlookFolder("inbox"); setOutlookSelectedId(null); }} className={`hover:text-white transition text-base border-none bg-transparent cursor-pointer ${outlookFolder === "inbox" ? "text-[#0078d4]" : ""}`} title="Mail">✉️</button>
-        <button onClick={() => alert("Calendar module synced.")} className="hover:text-white transition text-base border-none bg-transparent cursor-pointer" title="Calendar">📅</button>
-        <button onClick={() => alert("Contacts list is active")} className="hover:text-white transition text-base border-none bg-transparent cursor-pointer" title="People">👥</button>
+        <button onClick={() => { setOutlookFolder("inbox"); setOutlookSelectedId(null); }} className={`hover:text-white transition text-base border-none bg-transparent cursor-pointer ${outlookFolder === "inbox" ? "text-[#0078d4]" : ""}`} title="邮件">✉️</button>
+        <button onClick={() => alert("日历模块已同步。")} className="hover:text-white transition text-base border-none bg-transparent cursor-pointer" title="日历">📅</button>
+        <button onClick={() => alert("联系人列表处于活动状态")} className="hover:text-white transition text-base border-none bg-transparent cursor-pointer" title="联系人">👥</button>
       </div>
 
       <div className="w-44 bg-[#f3f2f1] p-3 flex flex-col gap-1 shrink-0 select-none border-r border-[#edebe9] text-left">
@@ -541,11 +541,11 @@ export const PlayStoreApp: React.FC<GpkosReplicasProps> = ({
                     <button 
                       onClick={() => {
                         setInstalledApps(prev => prev.filter(x => x !== selectedApp.id));
-                        alert(`Uninstalled ${selectedApp.name}. Icon removed.`);
+                        alert(`已卸载 ${selectedApp.name}。`);
                       }}
                       className="bg-transparent hover:bg-white/5 text-rose-400 px-2 py-1.5 rounded-xl text-[9px] transition border-none cursor-pointer"
                     >
-                      Uninstall
+                      卸载
                     </button>
                   </div>
                 ) : (
@@ -561,13 +561,13 @@ export const PlayStoreApp: React.FC<GpkosReplicasProps> = ({
                           clearInterval(interval);
                           setInstalledApps(prev => [...prev, selectedApp.id]);
                           setInstallingAppId(null);
-                          alert(`🎉 Google Play SUCCESS: ${selectedApp.name} downloaded & sandboxed! Its launcher shortcut is now active.`);
+                          alert(`🎉 应用中心: ${selectedApp.name} 已成功安装！`);
                         }
                       }, 200);
                     }}
                     className="bg-[#00a82d] hover:bg-[#00c838] text-black font-black px-6 py-2 rounded-xl text-[10px] transition shadow-lg border-none cursor-pointer"
                   >
-                    Install (Free)
+                    安装 (免费)
                   </button>
                 )}
               </div>
@@ -624,9 +624,9 @@ export const PlayStoreApp: React.FC<GpkosReplicasProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="text-[8px] text-slate-500 font-bold">{app.rating} ★  •  {app.size}</span>
                       {isInstalled ? (
-                        <span className="text-[8px] bg-[#00a82d]/10 text-[#00a82d] px-2 py-0.5 rounded-full font-bold">已安装 Installed</span>
+                        <span className="text-[8px] bg-[#00a82d]/10 text-[#00a82d] px-2 py-0.5 rounded-full font-bold">已安装</span>
                       ) : (
-                        <span className="text-[8px] text-[#00a82d] font-extrabold">Get / 免费</span>
+                        <span className="text-[8px] text-[#00a82d] font-extrabold">获取 / 免费</span>
                       )}
                     </div>
                   </div>

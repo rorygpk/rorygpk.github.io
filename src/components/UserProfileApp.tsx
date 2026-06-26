@@ -154,22 +154,22 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
                   if (file) {
                     const MAX_SIZE = 5 * 1024 * 1024 * 1024;
                     if (file.size > MAX_SIZE) {
-                      alert("File size exceeds 5GB limit.");
+                      alert("文件大小超过 5GB 限制。");
                       return;
                     }
                     const reader = new FileReader();
                     reader.onload = (re) => {
                       if (re.target?.result) {
                         localStorage.setItem('gpkos_default_avatar', re.target.result as string);
-                        alert("Global default avatar updated successfully.");
+                        alert("全局默认头像更新成功。");
                       }
                     };
                     reader.readAsDataURL(file);
                   }
                 }}
               >
-                <h3 className="text-sm font-bold text-white">Default Avatar Management</h3>
-                <p className="text-xs text-slate-400">Drag and drop or select an image to serve as the default avatar for all new users. Supports up to 5GB.</p>
+                <h3 className="text-sm font-bold text-white">默认头像管理</h3>
+                <p className="text-xs text-slate-400">拖放或选择一张图片作为所有新用户的默认头像。支持高达 5GB。</p>
                 <input 
                   type="file" 
                   accept="image/*"
@@ -179,14 +179,14 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
                     if (file) {
                       const MAX_SIZE = 5 * 1024 * 1024 * 1024;
                       if (file.size > MAX_SIZE) {
-                        alert("File size exceeds 5GB limit.");
+                        alert("文件大小超过 5GB 限制。");
                         return;
                       }
                       const reader = new FileReader();
                       reader.onload = (re) => {
                         if (re.target?.result) {
                           localStorage.setItem('gpkos_default_avatar', re.target.result as string);
-                          alert("Global default avatar updated successfully.");
+                          alert("全局默认头像更新成功。");
                         }
                       };
                       reader.readAsDataURL(file);

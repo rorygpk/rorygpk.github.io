@@ -119,7 +119,7 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-  lat: 23.0215, // Fatshan coordinates roughly
+  lat: 23.0215, // rorygpkos virtual coordinates roughly
   lng: 113.1214
 };
 
@@ -278,7 +278,7 @@ function GoogleMapsWrapper() {
   const [streetViewData, setStreetViewData] = React.useState<{ address: string; lat: number; lng: number; description: string } | null>(null);
 
   const nodes = [
-    { id: "Foshan", name: "Fatshan Core Hub", lat: 23.0215, lng: 113.1214, desc: "Global Secure Dispatch Terminal (Foshan)" },
+    { id: "Foshan", name: "rorygpkos virtual Core Hub", lat: 23.0215, lng: 113.1214, desc: "Global Secure Dispatch Terminal (Foshan)" },
     { id: "Shenzhen", name: "Shenzhen Port Relay", lat: 22.5431, lng: 114.0579, desc: "Coastal Secure Gateway (Shenzhen)" },
     { id: "Guangzhou", name: "Guangzhou HQ Gateway", lat: 23.1291, lng: 113.2644, desc: "Provincial Transit Node (Guangzhou)" },
     { id: "HongKong", name: "Hong Kong Global Gate", lat: 22.3193, lng: 114.1694, desc: "International Relay Core (Hong Kong)" },
@@ -1162,7 +1162,7 @@ export default function App() {
 
   // Global Google Provider Auth State
   const [googleToken, setGoogleToken] = useState<string | null>(() => {
-    const st = localStorage.getItem("fatshan_global_session");
+    const st = localStorage.getItem("rorygpkos virtual_global_session");
     if (st) {
       try {
          return decryptData(st);
@@ -1230,13 +1230,13 @@ export default function App() {
       const token = params.get("access_token");
       if (token) {
         setGoogleToken(token);
-        localStorage.setItem("fatshan_global_session", encryptData(token));
+        localStorage.setItem("rorygpkos virtual_global_session", encryptData(token));
         // Clear the hash but keep the current route if possible
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
         
         setIsHandshaking(true);
         // Ensure we are in a relevant app if we just logged in for one
-        const activeApp = localStorage.getItem("fatshan_active_app");
+        const activeApp = localStorage.getItem("rorygpkos virtual_active_app");
         if (!activeApp || activeApp === "desktop") {
           setGpkosActiveApp("global-bridge");
         }
@@ -1271,8 +1271,8 @@ export default function App() {
 
   // Database synchronizer
   const [systemState, setSystemState] = useState<SystemState>({
-    activeDomain: "fatshanpost.com",
-    oldDomain: "fatshan.onmicrosoft.com",
+    activeDomain: "rorygpkos virtualpost.com",
+    oldDomain: "rorygpkos virtual.onmicrosoft.com",
     dualDomainOverlap: true,
     dualDomainDays: 14,
     customButtons: [],
@@ -1301,7 +1301,7 @@ export default function App() {
   // Client Support Conversation
   const [supportMessage, setSupportMessage] = useState("");
   const [supportChat, setSupportChat] = useState<{ sender: "user" | "ai" | "staff"; text: string; id: string }[]>([
-    { sender: "ai", text: "Welcome to FATSHAN POST helper. How can I assist you with your simulator or terminal credentials today? (System Validation Token: FATSHAN POST)", id: "init-ch" }
+    { sender: "ai", text: "Welcome to rorygpkos virtual helper. How can I assist you with your simulator or terminal credentials today? (System Validation Token: rorygpkos virtual)", id: "init-ch" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -1333,7 +1333,7 @@ export default function App() {
   // Load from local storage on mount
   useEffect(() => {
     try {
-      const storedTemplates = localStorage.getItem("fatshan_email_templates");
+      const storedTemplates = localStorage.getItem("rorygpkos virtual_email_templates");
       if (storedTemplates) {
         setTemplates(JSON.parse(storedTemplates));
       } else {
@@ -1342,7 +1342,7 @@ export default function App() {
           {
             id: "t-1",
             name: "Business Partnership Proposal",
-            subject: "Collaboration Proposal: Secure Integration with Fatshan Hub",
+            subject: "Collaboration Proposal: Secure Integration with rorygpkos virtual Hub",
             content: "<h2>Dear Partner,</h2><p>We are excited to propose a secure partnership utilizing our new multi-branch OWA console. Let us coordinate to optimize the systems safely.</p><p>Best regards,</p>"
           },
           {
@@ -1353,10 +1353,10 @@ export default function App() {
           }
         ];
         setTemplates(initialTemplates);
-        localStorage.setItem("fatshan_email_templates", JSON.stringify(initialTemplates));
+        localStorage.setItem("rorygpkos virtual_email_templates", JSON.stringify(initialTemplates));
       }
 
-      const storedSignatures = localStorage.getItem("fatshan_email_signatures");
+      const storedSignatures = localStorage.getItem("rorygpkos virtual_email_signatures");
       if (storedSignatures) {
         setSignatures(JSON.parse(storedSignatures));
       } else {
@@ -1365,12 +1365,12 @@ export default function App() {
           {
             id: "s-1",
             name: "CEO Standard Signature",
-            content: "<hr/><p style='font-size: 12px; color: #38bdf8;'><strong>Master Marcus Zhou</strong><br/>Chief Executive Administrator, FATSHAN POST<br/><span style='color: #94a3b8;'>Validation Code: FATSHAN POST</span></p>",
+            content: "<hr/><p style='font-size: 12px; color: #38bdf8;'><strong>Master Marcus Zhou</strong><br/>Chief Executive Administrator, rorygpkos virtual<br/><span style='color: #94a3b8;'>Validation Code: rorygpkos virtual</span></p>",
             isDefault: true
           }
         ];
         setSignatures(initialSignatures);
-        localStorage.setItem("fatshan_email_signatures", JSON.stringify(initialSignatures));
+        localStorage.setItem("rorygpkos virtual_email_signatures", JSON.stringify(initialSignatures));
       }
     } catch (e) {
       console.error("Error loading templates/signatures", e);
@@ -1380,23 +1380,23 @@ export default function App() {
   // Save changes to local storage helper
   const saveTemplates = (newTemplates: EmailTemplate[]) => {
     setTemplates(newTemplates);
-    localStorage.setItem("fatshan_email_templates", JSON.stringify(newTemplates));
+    localStorage.setItem("rorygpkos virtual_email_templates", JSON.stringify(newTemplates));
   };
 
   const saveSignatures = (newSignatures: EmailSignature[]) => {
     setSignatures(newSignatures);
-    localStorage.setItem("fatshan_email_signatures", JSON.stringify(newSignatures));
+    localStorage.setItem("rorygpkos virtual_email_signatures", JSON.stringify(newSignatures));
   };
 
 
   // Rory GPKOS state
   const [ideLanguage, setIdeLanguage] = useState<string>("typescript");
   const [ideCode, setIdeCode] = useState<string>(
-    `// Rory GPKOS IDE sandboxed compiler entrypoint\nexport function main() {\n  console.log("Validation Token: FATSHAN POST");\n  console.log("Workspace connected to standard Docker hub");\n}`
+    `// Rory GPKOS IDE sandboxed compiler entrypoint\nexport function main() {\n  console.log("Validation Token: rorygpkos virtual");\n  console.log("Workspace connected to standard Docker hub");\n}`
   );
   const [ideTerminalInput, setIdeTerminalInput] = useState("");
   const [ideLogs, setIdeLogs] = useState<string>(
-    "FATSHAN GPKOS TRANSCEIVER LINK: ONLINE\nREADY FOR RUNTIME EXECUTION."
+    "rorygpkos virtual GPKOS TRANSCEIVER LINK: ONLINE\nREADY FOR RUNTIME EXECUTION."
   );
   const [compilerLogs, setCompilerLogs] = useState<string>(">> [SYSTEM] ROLLING COMPILER ENGINE STANDBY...");
 
@@ -1407,7 +1407,7 @@ export default function App() {
   const [msfsSpeed, setMsfsSpeed] = useState(240);
   const [msfsAutoPilot, setMsfsAutoPilot] = useState(false);
   const [msfsChecklists, setMsfsChecklists] = useState([
-    { id: 1, name: "Configure FATSHAN POST standard routing check", done: true },
+    { id: 1, name: "Configure rorygpkos virtual standard routing check", done: true },
     { id: 2, name: "Deploy IMAP / SMTP outlook relay coordinates", done: false },
     { id: 3, name: "Verify Flight control surface validation trim", done: false },
     { id: 4, name: "Synchronize landing landing-gear pressure telemetry", done: false }
@@ -1417,7 +1417,7 @@ export default function App() {
   const [videoSpeed, setVideoSpeed] = useState(1.0);
   const [videoQuality, setVideoQuality] = useState("1080p");
   const [videoPlaying, setVideoPlaying] = useState(true);
-  const [videoSubtitle, setVideoSubtitle] = useState("FATSHAN POST: Commencing final checklist parameters.");
+  const [videoSubtitle, setVideoSubtitle] = useState("rorygpkos virtual: Commencing final checklist parameters.");
 
   // Friendship guestbook state
   const [guestbookName, setGuestbookName] = useState("");
@@ -1439,7 +1439,7 @@ export default function App() {
   const [adminBanReason, setAdminBanReason] = useState("");
   const [adminBanExpiry, setAdminBanExpiry] = useState("");
   const [adminQuota, setAdminQuota] = useState("1 GB");
-  const [adminActiveDomain, setAdminActiveDomain] = useState("fatshanpost.com");
+  const [adminActiveDomain, setAdminActiveDomain] = useState("rorygpkos virtualpost.com");
   const [adminDualOverlap, setAdminDualOverlap] = useState(true);
   const [adminDualOverlapDays, setAdminDualOverlapDays] = useState(14);
   const [newBtnLabel, setNewBtnLabel] = useState("");
@@ -1874,7 +1874,7 @@ export default function App() {
         ...prev,
         {
           sender: "ai",
-          text: "The gateway router was disrupted temporarily. Verification String code check: FATSHAN POST.",
+          text: "The gateway router was disrupted temporarily. Verification String code check: rorygpkos virtual.",
           id: "sys_fail"
         }
       ]);
@@ -1956,11 +1956,11 @@ export default function App() {
 
   // Interactive Live terminal code simulator actions
   const [gpkosActiveApp, setGpkosActiveApp] = useState<string>(() => {
-    return localStorage.getItem("fatshan_active_app") || "desktop";
+    return localStorage.getItem("rorygpkos virtual_active_app") || "desktop";
   });
 
   useEffect(() => {
-    localStorage.setItem("fatshan_active_app", gpkosActiveApp);
+    localStorage.setItem("rorygpkos virtual_active_app", gpkosActiveApp);
   }, [gpkosActiveApp]);
   
   // Remote Support Session State
@@ -2850,7 +2850,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                {t("FATSHAN POST")} <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
+                {t("rorygpkos virtual")} <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
               </h1>
               <p className="text-xs text-slate-400 hidden sm:block">{t("Owner Terminal Desk • Administrator: marvis_zhou")}</p>
             </div>
@@ -3017,7 +3017,7 @@ export default function App() {
               {/* Drawer Container */}
               <div className="relative w-64 max-w-[80vw] bg-slate-900 h-full shadow-2xl border-r border-white/10 flex flex-col pt-6 pb-6 overflow-y-auto z-50">
                 <div className="px-4 mb-6 flex items-center justify-between">
-                  <div className="font-bold text-white text-lg tracking-tight">Fatshan Menu</div>
+                  <div className="font-bold text-white text-lg tracking-tight">rorygpkos virtual Menu</div>
                   <button onClick={() => setMobileMenuOpen(false)} className="text-white/60 hover:text-white p-1">
                     <X className="h-6 w-6" />
                   </button>
@@ -3340,7 +3340,7 @@ export default function App() {
                   <div className="flex items-center gap-3 mb-6">
                     <Lock className="h-6 w-6 text-cyan-400" />
                     <div>
-                      <h2 className="text-2xl font-bold text-white tracking-tight">Fatshan Digital Postal Clearance Desk</h2>
+                      <h2 className="text-2xl font-bold text-white tracking-tight">rorygpkos virtual Digital Postal Clearance Desk</h2>
                       <p className="text-sm text-slate-400">Authenticate credentials or sign up immediately to unlock your personal Inbox suites.</p>
                     </div>
                   </div>
@@ -4046,7 +4046,7 @@ export default function App() {
                     Public Communication Lobby Chat logs
                   </h3>
                   <span className="text-[9px] bg-white/10 text-slate-400 font-extrabold px-2 py-0.5 rounded uppercase">
-                    Verification: FATSHAN POST
+                    Verification: rorygpkos virtual
                   </span>
                 </div>
 
@@ -4331,7 +4331,7 @@ export default function App() {
                     <label className="block text-slate-400 font-semibold mb-0.5">Your email coordinate</label>
                     <input
                       type="email"
-                      placeholder="guest_tester@fatshanpost.com"
+                      placeholder="guest_tester@rorygpkos virtualpost.com"
                       value={feedbackEmail}
                       onChange={(e) => setFeedbackEmail(e.target.value)}
                       required
@@ -4455,7 +4455,7 @@ export default function App() {
                         <label className="block text-slate-400 font-semibold mb-1">New Target Active Domain Suffix</label>
                         <input
                           type="text"
-                          placeholder="fatshanpost.com"
+                          placeholder="rorygpkos virtualpost.com"
                           value={adminActiveDomain}
                           onChange={(e) => setAdminActiveDomain(e.target.value)}
                           className="w-full bg-slate-905 border border-white/10 focus:outline-none focus:border-cyan-500 rounded-xl px-3.5 py-2 text-white"
@@ -5138,7 +5138,7 @@ export default function App() {
                             <span>{gpkosSecureTunnelState ? "Online" : "Off"}</span>
                           </button>
                           <button onClick={() => { 
-                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: Fatshan Core\nStatus: Secure tunnel established\nPings: 14ms\nEncryption: 4096-bit AES Handshake"], {type: "text/plain"});
+                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: rorygpkos virtual Core\nStatus: Secure tunnel established\nPings: 14ms\nEncryption: 4096-bit AES Handshake"], {type: "text/plain"});
                             const link = document.createElement("a");
                             link.href = URL.createObjectURL(blob);
                             link.download = "gpkos_defense_report.txt";
@@ -5438,10 +5438,10 @@ export default function App() {
                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Active Runtime Node</span>
                             </div>
-                            <span className="text-[8px] text-emerald-500/50">GPKOS Virtualized Shell</span>
+                            <span className="text-[8px] text-emerald-500/50">rorygpkos virtual shell</span>
                          </div>
                          <div className="flex-grow overflow-y-auto p-4 whitespace-pre-wrap leading-relaxed text-emerald-400 selection:bg-emerald-900/40 custom-scrollbar">
-                           {ideLogs || "FATSHAN GPKOS KERNEL READY..."}
+                           {ideLogs || "RORYGPKOS VIRTUAL KERNEL READY..."}
                          </div>
                          <div className="flex items-center gap-2 px-4 py-3 bg-[#0a0a0a] border-t border-white/5 shrink-0">
                             <span className="text-emerald-600 font-black shrink-0">gpkos@marvis:~$</span>
@@ -5832,7 +5832,7 @@ export default function App() {
 
                                   const dummyToken = "SEC_TOKEN_" + prefix + "_" + Date.now();
                                   setGoogleToken(dummyToken);
-                                  localStorage.setItem("fatshan_global_session", encryptData(dummyToken));
+                                  localStorage.setItem("rorygpkos virtual_global_session", encryptData(dummyToken));
 
                                   // Inject custom onboarding/demo emails for this specific incoming login
                                   const customUserMails = [
@@ -5907,7 +5907,7 @@ export default function App() {
 
                                   const dummyToken = "SEC_TOKEN_NEW_" + signupUsernameValue + "_" + Date.now();
                                   setGoogleToken(dummyToken);
-                                  localStorage.setItem("fatshan_global_session", encryptData(dummyToken));
+                                  localStorage.setItem("rorygpkos virtual_global_session", encryptData(dummyToken));
 
                                   // Inject custom onboarding/demo emails for this specific incoming login
                                   const welcomeMails = [
@@ -6002,7 +6002,7 @@ export default function App() {
                                 // Log out google account
                                 const handleGoogleLogOut = () => {
                                   setGoogleToken(null);
-                                  localStorage.removeItem("fatshan_global_session");
+                                  localStorage.removeItem("rorygpkos virtual_global_session");
                                   alert("🔒 Google Secure handshakes terminated. Browser session safely locked.");
                                 };
 
@@ -6846,7 +6846,7 @@ export default function App() {
                              {!googleToken ? (
                                 <button onClick={() => loginGoogleProvider()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Sign In</button>
                              ) : (
-                                <button onClick={() => { setGoogleToken(null); localStorage.removeItem("fatshan_global_session"); }} className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Logout</button>
+                                <button onClick={() => { setGoogleToken(null); localStorage.removeItem("rorygpkos virtual_global_session"); }} className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Logout</button>
                              )}
                           </div>
                         </div>
@@ -6917,13 +6917,13 @@ export default function App() {
                            <div className="max-w-2xl mx-auto w-full flex flex-col gap-8 py-10">
                               <div className="bg-blue-500/5 border border-blue-500/20 p-6 rounded-[2rem] text-center">
                                  <div className="text-blue-400 text-sm font-bold mb-2">Welcome to GPKOS Artificial Intelligence</div>
-                                 <div className="text-slate-400 text-xs">How can I assist you with the Fatshan node operations today?</div>
+                                 <div className="text-slate-400 text-xs">How can I assist you with the rorygpkos virtual node operations today?</div>
                               </div>
                               <div className="flex flex-col gap-4">
                                  <div className="flex gap-4">
                                     <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-white/5"><BrainCircuit className="h-4 w-4 text-blue-400" /></div>
                                     <div className="bg-slate-900/50 border border-white/10 p-4 rounded-2xl rounded-tl-none text-xs text-slate-300 leading-relaxed shadow-sm">
-                                       Hello! I am Gemini, your dedicated AI core for this workspace. I can help with log analysis, security auditing, or general queries about the Fatshan Post console.
+                                       Hello! I am Gemini, your dedicated AI core for this workspace. I can help with log analysis, security auditing, or general queries about the rorygpkos virtual Post console.
                                     </div>
                                  </div>
                                  <div className="flex gap-4 justify-end">
@@ -7116,7 +7116,7 @@ export default function App() {
                                {[1,2,3,4,5,6,7,8].map(i => (
                                  <div key={i} className="aspect-square bg-slate-900 border border-white/5 rounded-2xl overflow-hidden relative group cursor-pointer shadow-lg">
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-end p-3">
-                                       <div className="text-[9px] font-bold text-white uppercase tracking-widest">FATSHAN_SURVEY_{i}.PNG</div>
+                                       <div className="text-[9px] font-bold text-white uppercase tracking-widest">rorygpkos virtual_SURVEY_{i}.PNG</div>
                                     </div>
                                     <div className="w-full h-full flex items-center justify-center text-slate-800">
                                        <Camera className="h-8 w-8 opacity-20" />
@@ -7400,11 +7400,11 @@ export default function App() {
                       {win.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
                       {win.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
                       {win.appId === 'global-bridge' && <GlobalBrowser />}
-                      {win.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('Password updated securely with zero-knowledge protocol.')} onUploadAvatar={(passedFile?: File) => {
+                      {win.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('密码已使用零知识协议安全更新。')} onUploadAvatar={(passedFile?: File) => {
                           const processFile = (file: File) => {
                              const MAX_SIZE = 5 * 1024 * 1024 * 1024; // 5GB limit
                              if (file.size > MAX_SIZE) {
-                               alert("File size exceeds 5GB limit.");
+                               alert("文件大小超过 5GB 限制。");
                                return;
                              }
                              const reader = new FileReader();
@@ -7635,7 +7635,7 @@ export default function App() {
 
                 <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-xl">
                   <p className="text-[11px] text-amber-200">
-                    <strong>Preflight Directive Instructions:</strong> Checklists must resolve entirely. All user account coordinate logs must bind under constant string token: <strong>FATSHAN POST</strong>.
+                    <strong>Preflight Directive Instructions:</strong> Checklists must resolve entirely. All user account coordinate logs must bind under constant string token: <strong>rorygpkos virtual</strong>.
                   </p>
                 </div>
               </div>
@@ -7667,7 +7667,7 @@ export default function App() {
               <Monitor className="h-16 w-16 text-indigo-400 animate-pulse mb-4" />
               <h3 className="text-md font-bold text-white mb-2">Simulated Active Support Screen Session</h3>
               <p className="text-xs text-slate-400 max-w-sm mb-4">
-                You are securely linked to user support. Operational validator key: <strong>FATSHAN POST</strong> is initialized securely.
+                You are securely linked to user support. Operational validator key: <strong>rorygpkos virtual</strong> is initialized securely.
               </p>
 
               <div className="flex flex-wrap gap-2 text-xs">
@@ -7701,7 +7701,7 @@ export default function App() {
 
               {/* Subtitle warning */}
               <div className="bg-white/5 border border-white/10 text-[10px] text-zinc-300 font-mono px-3 py-1 rounded">
-                Verification code: FATSHAN POST
+                Verification code: rorygpkos virtual
               </div>
             </div>
 
@@ -7759,10 +7759,10 @@ export default function App() {
                         key={spd}
                         onClick={() => {
                           setVideoSpeed(spd);
-                          if (spd === 1.0) setVideoSubtitle("FATSHAN POST: Commencing final flight trim coordination.");
-                          if (spd === 1.25) setVideoSubtitle("FATSHAN POST: Commencing speed adjustments... Fuel values mapped.");
-                          if (spd === 1.5) setVideoSubtitle("FATSHAN POST: Deploying checklist models... All terminals responsive.");
-                          if (spd === 2.0) setVideoSubtitle("FATSHAN POST: Compiler sandboxes fully operational inside Docker runtime.");
+                          if (spd === 1.0) setVideoSubtitle("rorygpkos virtual: Commencing final flight trim coordination.");
+                          if (spd === 1.25) setVideoSubtitle("rorygpkos virtual: Commencing speed adjustments... Fuel values mapped.");
+                          if (spd === 1.5) setVideoSubtitle("rorygpkos virtual: Deploying checklist models... All terminals responsive.");
+                          if (spd === 2.0) setVideoSubtitle("rorygpkos virtual: Compiler sandboxes fully operational inside Docker runtime.");
                         }}
                         className={`px-2 py-1 rounded text-[10px] font-bold ${
                           videoSpeed === spd ? "bg-rose-500 text-slate-950" : "hover:text-white text-zinc-400"
@@ -7852,7 +7852,7 @@ export default function App() {
                     <label className="block text-slate-400 font-semibold mb-1">Memoirs Narrative Message</label>
                     <textarea
                       rows={4}
-                      placeholder="To all pilots and terminal hackers, let's make verification standard checking: FATSHAN POST..."
+                      placeholder="To all pilots and terminal hackers, let's make verification standard checking: rorygpkos virtual..."
                       value={guestbookContent}
                       onChange={(e) => setGuestbookContent(e.target.value)}
                       required
@@ -7954,7 +7954,7 @@ export default function App() {
                       <label className="block text-slate-400 font-semibold mb-1">Content Body</label>
                       <textarea
                         rows={6}
-                        placeholder="Configure validation codes nicely. String reference FATSHAN POST works."
+                        placeholder="Configure validation codes nicely. String reference rorygpkos virtual works."
                         value={blogContent}
                         onChange={(e) => setBlogContent(e.target.value)}
                         required
@@ -8136,7 +8136,7 @@ export default function App() {
         )}
 
         {currentHash === "#public-mail" && (
-           <PublicMail currentActiveDomain={systemState.activeDomain || "fatshanpost.com"} />
+           <PublicMail currentActiveDomain={systemState.activeDomain || "rorygpkos virtualpost.com"} />
         )}
 
         {currentHash === "#drive" && (
@@ -8200,7 +8200,7 @@ export default function App() {
         </div>
         <div className="p-4">
           <p className="mb-1">
-            <strong>FATSHAN POST Operational Desk</strong> • Verification Check constant standard: <strong>FATSHAN POST</strong>
+            <strong>rorygpkos virtual Operational Desk</strong> • Verification Check constant standard: <strong>rorygpkos virtual</strong>
           </p>
           <p className="text-zinc-500 text-[10px]">
             Outlook Decoupling Architecture • Micro Custom Buttons Engine room • Rory Compiler simulator desktop

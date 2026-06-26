@@ -72,7 +72,7 @@ export function CloudDrive({ currentUser }: { currentUser: User | null }) {
     
     const MAX_SIZE = 5 * 1024 * 1024 * 1024; // 5GB Limit
     if (file.size > MAX_SIZE) {
-       alert("Size limit exceeded for preview environment (5GB limit).");
+       alert("由于环境限制，文件大小不能超过 5GB。");
        return;
     }
 
@@ -123,7 +123,7 @@ export function CloudDrive({ currentUser }: { currentUser: User | null }) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!currentUser || !window.confirm("Delete this file permanently from cloud?")) return;
+    if (!currentUser || !window.confirm("确定从云端永久删除此文件吗？")) return;
     try {
       await fetch("/api/drive/delete", {
         method: "POST",
@@ -166,8 +166,8 @@ export function CloudDrive({ currentUser }: { currentUser: User | null }) {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-2xl border-4 border-dashed border-sky-500">
           <div className="bg-slate-900 p-8 rounded-3xl flex flex-col items-center shadow-2xl">
             <UploadCloud className="w-16 h-16 text-sky-400 mb-4 animate-bounce" />
-            <h2 className="text-2xl font-bold text-white mb-2">Drop files to upload</h2>
-            <p className="text-slate-400">Supports files up to 5GB</p>
+            <h2 className="text-2xl font-bold text-white mb-2">拖放文件到此处上传</h2>
+            <p className="text-slate-400">支持高达 5GB 的文件</p>
           </div>
         </div>
       )}

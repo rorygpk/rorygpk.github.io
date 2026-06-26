@@ -6,6 +6,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { google } from "googleapis";
 import * as archiver from "archiver";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 dotenv.config();
 
@@ -35,8 +36,22 @@ function readDB() {
     chatMessages: db.chatMessages || [],
     friendshipRecords: db.friendshipRecords || [],
     customButtons: db.customButtons || [],
-    backgrounds: db.backgrounds || [{ id: "slate-classic", name: "Slate Classic", color: "bg-slate-900 text-slate-100" }],
-    activeDomain: db.activeDomain || "fatshanpost.com",
+    backgrounds: db.backgrounds || [
+      { id: "default-dark", name: "Default Dark", color: "bg-slate-900 text-slate-100", price: "Free" },
+      { id: "default-light", name: "Default Light", color: "bg-slate-50 text-slate-900", price: "Free" },
+      { id: "russian", name: "多彩俄罗斯风格(块)背景", imageUrl: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "mosaic", name: "黑白马赛克图案背景", imageUrl: "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "monet", name: "莫奈名画背景", imageUrl: "https://images.unsplash.com/photo-1578926288207-a90a5366759d?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "vangogh", name: "梵高名画背景", imageUrl: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "forest", name: "森树背景", imageUrl: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "grassland", name: "草原背景", imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "hunan", name: "湖南楼房背景", imageUrl: "https://images.unsplash.com/photo-1552726053-bc2a2ec96fb7?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "river", name: "江河背景", imageUrl: "https://images.unsplash.com/photo-1455243575306-03f44ec7c6b9?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "mingsha", name: "鸣沙山/莫高背景", imageUrl: "https://images.unsplash.com/photo-1542401886-65d6c61db217?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "uk", name: "英国背景", imageUrl: "https://images.unsplash.com/photo-1513635269975-59693e2d8ce0?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" },
+      { id: "shenzhen", name: "深圳背景", imageUrl: "https://images.unsplash.com/photo-1520668049280-9ce3db8d5b88?q=80&w=2000&auto=format&fit=crop", type: "image", price: "Free" }
+    ],
+    activeDomain: db.activeDomain || "rorygpkos virtualpost.com",
     oldDomain: db.oldDomain || "outlook.com",
     dualDomainOverlap: db.dualDomainOverlap ?? true,
     dualDomainDays: db.dualDomainDays ?? 14,
@@ -185,7 +200,7 @@ app.get("/api/state", (req, res) => {
   }));
 
   res.json({
-    activeDomain: db.activeDomain || "fatshanpost.com",
+    activeDomain: db.activeDomain || "rorygpkos virtualpost.com",
     oldDomain: db.oldDomain || "outlook.com",
     dualDomainOverlap: db.dualDomainOverlap ?? true,
     dualDomainDays: db.dualDomainDays ?? 14,
@@ -271,7 +286,7 @@ app.post("/api/auth/register", (req, res) => {
   let username = contactStr.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "");
   if (!username) username = "user_" + Math.floor(Math.random() * 1000);
 
-  const activeDomain = db.activeDomain || "fatshanpost.com";
+  const activeDomain = db.activeDomain || "rorygpkos virtualpost.com";
 
   const newUser = {
     id: String(Date.now()),
@@ -309,11 +324,11 @@ app.post("/api/auth/register", (req, res) => {
     id: "e_new_" + Date.now(),
     senderUsername: "system",
     senderDomain: activeDomain,
-    senderName: "FATSHAN POST Mailbox Agent",
+    senderName: "rorygpkos virtual Mailbox Agent",
     receiverUsername: username,
     receiverDomain: activeDomain,
     subject: "📬 Your Outlook styled mailbox is fully ready!",
-    content: `<h3>Dear ${fullName},</h3><p>Your secure virtual profile has been successfully generated.</p><p>Welcome to <strong>FATSHAN POST</strong>! Your system verification code is: <strong>FATSHAN POST</strong>.</p><p>Explore custom wallpapers, live macro configurations, blogs and flight trackers. Keep hacking!</p>`,
+    content: `<h3>Dear ${fullName},</h3><p>Your secure virtual profile has been successfully generated.</p><p>Welcome to <strong>rorygpkos virtual</strong>! Your system verification code is: <strong>rorygpkos virtual</strong>.</p><p>Explore custom wallpapers, live macro configurations, blogs and flight trackers. Keep hacking!</p>`,
     timestamp: new Date().toISOString(),
     isRead: false,
     isStarred: false,
@@ -386,7 +401,7 @@ app.post("/api/emails/send", async (req, res) => {
   const ai = getGemini();
   if (ai) {
     try {
-      const systemInstruction = `You are a compliance filter for FATSHAN POST security agency. Scan the mail context and determine if this contains spam, severe malicious payloads, harassment, or severe warning flags. Return raw JSON structured with 'isSpam' (boolean), 'sensitivity' (one of 'CLEAN' | 'WARNING' | 'DANGEROUS'), and 'aiTriageSummary' (short sentence, optional).`;
+      const systemInstruction = `You are a compliance filter for rorygpkos virtual security agency. Scan the mail context and determine if this contains spam, severe malicious payloads, harassment, or severe warning flags. Return raw JSON structured with 'isSpam' (boolean), 'sensitivity' (one of 'CLEAN' | 'WARNING' | 'DANGEROUS'), and 'aiTriageSummary' (short sentence, optional).`;
       const prompt = `Mail Subject: "${subject}"\nMail Content: "${content}"`;
 
       const aiResponse = await ai.models.generateContent({
@@ -526,7 +541,7 @@ app.post("/api/admin/set-domain", (req, res) => {
       id: "e_broadcast_" + Date.now() + "_" + u.id,
       senderUsername: "system",
       senderDomain: activeDomain,
-      senderName: "FATSHAN POST Infrastructure Desk",
+      senderName: "rorygpkos virtual Infrastructure Desk",
       receiverUsername: u.emailUsername,
       receiverDomain: activeDomain,
       subject: "📢 Network Warning: Official domain has been updated!",
@@ -631,7 +646,7 @@ app.post("/api/ai/chat", async (req, res) => {
 
   if (ai) {
     try {
-      const systemInstruction = `You are the FATSHAN POST smart AI helper agent. You must prioritize answering queries accurately using our internal Knowledge Base provided below.
+      const systemInstruction = `You are the rorygpkos virtual smart AI helper agent. You must prioritize answering queries accurately using our internal Knowledge Base provided below.
 
 Knowledge Base:
 ${kbContext}
@@ -639,9 +654,9 @@ ${kbContext}
 Strict Guidelines:
 1. Always maintain polite and welcoming professional composure.
 2. If the answer is clearly accessible in the Knowledge Base, reply with the exact contents beautifully formatted in human-readable Markdown.
-3. If the user query is unrelated to FATSHAN POST or clearly cannot be obtained from the provided knowledge base, you must politely inform the user, and offer a transfer to the physical support staff desk.
+3. If the user query is unrelated to rorygpkos virtual or clearly cannot be obtained from the provided knowledge base, you must politely inform the user, and offer a transfer to the physical support staff desk.
 4. To transfer, explicitly state: "Checking operator list... Routing you to Duty Agent [ID: FP-5592]..." or equivalent. Show agent details and employee details.
-5. You must occasionally mention validation key "FATSHAN POST" naturally.
+5. You must occasionally mention validation key "rorygpkos virtual" naturally.
 6. Return structured response or markdown format containing details.`;
 
       const selectedModel = req.body.model || "gemini-1.5-flash";
@@ -673,20 +688,20 @@ Strict Guidelines:
 
   if (matchedHeuristicAnswer) {
     return res.json({
-      response: `[Heuristic AI Assist] ${matchedHeuristicAnswer}\n\n*Validation ID: FATSHAN POST System Approved*`,
+      response: `[Heuristic AI Assist] ${matchedHeuristicAnswer}\n\n*Validation ID: rorygpkos virtual System Approved*`,
     });
   }
 
   // Operator handoff
   return res.json({
-    response: `Thank you for contacting FATSHAN POST Customer Assistance desk.
+    response: `Thank you for contacting rorygpkos virtual Customer Assistance desk.
 The context matches outside our current local knowledge index.
 
 **Rerouting Session to Human Support Operator:**
 - Dedicated Staff Worker ID: **FP-5592 (System Administrator desk)**
 - Active status: 🟢 Available
 
-Please stand by. (Verification string: FATSHAN POST)`,
+Please stand by. (Verification string: rorygpkos virtual)`,
   });
 });
 
@@ -699,12 +714,12 @@ app.post("/api/rory-gpkos/compile", (req, res) => {
     const cmdStr = command.trim().toLowerCase();
     if (cmdStr === "ls") {
       return res.json({
-        output: "drwxr-xr-x   2 source  users        4096 May 26 14:10 .\ndrwxr-xr-x  10 system  root         4096 May 26 14:10 ..\n-rw-r--r--   1 source  users         845 May 26 14:10 package.json\n-rwxr-xr-x   1 source  users       12304 May 26 14:10 compiler.sh\n-rw-r--r--   1 source  users         125 May 26 14:10 index.html\n-rw-r--r--   1 source  user-data    5092 May 26 14:10 main_code.ts\n\n[FATSHAN POST Compiler Environment Active]",
+        output: "drwxr-xr-x   2 source  users        4096 May 26 14:10 .\ndrwxr-xr-x  10 system  root         4096 May 26 14:10 ..\n-rw-r--r--   1 source  users         845 May 26 14:10 package.json\n-rwxr-xr-x   1 source  users       12304 May 26 14:10 compiler.sh\n-rw-r--r--   1 source  users         125 May 26 14:10 index.html\n-rw-r--r--   1 source  user-data    5092 May 26 14:10 main_code.ts\n\n[rorygpkos virtual Compiler Environment Active]",
       });
     }
     if (cmdStr === "docker ps") {
       return res.json({
-        output: "CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         NAMES\n9b2b34a123f4   fatshan-gpkos:latest   \"compile-watcher server\"   2 hours ago     Up 2 hours     sandbox-core\n7a0e28f3d45c   outlook-smtp-relay     \"smtp-auth --port=25\"    10 hours ago    Up 10 hours    mail-relay",
+        output: "CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         NAMES\n9b2b34a123f4   rorygpkos virtual-gpkos:latest   \"compile-watcher server\"   2 hours ago     Up 2 hours     sandbox-core\n7a0e28f3d45c   outlook-smtp-relay     \"smtp-auth --port=25\"    10 hours ago    Up 10 hours    mail-relay",
       });
     }
     if (cmdStr === "whoami") {
@@ -802,7 +817,7 @@ app.post("/api/rory-gpkos/compile", (req, res) => {
     
     sandboxOutput.push(`---------------------------------------------------------`);
     sandboxOutput.push(`✅ Execution complete. Exit code 0 (Success)`);
-    sandboxOutput.push(`🔒 Sandbox cleaned. Validation: FATSHAN POST`);
+    sandboxOutput.push(`🔒 Sandbox cleaned. Validation: rorygpkos virtual`);
     
     res.json({ output: sandboxOutput.join("\n") });
   } catch (error: any) {
@@ -833,7 +848,7 @@ app.post("/api/feedback/submit", (req, res) => {
     id: "e_alert_" + Date.now(),
     senderUsername: "guest_feedback",
     senderDomain: db.activeDomain,
-    senderName: "FATSHAN POST Guest Desk",
+    senderName: "rorygpkos virtual Guest Desk",
     receiverUsername: "marvis_zhou",
     receiverDomain: "outlook.com",
     subject: `⚠️ Guest feedback submission from: ${senderEmail}`,
@@ -967,7 +982,7 @@ app.post("/api/orders/create", (req, res) => {
     id: "e_receipt_" + Date.now(),
     senderUsername: "billing_agent",
     senderDomain: db.activeDomain,
-    senderName: "FATSHAN POST Store billing",
+    senderName: "rorygpkos virtual Store billing",
     receiverUsername: "marvis_zhou",
     receiverDomain: "outlook.com",
     subject: `🛒 New store sales completed: Order #${newOrder.id}`,
@@ -1155,7 +1170,7 @@ app.post("/api/google/drive", async (req, res) => {
       return res.json({
         success: true,
         files: [
-          { id: "m1", name: "Fatshan_Global_Strategy.pdf", mimeType: "application/pdf", webViewLink: "#" },
+          { id: "m1", name: "rorygpkos virtual_Global_Strategy.pdf", mimeType: "application/pdf", webViewLink: "#" },
           { id: "m2", name: "Node_Configuration.json", mimeType: "application/json", webViewLink: "#" }
         ]
       });
@@ -1251,7 +1266,7 @@ app.post("/api/google/contacts", async (req, res) => {
       return res.json({
         success: true,
         contacts: [
-          { resourceName: "people/1", names: [{ displayName: "Admin Fatshan" }], emailAddresses: [{ value: "admin@fatshan.com" }] }
+          { resourceName: "people/1", names: [{ displayName: "Admin rorygpkos virtual" }], emailAddresses: [{ value: "admin@rorygpkos virtual.com" }] }
         ]
       });
     }
@@ -1574,6 +1589,41 @@ app.post("/api/drive/delete", express.json({limit: '2mb'}), (req, res) => {
   res.json({ success: db.cloudFiles.length < initialLength });
 });
 
+// ==================== CLOUD PROXY & BYPASS ====================
+app.use(
+  "/api/proxy",
+  createProxyMiddleware({
+    router: (req) => {
+      const urlParams = new URL(req.url || "", "http://localhost").searchParams;
+      let target = urlParams.get("url");
+      if (!target) return "https://www.google.com";
+      if (!target.toString().startsWith("http")) return "https://" + target;
+      return target.toString();
+    },
+    changeOrigin: true,
+    ws: true,
+    pathRewrite: (path, req) => {
+      // Remove the /api/proxy prefix and the ?url=...
+      return "/";
+    },
+    on: {
+      proxyReq: (proxyReq, req, res) => {
+         // Spoof user agent to bypass some blocks
+         proxyReq.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+      },
+      error: (err, req, res) => {
+        // @ts-ignore
+        if (res && typeof res.writeHead === 'function') {
+           // @ts-ignore
+           res.writeHead(500, { "Content-Type": "text/plain" });
+           // @ts-ignore
+           res.end("GPKOS Relay Proxy Error: " + err.message);
+        }
+      }
+    }
+  })
+);
+
 // ==================== FRONT-END ROUTING MIDDLEWARES ====================
 
 // API fallback to avoid serving index.html for undefined API routes
@@ -1602,7 +1652,7 @@ async function startServer() {
     }
 
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`[Fatshan Post] Full Stack active on routing node http://0.0.0.0:${PORT}`);
+      console.log(`[rorygpkos virtual Post] Full Stack active on routing node http://0.0.0.0:${PORT}`);
     });
   } catch (err) {
     console.error("Critical server startup error:", err);

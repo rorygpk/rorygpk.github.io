@@ -35,7 +35,7 @@ export const MarketplaceApp = () => {
   const handleFile = (file: File) => {
     const MAX_SIZE = 5 * 1024 * 1024 * 1024; // 5GB
     if (file.size > MAX_SIZE) {
-      alert("File size exceeds 5GB limit.");
+      alert("文件大小超过 5GB 限制。");
       return;
     }
     setUploadedFileName(file.name);
@@ -160,7 +160,7 @@ export const MarketplaceApp = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Upload Photos</label>
+                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">上传照片</label>
                     <label 
                       className={`block border-2 border-dashed ${isDraggingFile ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'} rounded-xl p-8 text-center cursor-pointer hover:bg-slate-100 transition`}
                       onDragOver={handleDragOver}
@@ -169,9 +169,9 @@ export const MarketplaceApp = () => {
                     >
                        <Upload className={`w-8 h-8 mx-auto mb-2 ${isDraggingFile ? 'text-blue-500' : 'text-slate-400'}`} />
                        <span className="text-sm font-medium text-slate-600">
-                         {uploadedFileName ? `Ready: ${uploadedFileName}` : "Drag and drop photos or click to browse"}
+                         {uploadedFileName ? `已准备就绪: ${uploadedFileName}` : "拖放照片或点击浏览"}
                        </span>
-                       <p className="text-xs text-slate-400 mt-1">Supports files up to 5GB</p>
+                       <p className="text-xs text-slate-400 mt-1">支持高达 5GB 的文件</p>
                        <input type="file" className="hidden" onChange={handleFileChange} />
                     </label>
                   </div>
