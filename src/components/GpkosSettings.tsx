@@ -100,21 +100,32 @@ export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode
                 <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Desktop Background</h3>
                 <div className="grid grid-cols-2 gap-4">
                    {[
-                     { id: 'bg-1', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop', label: 'Neon Circuit' },
-                     { id: 'bg-2', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', label: 'Orbital View' },
-                     { id: 'bg-3', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop', label: 'Abstract Fluid' },
-                     { id: 'bg-4', url: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2070&auto=format&fit=crop', label: 'Dark Hexagon' }
+                     { id: 'dark-slate', label: 'Dark Default (黑)' },
+                     { id: 'light', label: 'Light Default (白)' },
+                     { id: 'russian', label: 'Colorful Russian (俄罗斯块)' },
+                     { id: 'bw-mosaic', label: 'Black White Mosaic (黑白马赛克)' },
+                     { id: 'monet', label: 'Monet (莫奈)' },
+                     { id: 'vangogh', label: 'Van Gogh (梵高)' },
+                     { id: 'forest', label: 'Forest (森树)' },
+                     { id: 'grassland', label: 'Grassland (草原)' },
+                     { id: 'hunan', label: 'Hunan (湖南楼房)' },
+                     { id: 'river', label: 'River (江河)' },
+                     { id: 'mingsha', label: 'Mingsha (鸣沙山)' },
+                     { id: 'uk', label: 'UK (英国)' },
+                     { id: 'shenzhen', label: 'Shenzhen (深圳)' },
+                     { id: 'local', label: 'Local Scene (当地名景)' },
+                     { id: 'map', label: 'Local Map (当地地图)' },
+                     { id: 'custom', label: 'Custom Upload (自定义)' }
                    ].map(bg => (
                      <button 
                        key={bg.id}
-                       onClick={() => setActiveBackground(bg.url)}
-                       className={`relative group rounded-xl overflow-hidden border-2 transition-all ${activeBackground === bg.url ? 'border-cyan-500 shadow-lg shadow-cyan-900/30' : 'border-transparent hover:border-white/20'}`}
+                       onClick={() => setActiveBackground(bg.id)}
+                       className={`relative group rounded-xl overflow-hidden border-2 transition-all ${activeBackground === bg.id ? 'border-cyan-500 shadow-lg shadow-cyan-900/30 bg-slate-800' : 'border-transparent hover:border-white/20 bg-slate-900'}`}
                      >
-                       <img src={bg.url} alt={bg.label} className="w-full h-24 object-cover transition duration-500 group-hover:scale-110" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex items-end p-2">
-                          <span className="text-[9px] font-bold text-white uppercase tracking-wider">{bg.label}</span>
+                       <div className="w-full h-16 flex items-center justify-center p-2">
+                          <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center">{bg.label}</span>
                        </div>
-                       {activeBackground === bg.url && (
+                       {activeBackground === bg.id && (
                           <div className="absolute top-2 right-2 w-4 h-4 bg-cyan-500 rounded-full flex items-center justify-center shadow-lg">
                              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                           </div>
@@ -122,6 +133,30 @@ export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode
                      </button>
                    ))}
                 </div>
+                {activeBackground === 'custom' && (
+                  <div className="mt-4 bg-slate-900/50 p-4 border border-white/10 rounded-xl">
+                    <label className="block text-xs text-white font-bold mb-2">Upload Custom Background</label>
+                    <input 
+                      type="file" 
+                      accept="image/*,video/*" 
+                      className="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (re) => {
+                            if (re.target?.result) {
+                              localStorage.setItem("gpkos_custom_wallpaper", re.target.result as string);
+                              alert("Custom background saved! Please refresh the page to apply.");
+                              window.location.reload();
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
              </section>
              
              <section>

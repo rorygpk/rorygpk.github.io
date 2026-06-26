@@ -188,11 +188,11 @@ const DraggableWindow: React.FC<WindowProps> = ({ window: win, onClose, onMinimi
         onPositionChange(win.id, actualX + info.offset.x, actualY + info.offset.y);
       }}
       onPointerDown={() => onFocus(win.id)}
-      className={`bg-slate-950 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${win.isMaximized ? 'border-none' : ''}`}
+      className={`bg-slate-900/60 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-3xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${win.isMaximized ? 'border-none' : ''}`}
     >
       {/* Window Header */}
       <div 
-        className="bg-slate-900/90 p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
+        className="bg-white/5 backdrop-blur-xl p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
         onPointerDown={(e) => !win.isMaximized && dragControls.start(e)}
         onDoubleClick={() => onMaximize(win.id)}
       >
@@ -2002,7 +2002,8 @@ export default function App() {
   
   // GPKOS macOS top-bar menu options & custom desktop settings are state-backed for high-fidelity native feeling
   const [gpkosActiveDropdown, setGpkosActiveDropdown] = useState<"gpkos" | "file" | "edit" | "view" | "kernel" | null>(null);
-  const [gpkosWallpaper, setGpkosWallpaper] = useState<"cyberpunk" | "monterey" | "space" | "dark-slate">("dark-slate");
+  const [gpkosWallpaper, setGpkosWallpaper] = useState<string>("dark-slate");
+  const [customWallpaperBase64, setCustomWallpaperBase64] = useState<string | null>(localStorage.getItem("gpkos_custom_wallpaper"));
   const [gpkosEncryptionActive, setGpkosEncryptionActive] = useState(true);
   const [gpkosLatencyMonitorOpen, setGpkosLatencyMonitorOpen] = useState(false);
   const [gpkosDiagnosticsModalOpen, setGpkosDiagnosticsModalOpen] = useState(false);
@@ -2947,6 +2948,8 @@ export default function App() {
               <div id="active-session-chip" className="bg-white/10 text-white pl-1.5 pr-2 py-1.5 rounded-full flex items-center gap-2 text-xs border border-white/10">
                 {currentUser.avatarUrl ? (
                   <img src={currentUser.avatarUrl} alt="avatar" className="w-6 h-6 rounded-full object-cover border border-white/20" />
+                ) : localStorage.getItem('gpkos_default_avatar') ? (
+                  <img src={localStorage.getItem('gpkos_default_avatar') as string} alt="default avatar" className="w-6 h-6 rounded-full object-cover border border-white/20 opacity-70" />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-cyan-600 flex items-center justify-center font-bold">{currentUser.fullName.charAt(0)}</div>
                 )}
@@ -3154,6 +3157,8 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       {currentUser.avatarUrl ? (
                          <img src={currentUser.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover border border-white/20" />
+                      ) : localStorage.getItem('gpkos_default_avatar') ? (
+                         <img src={localStorage.getItem('gpkos_default_avatar') as string} alt="default avatar" className="w-10 h-10 rounded-full object-cover border border-white/20 opacity-70" />
                       ) : (
                          <div className="w-10 h-10 rounded-full bg-cyan-600 flex items-center justify-center font-bold text-lg text-white">{currentUser.fullName.charAt(0)}</div>
                       )}
@@ -5022,15 +5027,37 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <div className={`absolute inset-0 transition-all duration-500 flex flex-col ${
-                gpkosWallpaper === "cyberpunk" ? "bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-900/60" :
-                gpkosWallpaper === "monterey" ? "bg-gradient-to-br from-pink-950 via-orange-950/50 to-slate-950" :
-                gpkosWallpaper === "space" ? "bg-gradient-to-br from-blue-950 via-slate-950 to-emerald-950/40" :
-                gpkosWallpaper === "mosaic" ? "bg-slate-900 bg-[linear-gradient(45deg,#1f2937_25%,transparent_25%,transparent_75%,#1f2937_75%,#1f2937),linear-gradient(45deg,#1f2937_25%,transparent_25%,transparent_75%,#1f2937_75%,#1f2937)] bg-[length:20px_20px] bg-[position:0_0,10px_10px]" :
-                gpkosWallpaper === "painting" ? "bg-amber-900/40 bg-[url('https://images.unsplash.com/photo-1576769267415-9642010aa962?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center bg-blend-overlay" :
-                gpkosWallpaper === "enterprise" ? "bg-slate-50 border-t-4 border-blue-600" :
-                "bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900/40"
-              }`}>
+              <div 
+                className={`absolute inset-0 transition-all duration-500 flex flex-col`}
+                style={{
+                  backgroundColor: gpkosWallpaper === 'light' ? '#f8fafc' : gpkosWallpaper === 'dark-slate' ? '#0f172a' : '#020617',
+                  backgroundImage: 
+                    gpkosWallpaper === 'custom' && customWallpaperBase64 ? `url(${customWallpaperBase64})` :
+                    gpkosWallpaper === 'russian' ? `url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'monet' ? `url('https://images.unsplash.com/photo-1576769267415-9642010aa962?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'vangogh' ? `url('https://images.unsplash.com/photo-1578301978693-85fa9c026f19?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'forest' ? `url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'grassland' ? `url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'hunan' ? `url('https://images.unsplash.com/photo-1555899434-94d1368aa7af?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'river' ? `url('https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'mingsha' ? `url('https://images.unsplash.com/photo-1547333590-bc4d2c80fb14?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'uk' ? `url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'shenzhen' ? `url('https://images.unsplash.com/photo-1506377711776-dbfc2f939dd1?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'local' ? `url('https://images.unsplash.com/photo-1477959858617-67f851086b9f?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'map' ? `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1920&q=80')` :
+                    gpkosWallpaper === 'bw-mosaic' ? 'linear-gradient(45deg,#1f2937 25%,transparent 25%,transparent 75%,#1f2937 75%,#1f2937),linear-gradient(45deg,#1f2937 25%,transparent 25%,transparent 75%,#1f2937 75%,#1f2937)' : 'none',
+                  backgroundSize: gpkosWallpaper === 'bw-mosaic' ? '20px 20px' : 'cover',
+                  backgroundPosition: gpkosWallpaper === 'bw-mosaic' ? '0 0, 10px 10px' : 'center',
+                }}
+              >
+                {/* Full screen blur overlay when top menu is open */}
+                {gpkosActiveDropdown && (
+                  <div 
+                    className="absolute inset-0 z-40 bg-black/40 backdrop-blur-md transition-all duration-300"
+                    onClick={() => setGpkosActiveDropdown(null)}
+                  />
+                )}
+
                 {/* macOS styled Title bar / Top Bar with active drop-downs */}
                 <div className="bg-black/60 border-b border-white/5 backdrop-blur-md px-4 py-1.5 flex items-center justify-between z-50 shrink-0 relative">
                   <div className="flex items-center gap-4 text-xs font-bold text-white">
@@ -5150,27 +5177,8 @@ export default function App() {
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                           className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
                         >
-                          <span className="text-[8px] text-slate-500 font-extrabold px-3 py-1 block uppercase tracking-wider">Change Desktop Style</span>
-                          <button onClick={() => { setGpkosWallpaper("dark-slate"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            {gpkosWallpaper === "dark-slate" ? "●" : "○"} 🌲 Default Forest
-                          </button>
-                          <button onClick={() => { setGpkosWallpaper("cyberpunk"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            {gpkosWallpaper === "cyberpunk" ? "●" : "○"} 🌆 Cyberpunk Neon
-                          </button>
-                          <button onClick={() => { setGpkosWallpaper("monterey"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            {gpkosWallpaper === "monterey" ? "●" : "○"} 🍊 Monterey Glow
-                          </button>
-                          <button onClick={() => { setGpkosWallpaper("space"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            {gpkosWallpaper === "space" ? "●" : "○"} 🪐 Space Cosmos
-                          </button>
-                          <button onClick={() => { setGpkosWallpaper("mosaic"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            {gpkosWallpaper === "mosaic" ? "●" : "○"} 🧱 Unique Mosaic (小马赛克)
-                          </button>
-                          <button onClick={() => { setGpkosWallpaper("painting"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            {gpkosWallpaper === "painting" ? "●" : "○"} 🎨 Famous Painting (名画背景)
-                          </button>
-                          <button onClick={() => { setGpkosWallpaper("enterprise"); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5 text-blue-400 font-bold border-t border-white/10 mt-1 pt-2">
-                            {gpkosWallpaper === "enterprise" ? "●" : "○"} 🏢 Enterprise Clean (清爽)
+                          <button onClick={() => { launchApp('settings', 'System Preferences'); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
+                            ⚙️ Open Display Settings
                           </button>
                         </div>
                       )}
@@ -7394,10 +7402,10 @@ export default function App() {
                                          const authList = JSON.parse(authListStr);
                                          const userIndex = authList.findIndex((u: any) => u.id === currentUser.id);
                                          if (userIndex !== -1) {
-                                            authList[userIndex].avatar = newAvatarUrl;
+                                            authList[userIndex].avatarUrl = newAvatarUrl;
                                             localStorage.setItem('gpkos_users_auth_list', JSON.stringify(authList));
                                             
-                                            const updatedUser = { ...currentUser, avatar: newAvatarUrl };
+                                            const updatedUser = { ...currentUser, avatarUrl: newAvatarUrl };
                                             localStorage.setItem('gpkos_curr_user', JSON.stringify(updatedUser));
                                             window.location.reload(); 
                                          }

@@ -16,8 +16,10 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
       <div className="w-48 bg-slate-800 border-r border-slate-700 flex flex-col shrink-0">
         <div className="p-4 flex flex-col items-center gap-2 border-b border-white/5">
           <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-500 shadow-inner group relative cursor-pointer" onClick={() => onUploadAvatar()}>
-            {currentUser.avatar ? (
-              <img src={currentUser.avatar} className="w-full h-full object-cover" alt="avatar" />
+            {currentUser.avatarUrl ? (
+              <img src={currentUser.avatarUrl} className="w-full h-full object-cover" alt="avatar" />
+            ) : localStorage.getItem('gpkos_default_avatar') ? (
+              <img src={localStorage.getItem('gpkos_default_avatar') as string} className="w-full h-full object-cover opacity-70" alt="default avatar" />
             ) : (
               <User className="w-8 h-8 text-slate-400" />
             )}
@@ -48,6 +50,11 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
           <button onClick={() => setActiveTab("orders")} className={`px-3 py-2 rounded text-xs font-bold text-left transition ${activeTab === 'orders' ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-white/5 text-slate-400'}`}>
             <FileText className="w-3.5 h-3.5 inline mr-1.5" /> Marketplace Orders
           </button>
+          {currentUser.role === 'admin' && (
+            <button onClick={() => setActiveTab("admin")} className={`px-3 py-2 rounded text-xs font-bold text-left transition ${activeTab === 'admin' ? 'bg-red-500/20 text-red-400' : 'hover:bg-white/5 text-slate-400'}`}>
+              <Shield className="w-3.5 h-3.5 inline mr-1.5" /> Avatar Moderation
+            </button>
+          )}
         </div>
       </div>
 
@@ -115,6 +122,77 @@ export const UserProfileApp = ({ currentUser, onUpdatePassword, onUploadAvatar }
             <h2 className="text-xl font-bold border-b border-white/10 pb-2 mb-4 text-emerald-400">Marketplace Orders</h2>
             <div className="text-sm text-slate-400 bg-slate-800 p-4 rounded text-center border-dashed border border-slate-600">
                 You have no active or historical marketplace transactions.
+            </div>
+          </div>
+        )}
+
+        {activeTab === "admin" && currentUser.role === 'admin' && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <h2 className="text-xl font-bold border-b border-red-500/30 pb-2 mb-4 text-red-400">Admin: Avatar Moderation</h2>
+            <div className="space-y-4">
+              <div className="bg-slate-800 p-4 rounded border border-white/5 flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-white">Default Avatar Management</h3>
+                <p className="text-xs text-slate-400">Upload an image to serve as the default avatar for all new users.</p>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  className="text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-500/20 file:text-red-400 hover:file:bg-red-500/30 cursor-pointer"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (re) => {
+                        if (re.target?.result) {
+                          localStorage.setItem('gpkos_default_avatar', re.target.result as string);
+                          alert("Global default avatar updated successfully.");
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="bg-slate-800 p-4 rounded border border-white/5 flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-white">User Moderation</h3>
+                <p className="text-xs text-slate-400">Review and clear inappropriate avatars.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                  {(() => {
+                    const authListStr = localStorage.getItem('gpkos_users_auth_list');
+                    if (!authListStr) return <span className="text-xs text-slate-500">No users found.</span>;
+                    const authList = JSON.parse(authListStr);
+                    return authList.map((user: any) => (
+                      <div key={user.id} className="flex items-center justify-between p-2 bg-slate-900 border border-white/5 rounded">
+                         <div className="flex items-center gap-3">
+                           {user.avatarUrl ? (
+                             <img src={user.avatarUrl} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                           ) : (
+                             <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center"><User className="w-4 h-4 text-slate-500" /></div>
+                           )}
+                           <div className="flex flex-col text-xs">
+                             <span className="font-bold text-white">{user.fullName || user.emailUsername}</span>
+                             <span className="text-slate-500">{user.role}</span>
+                           </div>
+                         </div>
+                         {user.avatarUrl && (
+                           <button 
+                             onClick={() => {
+                               user.avatarUrl = undefined;
+                               localStorage.setItem('gpkos_users_auth_list', JSON.stringify(authList));
+                               alert(`Removed avatar for ${user.fullName || user.emailUsername}`);
+                               window.location.reload();
+                             }}
+                             className="text-xs bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-2 py-1 rounded transition"
+                           >
+                             Clear
+                           </button>
+                         )}
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -3,9 +3,10 @@ import { Search, RotateCcw, AlertTriangle, ShieldCheck, Globe, MapPin, Mail, Ext
 
 export const GlobalBrowser: React.FC = () => {
   // Using Google webhp with igu=1 bypasses normal x-frame-options for embedding purposes!
-  const [url, setUrl] = useState("https://www.google.com/webhp?igu=1"); 
-  const [iframeSrc, setIframeSrc] = useState("https://www.google.com/webhp?igu=1");
+  const [url, setUrl] = useState("https://www.google.com/search?q=&igu=1"); 
+  const [iframeSrc, setIframeSrc] = useState("https://www.google.com/search?q=&igu=1");
   const [proxyMode, setProxyMode] = useState<"direct" | "hf-space" | "server-proxy">("direct");
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
 
   useEffect(() => {
     updateIframeSrc(url, proxyMode);
@@ -22,7 +23,7 @@ export const GlobalBrowser: React.FC = () => {
       setIframeSrc(`/api/web/proxy-html?url=${encodeURIComponent(finalUrl)}`);
     } else if (mode === "hf-space") {
       // Direct load to their custom HuggingFace tunnel space
-      setIframeSrc("https://huggingface.co/spaces/zhoumarvis/roeygpk");
+      setIframeSrc("https://zhoumarvis-gpk.hf.space");
     } else {
       // Direct iframe
       setIframeSrc(finalUrl);
@@ -41,6 +42,10 @@ export const GlobalBrowser: React.FC = () => {
     updateIframeSrc(presetUrl, m);
   };
 
+  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 10, 200));
+  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 10, 50));
+  const handleZoomReset = () => setZoomLevel(100);
+
   return (
     <div className="flex flex-col h-full bg-slate-900 flex-grow rounded-b-xl overflow-hidden text-slate-100">
       {/* Browser Bar */}
@@ -52,9 +57,15 @@ export const GlobalBrowser: React.FC = () => {
               <div className="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-600/50"></div>
           </div>
 
-          <button onClick={() => updateIframeSrc(url, proxyMode)} className="p-1.5 hover:bg-white/5 rounded-xl transition text-slate-400 hover:text-white shrink-0">
+          <button onClick={() => updateIframeSrc(url, proxyMode)} className="p-1.5 hover:bg-white/5 rounded-xl transition text-slate-400 hover:text-white shrink-0" title="Refresh">
             <RotateCcw className="w-4 h-4" />
           </button>
+
+          <div className="flex items-center gap-1 bg-slate-800 rounded-lg px-1 shrink-0">
+            <button onClick={handleZoomOut} className="px-2 py-1 text-slate-400 hover:text-white font-bold" title="Zoom Out">-</button>
+            <span className="text-[10px] font-mono text-slate-300 w-8 text-center cursor-pointer" onClick={handleZoomReset} title="Reset Zoom">{zoomLevel}%</span>
+            <button onClick={handleZoomIn} className="px-2 py-1 text-slate-400 hover:text-white font-bold" title="Zoom In">+</button>
+          </div>
 
           <form onSubmit={handleNavigate} className="flex-grow flex items-center relative">
             <ShieldCheck className={`absolute left-3 w-4 h-4 ${proxyMode === 'direct' ? 'text-slate-500' : 'text-emerald-400'}`} />
@@ -150,15 +161,17 @@ export const GlobalBrowser: React.FC = () => {
       )}
 
       {/* Browser View */}
-      <div className="flex-grow bg-[#111] relative">
-        <iframe
-          src={iframeSrc}
-          className="absolute inset-0 w-full h-full border-0 bg-white"
-          title="Global Encrypted Browser View"
-          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads allow-presentation"
-          referrerPolicy="no-referrer"
-          allowFullScreen
-        ></iframe>
+      <div className="flex-grow bg-white relative overflow-auto">
+        <div style={{ zoom: zoomLevel / 100 }} className="absolute inset-0 bg-white w-full h-full">
+          <iframe
+            src={iframeSrc}
+            className="w-full h-full border-0"
+            title="Global Encrypted Browser View"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads allow-presentation"
+            referrerPolicy="no-referrer"
+            allowFullScreen
+          ></iframe>
+        </div>
       </div>
     </div>
   );
