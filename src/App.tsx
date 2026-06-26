@@ -1261,7 +1261,13 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [activeBackground, setActiveBackground] = useState<string>("slate-classic");
+  const [activeBackground, setActiveBackground] = useState<string>("default-dark");
+  const [glassEffect, setGlassEffect] = useState<boolean>(() => {
+    return localStorage.getItem("gpkos_glass") === "true" || true;
+  });
+  const [bgMode, setBgMode] = useState<string>(() => {
+    return localStorage.getItem("gpkos_bgmode") || "static"; // static, video, slideshow
+  });
 
   // Database synchronizer
   const [systemState, setSystemState] = useState<SystemState>({
@@ -2690,8 +2696,10 @@ export default function App() {
   // Decide if background classes matched
   const getThemeClass = () => {
     const bgObj = systemState.backgrounds.find((bg) => bg.id === activeBackground) || { color: "bg-slate-900 text-slate-100" };
-    return bgObj.color;
+    return bgObj.type === "image" ? (glassEffect ? "bg-slate-900/40 text-slate-100" : "bg-transparent text-slate-100") : bgObj.color;
   };
+
+  const activeBgObj = systemState.backgrounds.find((bg) => bg.id === activeBackground);
 
   // Remote Control Session Functions
   const startRemoteSession = async () => {
@@ -2765,7 +2773,13 @@ export default function App() {
   };
 
   return (
-    <div id="app-root" className={`min-h-screen font-sans transition-all duration-300 ${getThemeClass()} flex flex-col relative`} onClickCapture={handleGlobalClick}>
+    <div id="app-root" className={`min-h-screen font-sans transition-all duration-300 ${getThemeClass()} flex flex-col relative overflow-x-hidden`} onClickCapture={handleGlobalClick}>
+      {activeBgObj?.type === "image" && (
+        <div 
+           className="fixed inset-0 z-[-1] bg-cover bg-center transition-all duration-700" 
+           style={{ backgroundImage: `url(${activeBgObj.imageUrl})` }}
+        />
+      )}
       {!isSystemVerified && <VerificationScreen onComplete={() => setIsSystemVerified(true)} />}
 
       {/* Target Browser Checks Visual Execution layer */}
@@ -2824,9 +2838,9 @@ export default function App() {
         </div>
       )}
 
-      {/* Main App Navigation Bar */}
-      <header id="main-header" className="border-b border-white/10 shrink-0 sticky top-0 z-40 bg-black/60 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* Main App Navigation Bar (IBM/Intel Full Width Style) */}
+      <header id="main-header" className="shrink-0 sticky top-0 z-40 bg-black/80 backdrop-blur-2xl border-b border-white/5 w-full">
+        <div className="w-full px-6 py-3">
           <div className="flex items-center justify-between gap-4">
           
           {/* Logo Identity */}
@@ -8149,14 +8163,36 @@ export default function App() {
       </main>
       </div>
 
-      {/* Footer copyright */}
-      <footer id="main-footer" className="mt-auto border-t border-white/10 p-6 shrink-0 text-center text-xs text-slate-400 bg-black/40">
-        <p className="mb-1">
-          <strong>FATSHAN POST Operational Desk</strong> • Verification Check constant standard: <strong>FATSHAN POST</strong>
-        </p>
-        <p className="text-zinc-500 text-[10px]">
-          Outlook Decoupling Architecture • Micro Custom Buttons Engine room • Rory Compiler simulator desktop
-        </p>
+      {/* Footer copyright & Aesthetic Controls */}
+      <footer id="main-footer" className="mt-auto border-t border-white/10 shrink-0 text-center text-xs text-slate-400 bg-black/60 backdrop-blur-xl relative z-40">
+        <div className="flex flex-wrap items-center justify-center gap-2 p-2 border-b border-white/5 bg-slate-900/50">
+          <span className="font-bold text-slate-300">Theme:</span>
+          <select 
+             className="bg-black/50 border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:outline-none"
+             value={activeBackground}
+             onChange={(e) => setActiveBackground(e.target.value)}
+          >
+             {systemState.backgrounds.map(bg => (
+               <option key={bg.id} value={bg.id}>{bg.name}</option>
+             ))}
+          </select>
+
+          <span className="font-bold text-slate-300 ml-4">Glass Effect:</span>
+          <button 
+             onClick={() => setGlassEffect(!glassEffect)}
+             className={`px-3 py-1 rounded text-[10px] font-bold transition-colors ${glassEffect ? 'bg-cyan-500 text-black' : 'bg-white/10 text-white'}`}
+          >
+             {glassEffect ? 'ON' : 'OFF'}
+          </button>
+        </div>
+        <div className="p-4">
+          <p className="mb-1">
+            <strong>FATSHAN POST Operational Desk</strong> • Verification Check constant standard: <strong>FATSHAN POST</strong>
+          </p>
+          <p className="text-zinc-500 text-[10px]">
+            Outlook Decoupling Architecture • Micro Custom Buttons Engine room • Rory Compiler simulator desktop
+          </p>
+        </div>
       </footer>
 
       {/* Admin Visual Editor Toggle and Popup */}
