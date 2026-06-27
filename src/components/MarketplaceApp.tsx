@@ -1,12 +1,78 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Tag, Filter, ShoppingCart, DollarSign, Star, Zap, Upload, CreditCard, ArrowRightLeft, CheckCircle2 } from "lucide-react";
 
-export const MarketplaceApp = () => {
+export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"browse" | "sell" | "cart" | "checkout" | "success">("browse");
-  const [cart, setCart] = useState<any[]>([{ id: 'mock-1', title: 'Vintage IBM ThinkPad 760ED', price: 125.50 }]);
+  const [cart, setCart] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState("");
+  const [sellForm, setSellForm] = useState({ title: "", description: "", price: "", condition: "New with tags" });
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      const res = await fetch("/api/marketplace/items");
+      const data = await res.json();
+      if (data.success) {
+        setItems(data.items);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleList = async () => {
+    if (!currentUser) {
+      alert("Please login to list items.");
+      return;
+    }
+    try {
+      await fetch("/api/marketplace/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...sellForm,
+          price: parseFloat(sellForm.price),
+          seller: currentUser.emailUsername,
+          imageUrl: "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=500&q=80",
+          paymentMethods: ["card", "alipay", "wechat"]
+        })
+      });
+      alert("Item listed successfully!");
+      fetchItems();
+      setView("browse");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!currentUser) {
+      alert("Please login to checkout.");
+      return;
+    }
+    try {
+      await fetch("/api/marketplace/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart,
+          buyer: currentUser.emailUsername,
+          total: cart.reduce((a, b) => a + b.price, 0) + 15,
+          paymentMethod: "card"
+        })
+      });
+      setCart([]);
+      setView("success");
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

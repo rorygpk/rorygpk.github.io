@@ -1589,6 +1589,54 @@ app.post("/api/drive/delete", express.json({limit: '2mb'}), (req, res) => {
   res.json({ success: db.cloudFiles.length < initialLength });
 });
 
+// ==================== MARKETPLACE API ====================
+app.get("/api/marketplace/items", (req, res) => {
+  const db = readDB();
+  res.json({ success: true, items: db.marketplaceItems || [] });
+});
+
+app.post("/api/marketplace/items", (req, res) => {
+  const { title, description, price, seller, condition, imageUrl, paymentMethods } = req.body;
+  const db = readDB();
+  if (!db.marketplaceItems) db.marketplaceItems = [];
+  
+  const newItem = {
+    id: Date.now().toString(),
+    title,
+    description,
+    price,
+    seller,
+    condition,
+    imageUrl,
+    paymentMethods: paymentMethods || [],
+    createdAt: new Date().toISOString()
+  };
+  
+  db.marketplaceItems.push(newItem);
+  writeDB(db);
+  res.json({ success: true, item: newItem });
+});
+
+app.post("/api/marketplace/orders", (req, res) => {
+  const { items, buyer, total, paymentMethod } = req.body;
+  const db = readDB();
+  if (!db.marketplaceOrders) db.marketplaceOrders = [];
+  
+  const newOrder = {
+    id: "ORD-" + Date.now().toString(),
+    items,
+    buyer,
+    total,
+    paymentMethod,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+  
+  db.marketplaceOrders.push(newOrder);
+  writeDB(db);
+  res.json({ success: true, order: newOrder });
+});
+
 // ==================== CLOUD PROXY & BYPASS ====================
 app.use(
   "/api/proxy",

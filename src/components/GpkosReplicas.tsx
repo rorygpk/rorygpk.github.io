@@ -38,34 +38,36 @@ export const GmailApp: React.FC<GpkosReplicasProps> = ({
   const filteredMails = mockEmailsList.filter(m => m.folder === gmailFolder);
   const selectedMail = mockEmailsList.find(m => m.id === gmailSelectedId);
 
+  const glassEffect = localStorage.getItem("gpkos_glass") === "true";
+
   return (
-    <div className="flex-grow flex bg-white text-slate-800 overflow-hidden rounded-b-2xl h-full font-sans relative">
+    <div className={`flex-grow flex text-slate-800 overflow-hidden rounded-b-2xl h-full font-sans relative ${glassEffect ? 'bg-white/60 backdrop-blur-2xl' : 'bg-white'}`}>
       {/* Compose pop up inside window */}
       {isGmailComposing && (
-        <div className="absolute bottom-0 right-16 w-[400px] bg-white border border-slate-200 shadow-2xl rounded-t-xl flex flex-col z-[100] animate-fade-in font-sans text-sm">
-          <div className="bg-[#f2f6fc] text-slate-800 px-4 py-2.5 rounded-t-xl flex justify-between items-center font-medium border-b border-slate-200 text-xs">
+        <div className={`absolute bottom-0 right-16 w-[400px] border border-slate-200/50 shadow-2xl rounded-t-2xl flex flex-col z-[100] animate-fade-in font-sans text-sm ${glassEffect ? 'bg-white/80 backdrop-blur-3xl' : 'bg-white'}`}>
+          <div className="bg-slate-100/50 text-slate-800 px-4 py-3 rounded-t-2xl flex justify-between items-center font-bold border-b border-slate-200/50 text-xs">
             <span>New Message</span>
-            <button onClick={() => setIsGmailComposing(false)} className="text-slate-500 hover:text-slate-800 font-bold text-sm">✕</button>
+            <button onClick={() => setIsGmailComposing(false)} className="text-slate-500 hover:text-slate-800 font-bold text-sm bg-slate-200/50 hover:bg-slate-300 w-6 h-6 rounded-full flex items-center justify-center transition">✕</button>
           </div>
-          <div className="flex flex-col bg-white">
+          <div className="flex flex-col">
             <input 
               type="text" 
               placeholder="To" 
               value={gmailComposeTo}
               onChange={e => setGmailComposeTo(e.target.value)}
-              className="w-full bg-white border-b border-slate-100 py-2 px-4 focus:outline-none focus:border-slate-300 text-slate-800 text-sm"
+              className="w-full bg-transparent border-b border-slate-200/50 py-2.5 px-4 focus:outline-none focus:border-blue-300 text-slate-800 text-sm"
             />
             <input 
               type="text" 
               placeholder="Subject" 
               value={gmailComposeSub}
               onChange={e => setGmailComposeSub(e.target.value)}
-              className="w-full bg-white border-b border-slate-100 py-2 px-4 focus:outline-none focus:border-slate-300 text-slate-800 text-sm font-semibold"
+              className="w-full bg-transparent border-b border-slate-200/50 py-2.5 px-4 focus:outline-none focus:border-blue-300 text-slate-800 text-sm font-semibold"
             />
             <textarea 
               value={gmailComposeTxt}
               onChange={e => setGmailComposeTxt(e.target.value)}
-              className="w-full h-48 bg-white focus:outline-none py-3 px-4 resize-none text-slate-800 text-sm"
+              className="w-full h-48 bg-transparent focus:outline-none py-3 px-4 resize-none text-slate-800 text-sm"
             />
             <div className="p-3 border-t border-slate-100 flex items-center bg-white">
               <button 

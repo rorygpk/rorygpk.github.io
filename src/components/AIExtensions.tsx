@@ -358,14 +358,40 @@ export function AdminSubpages({ lang, systemState, setSystemState }: { lang: Lan
                 <input type="text" value={page.externalLink || ''} onChange={e => updatePage(page.id, 'externalLink', e.target.value)} placeholder="https://..." className="w-full bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-cyan-300 focus:border-rose-500 outline-none" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 block">Content (EN)</label>
-                  <textarea value={page.contentEn} onChange={e => updatePage(page.id, 'contentEn', e.target.value)} className="w-full h-32 bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-rose-500 outline-none resize-none"></textarea>
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 block">Simple Content (EN)</label>
+                    <textarea value={page.contentEn} onChange={e => updatePage(page.id, 'contentEn', e.target.value)} className="w-full h-24 bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-rose-500 outline-none resize-none"></textarea>
+                  </div>
+                   <div>
+                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 block">Simple Content (ZH)</label>
+                    <textarea value={page.contentZh} onChange={e => updatePage(page.id, 'contentZh', e.target.value)} className="w-full h-24 bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-rose-500 outline-none resize-none"></textarea>
+                  </div>
                 </div>
-                 <div>
-                  <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1 block">Content (ZH)</label>
-                  <textarea value={page.contentZh} onChange={e => updatePage(page.id, 'contentZh', e.target.value)} className="w-full h-32 bg-slate-900 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-rose-500 outline-none resize-none"></textarea>
+
+                <div className="border border-fuchsia-500/20 rounded-xl bg-slate-900 overflow-hidden">
+                  <div className="bg-slate-950 p-2 flex items-center justify-between border-b border-fuchsia-500/20">
+                     <span className="text-xs font-bold text-fuchsia-400 flex items-center gap-1.5"><Terminal className="w-4 h-4"/> Advanced HTML/SVG Code & Built-in AI Editor</span>
+                     <button 
+                       onClick={() => {
+                         const prompt = window.prompt("Enter AI Instructions for this page (e.g., 'Make a dashboard with SVG animations'):");
+                         if (prompt) {
+                           alert("Simulating in-site AI generating code... applied!");
+                           updatePage(page.id, 'htmlContent', `<div class="p-8 text-center animate-fade-in"><h1 class="text-3xl font-black text-cyan-400 mb-4">${prompt}</h1><p class="text-white">AI successfully built this custom component without external dependencies.</p><svg class="mx-auto mt-8 w-32 h-32 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg></div>`);
+                         }
+                       }}
+                       className="bg-fuchsia-500 hover:bg-fuchsia-400 text-slate-950 px-3 py-1 rounded text-xs font-bold transition flex items-center gap-1"
+                     >
+                       <Sparkles className="w-3 h-3" /> Auto Build (AI)
+                     </button>
+                  </div>
+                  <textarea 
+                    value={page.htmlContent || ''} 
+                    onChange={e => updatePage(page.id, 'htmlContent', e.target.value)} 
+                    placeholder="<div>Custom raw HTML, SVG animations, Tailwind classes...</div>"
+                    className="w-full h-48 bg-slate-900/50 p-4 text-xs font-mono text-cyan-200 focus:outline-none resize-y"
+                  ></textarea>
                 </div>
               </div>
             )}
@@ -474,14 +500,19 @@ export function DynamicSubPage({ page, lang }: { page: SubPage, lang: Language }
   if (page.isExternal) return null; // shouldn't render here
 
   return (
-    <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col gap-6">
+    <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col gap-6 w-full animate-fade-in">
       <div className="flex items-center gap-3 border-b border-white/10 pb-6">
         <h1 className="text-3xl font-black text-white tracking-tight">
           {lang === 'en' ? page.titleEn : page.titleZh}
         </h1>
       </div>
-      <div className="prose prose-invert max-w-none text-slate-300 leading-loose" dangerouslySetInnerHTML={{ __html: lang === 'en' ? page.contentEn : page.contentZh }}>
-      </div>
+      
+      {page.htmlContent ? (
+        <div className="w-full" dangerouslySetInnerHTML={{ __html: page.htmlContent }} />
+      ) : (
+        <div className="prose prose-invert max-w-none text-slate-300 leading-loose" dangerouslySetInnerHTML={{ __html: lang === 'en' ? page.contentEn : page.contentZh }}>
+        </div>
+      )}
     </div>
   );
 }

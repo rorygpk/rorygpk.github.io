@@ -113,6 +113,24 @@ import { GpkosSettings } from "./components/GpkosSettings";
 import { VerificationScreen } from "./components/VerificationScreen";
 import { GmailApp } from "./components/GpkosReplicas";
 
+const PRESET_BACKGROUNDS = [
+  { id: "default", name: "默认深黑或深白(系统)", type: "image", color: "bg-slate-900 text-slate-100", imageUrl: "" },
+  { id: "russian", name: "多彩俄罗斯风格(块)", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" },
+  { id: "mosaic", name: "黑白马赛克图案", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1510215850239-8fc9c7198a28?q=80&w=2000&auto=format&fit=crop" },
+  { id: "monet", name: "莫奈名画", type: "image", color: "bg-slate-900", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Claude_Monet_1899_Nymph%C3%A9as_F60799x.jpg/1200px-Claude_Monet_1899_Nymph%C3%A9as_F60799x.jpg" },
+  { id: "vangogh", name: "梵高名画", type: "image", color: "bg-slate-900", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
+  { id: "forest", name: "森树", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop" },
+  { id: "grassland", name: "草原", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop" },
+  { id: "hunan", name: "湖南楼房", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1550974864-073ccdb02d29?q=80&w=2000&auto=format&fit=crop" },
+  { id: "rivers", name: "江河", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1455582916367-25f75bfc6710?q=80&w=2000&auto=format&fit=crop" },
+  { id: "mingsha", name: "鸣沙山/莫高", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1616428612196-8575084931a2?q=80&w=2000&auto=format&fit=crop" },
+  { id: "uk", name: "英国", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1513635269975-59693e0cd156?q=80&w=2000&auto=format&fit=crop" },
+  { id: "shenzhen", name: "深圳", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1594916891080-60b54fc73e34?q=80&w=2000&auto=format&fit=crop" },
+  { id: "local", name: "用户所在地区名景(动态)", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop" },
+  { id: "map", name: "用户地区地图", type: "image", color: "bg-slate-900", imageUrl: "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000&auto=format&fit=crop" },
+  { id: "custom", name: "自定义 (上传)", type: "custom", color: "bg-slate-900", imageUrl: "" }
+];
+
 const containerStyle = {
   width: '100%',
   height: '100%'
@@ -1261,7 +1279,9 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [activeBackground, setActiveBackground] = useState<string>("default-dark");
+  const [activeBackground, setActiveBackground] = useState<string>(() => {
+    return localStorage.getItem("gpkos_bg") || "default";
+  });
   const [glassEffect, setGlassEffect] = useState<boolean>(() => {
     return localStorage.getItem("gpkos_glass") === "true" || true;
   });
@@ -2695,11 +2715,11 @@ export default function App() {
 
   // Decide if background classes matched
   const getThemeClass = () => {
-    const bgObj = systemState.backgrounds.find((bg) => bg.id === activeBackground) || { color: "bg-slate-900 text-slate-100" };
+    const bgObj = PRESET_BACKGROUNDS.find((bg) => bg.id === activeBackground) || PRESET_BACKGROUNDS[0];
     return bgObj.type === "image" ? (glassEffect ? "bg-slate-900/40 text-slate-100" : "bg-transparent text-slate-100") : bgObj.color;
   };
 
-  const activeBgObj = systemState.backgrounds.find((bg) => bg.id === activeBackground);
+  const activeBgObj = PRESET_BACKGROUNDS.find((bg) => bg.id === activeBackground) || PRESET_BACKGROUNDS[0];
 
   // Remote Control Session Functions
   const startRemoteSession = async () => {
@@ -5074,155 +5094,87 @@ export default function App() {
 
                 {/* macOS styled Title bar / Top Bar with active drop-downs */}
                 <div className="bg-black/60 border-b border-white/5 backdrop-blur-md px-4 py-1.5 flex items-center justify-between z-50 shrink-0 relative">
-                  <div className="flex items-center gap-4 text-xs font-bold text-white">
-                    {/* GPKOS Item */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "gpkos" ? null : "gpkos")}
-                        className={`flex items-center gap-1 opacity-90 hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "gpkos" ? "bg-white/10" : ""}`}
-                      >
-                        <Command className="h-3 w-3 text-cyan-400" /> GPKOS
-                      </button>
-                      {gpkosActiveDropdown === "gpkos" && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
-                        >
-                          <button onClick={() => { setGpkosSystemInfoModalOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
-                            <span>ℹ️ System Diagnostics</span>
-                            <span className="text-[8px] opacity-60">⌘I</span>
-                          </button>
-                          <button onClick={() => { setGpkosLatencyMonitorOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
-                            <span>🚀 Gateway Latency Check</span>
-                            <span className="text-[8px] opacity-60">⌘P</span>
-                          </button>
-                          <button onClick={() => { 
-                            const id = 'win-' + Math.random().toString(36).substr(2, 9);
-                            setOpenedWindows(prev => [...prev, { id, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false }]);
-                            setFocusedWindowId(id);
-                            setGpkosActiveDropdown(null); 
-                          }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
-                            <span>📜 View Compiler Logs</span>
-                            <span className="text-[8px] opacity-60">⌘L</span>
-                          </button>
-                          <button onClick={() => { setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
-                            <span>🔒 Guard SSL Tunnel</span>
-                            <span className="text-[10px]">{gpkosEncryptionActive ? "✅" : "❌"}</span>
-                          </button>
-                          <hr className="border-white/5 my-1" />
-                          <button onClick={() => { localStorage.removeItem("gpkos_active_gmail_account"); window.location.reload(); }} className="w-full text-left px-3 py-1.5 hover:bg-red-500 hover:text-white transition text-red-400">
-                            🚪 Terminate OS Session
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-4 text-xs font-bold text-white w-full">
+                    <button 
+                      onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown ? null : "mega")}
+                      className={`flex items-center gap-1 opacity-90 hover:opacity-100 transition px-2 py-1 rounded ${gpkosActiveDropdown ? "bg-white/10" : ""}`}
+                    >
+                      <Command className="h-3 w-3 text-cyan-400" /> GPKOS MegaMenu
+                    </button>
+                  </div>
 
-                    {/* File Item */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "file" ? null : "file")}
-                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "file" ? "bg-white/10" : "opacity-85"}`}
-                      >
-                        File
-                      </button>
-                      {gpkosActiveDropdown === "file" && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="absolute left-0 mt-1.5 w-48 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
-                        >
-                          <button onClick={() => { alert("Created New GPKOS Node Sandbox workspace successfully. System ready for deployment."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            📁 Create New Node File
-                          </button>
-                          <button onClick={() => { setGpkosSecureTunnelState(!gpkosSecureTunnelState); setGpkosActiveDropdown(null); alert(`SSL Tunnel status updated: ${!gpkosSecureTunnelState ? 'CONNECTED' : 'DISCONNECTED'}`); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center justify-between">
-                            <span>📡 Secure Tunnel Link</span>
-                            <span>{gpkosSecureTunnelState ? "Online" : "Off"}</span>
-                          </button>
-                          <button onClick={() => { 
-                            const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026\nSystem Node: rorygpkos virtual Core\nStatus: Secure tunnel established\nPings: 14ms\nEncryption: 4096-bit AES Handshake"], {type: "text/plain"});
-                            const link = document.createElement("a");
-                            link.href = URL.createObjectURL(blob);
-                            link.download = "gpkos_defense_report.txt";
-                            link.click();
-                            alert("System security log exported successfully.");
-                            setGpkosActiveDropdown(null);
-                          }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            💾 Backup System Logs
-                          </button>
+                  {/* Mega Menu Panel */}
+                  {gpkosActiveDropdown && (
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); }}
+                      className="absolute top-full left-0 w-full h-[50vh] bg-slate-900/95 border-b border-white/10 shadow-2xl backdrop-blur-3xl p-8 z-[100] animate-fade-in text-left overflow-y-auto cursor-default"
+                    >
+                      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-white">
+                        <div>
+                          <h3 className="text-cyan-400 font-bold mb-4 uppercase tracking-widest text-[10px]">System Settings</h3>
+                          <ul className="space-y-3 text-sm">
+                            <li><button onClick={() => { setGpkosSystemInfoModalOpen(true); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition">ℹ️ System Diagnostics</button></li>
+                            <li><button onClick={() => { setGpkosLatencyMonitorOpen(true); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition">🚀 Gateway Latency Check</button></li>
+                            <li>
+                              <button onClick={() => { 
+                                const id = 'win-' + Math.random().toString(36).substr(2, 9);
+                                setOpenedWindows(prev => [...prev, { id, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false }]);
+                                setFocusedWindowId(id);
+                                setGpkosActiveDropdown(null); 
+                              }} className="hover:text-cyan-400 transition">📜 View Compiler Logs</button>
+                            </li>
+                            <li>
+                              <button onClick={() => { setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition flex items-center gap-2">
+                                <span>🔒 Guard SSL Tunnel</span>
+                                <span className="text-[10px] bg-white/10 px-1 rounded">{gpkosEncryptionActive ? "ON" : "OFF"}</span>
+                              </button>
+                            </li>
+                          </ul>
                         </div>
-                      )}
+                        <div>
+                          <h3 className="text-cyan-400 font-bold mb-4 uppercase tracking-widest text-[10px]">File & Operations</h3>
+                          <ul className="space-y-3 text-sm">
+                            <li><button onClick={() => { alert("Created New GPKOS Node Sandbox workspace successfully."); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition">📁 Create New Node File</button></li>
+                            <li>
+                              <button onClick={() => { setGpkosSecureTunnelState(!gpkosSecureTunnelState); setGpkosActiveDropdown(null); alert(`SSL Tunnel status updated`); }} className="hover:text-cyan-400 transition">
+                                📡 Secure Tunnel Link
+                              </button>
+                            </li>
+                            <li>
+                              <button onClick={() => { 
+                                const blob = new Blob(["GPKOS SSL Gate Dispatch Security Log - 2026"], {type: "text/plain"});
+                                const link = document.createElement("a");
+                                link.href = URL.createObjectURL(blob);
+                                link.download = "gpkos_defense_report.txt";
+                                link.click();
+                                alert("System security log exported successfully.");
+                                setGpkosActiveDropdown(null);
+                              }} className="hover:text-cyan-400 transition">💾 Backup System Logs</button>
+                            </li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h3 className="text-cyan-400 font-bold mb-4 uppercase tracking-widest text-[10px]">Network & Edit</h3>
+                          <ul className="space-y-3 text-sm">
+                            <li><button onClick={() => { setIsEditingSig(true); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition">✏️ Edit Signature Payload</button></li>
+                            <li><button onClick={() => { alert("DNS Flush Completed."); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition">🧹 Flush DNS Nodes</button></li>
+                            <li><button onClick={() => { alert("Regenerated SSH Keypair."); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition">🔑 Renew SSH Keypair</button></li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h3 className="text-rose-400 font-bold mb-4 uppercase tracking-widest text-[10px]">Power Options</h3>
+                          <ul className="space-y-3 text-sm">
+                            <li>
+                              <button onClick={() => { localStorage.removeItem("gpkos_active_gmail_account"); window.location.reload(); }} className="text-rose-400 hover:text-rose-300 transition">
+                                🚪 Terminate OS Session
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
+                  )}
 
-                    {/* Edit Item */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "edit" ? null : "edit")}
-                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "edit" ? "bg-white/10" : "opacity-85"}`}
-                      >
-                        Edit
-                      </button>
-                      {gpkosActiveDropdown === "edit" && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="absolute left-0 mt-1.5 w-48 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
-                        >
-                          <button onClick={() => { setIsEditingSig(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            ✏️ Edit Signature Payload
-                          </button>
-                          <button onClick={() => { alert("DNS Flush Completed. Flush value: 4 entries."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            🧹 Flush DNS Nodes
-                          </button>
-                          <button onClick={() => { alert("Regenerated secure 4096-bit SSH Tunnel key pair."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            🔑 Renew SSH Keypair
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* View Item */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "view" ? null : "view")}
-                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "view" ? "bg-white/10" : "opacity-85"}`}
-                      >
-                        View
-                      </button>
-                      {gpkosActiveDropdown === "view" && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
-                        >
-                          <button onClick={() => { launchApp('settings', 'System Preferences'); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1 hover:bg-cyan-500 hover:text-slate-950 transition pl-6 flex items-center gap-1.5">
-                            ⚙️ Open Display Settings
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Kernel Item */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setGpkosActiveDropdown(gpkosActiveDropdown === "kernel" ? null : "kernel")}
-                        className={`hover:opacity-100 transition px-1.5 py-0.5 rounded ${gpkosActiveDropdown === "kernel" ? "bg-white/10" : "opacity-85"}`}
-                      >
-                        Kernel
-                      </button>
-                      {gpkosActiveDropdown === "kernel" && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="absolute left-0 mt-1.5 w-52 bg-slate-900/95 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-[11px] text-slate-200 z-[100] animate-fade-in text-left"
-                        >
-                          <button onClick={() => { setGpkosDiagnosticsModalOpen(true); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            🧪 Gateway Kernel Rebuild
-                          </button>
-                          <button onClick={() => { alert("SHA256 signature Verified: 8b04a09c... Root authority checks out OK."); setGpkosActiveDropdown(null); }} className="w-full text-left px-3 py-1.5 hover:bg-cyan-500 hover:text-slate-950 transition">
-                            🛡️ SSL Integrity Verify
-                          </button>
-                          <button onClick={() => { alert("Gateway Dev Container reboot sequence initialized."); window.location.reload(); }} className="w-full text-left px-3 py-1.5 hover:bg-red-500 hover:text-white transition">
-                            ⚙️ Reboot Dev Container
-                          </button>
-                        </div>
-                      )}
-                    </div>
                   </div>
 
                   {/* Minimized Window Previews - macOS Style Top Bar Display */}
@@ -8148,6 +8100,19 @@ export default function App() {
         {currentHash === "#tool-code" && <ToolCode lang={lang} />}
         {currentHash === "#tool-geminiai" && <ToolGeminiAI lang={lang} currentUser={currentUser} systemState={systemState} />}
         
+        {currentHash.startsWith("#/user/rorygpk/") && (
+          <div className="h-[calc(100vh-140px)] min-h-[500px]">
+            <UserProfileApp 
+              currentUser={
+                systemState.users.find((u: any) => u.emailUsername === currentHash.split("#/user/rorygpk/")[1]) 
+                || (currentUser?.emailUsername === currentHash.split("#/user/rorygpk/")[1] ? currentUser : null)
+              } 
+              onUpdatePassword={() => {}} 
+              onUploadAvatar={() => {}} 
+            />
+          </div>
+        )}
+
         {currentHash === "#admin-subpages" && currentUser?.role === 'admin' && (
           <>
             <AdminDatabaseEditor lang={lang} />
@@ -8183,16 +8148,23 @@ export default function App() {
           <select 
              className="bg-black/50 border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:outline-none"
              value={activeBackground}
-             onChange={(e) => setActiveBackground(e.target.value)}
+             onChange={(e) => {
+               setActiveBackground(e.target.value);
+               localStorage.setItem("gpkos_bg", e.target.value);
+             }}
           >
-             {systemState.backgrounds.map(bg => (
+             {PRESET_BACKGROUNDS.map(bg => (
                <option key={bg.id} value={bg.id}>{bg.name}</option>
              ))}
           </select>
 
           <span className="font-bold text-slate-300 ml-4">Glass Effect:</span>
           <button 
-             onClick={() => setGlassEffect(!glassEffect)}
+             onClick={() => {
+               const val = !glassEffect;
+               setGlassEffect(val);
+               localStorage.setItem("gpkos_glass", String(val));
+             }}
              className={`px-3 py-1 rounded text-[10px] font-bold transition-colors ${glassEffect ? 'bg-cyan-500 text-black' : 'bg-white/10 text-white'}`}
           >
              {glassEffect ? 'ON' : 'OFF'}
