@@ -726,7 +726,7 @@ app.post("/api/rory-gpkos/compile", (req, res) => {
     }
     if (cmdStr === "whoami") {
       return res.json({
-        output: "gpkos_sandbox_user_marvis_zhou@outlook.com",
+        output: "gpkos_sandbox_user_marvis_zhou2014@outlook.com",
       });
     }
     if (cmdStr === "help") {
@@ -851,7 +851,7 @@ app.post("/api/feedback/submit", (req, res) => {
     senderUsername: "guest_feedback",
     senderDomain: db.activeDomain,
     senderName: "rorygpkos virtual Guest Desk",
-    receiverUsername: "marvis_zhou",
+    receiverUsername: "marvis_zhou2014",
     receiverDomain: "outlook.com",
     subject: `⚠️ Guest feedback submission from: ${senderEmail}`,
     content: `<h3>External Desk Feed-In</h3><p>A visitor has filed a feedback ticket from index client portal:</p><blockquote style="background: #f0f4f8; padding: 12px; margin: 15px; border-left: 4px solid #00bcff;">${content}</blockquote><p>Sender email coordinate: <strong>${senderEmail}</strong></p><p>Please review on priority.</p>`,
@@ -972,7 +972,7 @@ app.post("/api/orders/create", (req, res) => {
     status: "paid",
     shippingAddress: shippingAddress || "Default customer address",
     shippingLogistics: "Awaiting Logistics Allocation",
-    assignedTo: "Marvis Zhou",
+    assignedTo: "周锦淇",
     timestamp: new Date().toISOString(),
   };
 
@@ -985,7 +985,7 @@ app.post("/api/orders/create", (req, res) => {
     senderUsername: "billing_agent",
     senderDomain: db.activeDomain,
     senderName: "rorygpkos virtual Store billing",
-    receiverUsername: "marvis_zhou",
+    receiverUsername: "marvis_zhou2014",
     receiverDomain: "outlook.com",
     subject: `🛒 New store sales completed: Order #${newOrder.id}`,
     content: `<h3>Store Billing Notice</h3><p>An order has been registered under account: <strong>${userEmail}</strong></p><ul><li>Total payment: <strong>$${totalAmount}</strong></li><li>Delivery coordinates: <strong>${shippingAddress}</strong></li></ul><p>SF-Express routing trigger remains awaiting configuration by administration desk.</p>`,

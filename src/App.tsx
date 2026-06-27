@@ -2872,7 +2872,7 @@ export default function App() {
               <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 {t("rorygpkos virtual")} <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
               </h1>
-              <p className="text-xs text-slate-400 hidden sm:block">{t("Owner Terminal Desk • Administrator: marvis_zhou")}</p>
+              <p className="text-xs text-slate-400 hidden sm:block">{t("Owner Terminal Desk • Administrator: 周锦淇 (marvis_zhou2014)")}</p>
             </div>
           </div>
 
@@ -5559,11 +5559,11 @@ export default function App() {
                             </div>
                             <h3 className="text-xl font-black text-white tracking-tight mb-2">🛡️ 谷歌极速安全中转空间已被锁定</h3>
                             <p className="text-sm text-slate-400 max-w-lg mb-6 leading-relaxed">
-                              本部分属于采用专用海外高速加密中转节点的特许安全沙箱，全自动防御并保护国内访问请求，保证隐私与业务绝对合规。默认情况下，仅顶尖系统管理员 <span className="font-mono text-cyan-400">@marvis_zhou2014</span> 拥有直接通道开启权。
+                              本部分属于采用专用海外高速加密中转节点的特许安全沙箱，全自动防御并保护国内访问请求，保证隐私与业务绝对合规。默认情况下，仅顶尖系统管理员 <span className="font-mono text-cyan-400">@周锦淇 (marvis_zhou2014)</span> 拥有直接通道开启权。
                             </p>
                             <div className="bg-white/5 border border-white/5 rounded-2xl p-4 max-w-md text-left text-xs text-slate-300 mb-6 font-mono leading-relaxed space-y-1.5">
                               <div className="flex items-center gap-2 text-cyan-400 font-bold"><Settings className="w-4 h-4"/> 激活方式指引:</div>
-                              <p>1. 请阁下联系顶尖管理员 <strong className="text-white">Marvis Zhou</strong> 登录系统。</p>
+                              <p>1. 请阁下联系顶尖管理员 <strong className="text-white">周锦淇</strong> 登录系统。</p>
                               <p>2. 前往控制面板的【用户列表管理栏】下，将您当前注册账户的一键「GFW Tunnel Auth」通道授权状态置为“已授权”。</p>
                             </div>
                             <button onClick={() => setGpkosActiveApp('desktop')} className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-bold rounded-xl transition">
@@ -7239,7 +7239,7 @@ export default function App() {
                                  <p className="text-slate-400 text-xs text-left bg-slate-900/80 p-5 rounded-2xl mb-8 leading-relaxed font-mono border border-white/5 relative z-10 shadow-inner">
                                     Mobile Tunnel Auth required.<br/><br/>
                                     <span className="text-rose-300">Err_Code: 0xPERMISSION_DENIED</span><br/>
-                                    Please contact administrator @marvis_zhou2014 to grant access.
+                                    Please contact administrator @周锦淇 (marvis_zhou2014) to grant access.
                                  </p>
                             </div>
                         ) : (
