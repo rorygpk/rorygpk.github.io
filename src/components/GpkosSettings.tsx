@@ -243,11 +243,11 @@ export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode
                    <Monitor className="w-10 h-10 text-white" />
                 </div>
              </div>
-             <h2 className="text-2xl font-black text-white italic tracking-tighter uppercase mb-2">GPKOS Beta</h2>
-             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-8">Version 3.12.0 • Build Fatshan-Post</p>
+             <h2 className="text-2xl font-black text-white italic tracking-tighter mb-2">RoryGpkOS VirTual</h2>
+             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-8">Version 4.0.0 • RoryGpk Cloud OS</p>
              <div className="bg-white/5 px-6 py-3 rounded-full flex items-center gap-3 border border-white/10">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_emerald]" />
-                <span className="text-[10px] font-mono text-slate-300 font-bold">SYSTEM_KERNEL_STATUS: OPTIMAL</span>
+                <span className="text-[10px] font-mono text-slate-300 font-bold">RORYGPKOS_VIRTUAL_KERNEL: OPTIMAL</span>
              </div>
           </div>
         )}
