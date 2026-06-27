@@ -5175,8 +5175,6 @@ export default function App() {
                     </div>
                   )}
 
-                  </div>
-
                   {/* Minimized Window Previews - macOS Style Top Bar Display */}
                   <div className="flex-grow flex items-center justify-center pointer-events-none">
                      <div className="pointer-events-auto flex items-center gap-1.5 px-2">
