@@ -1,6 +1,6 @@
 {
-  "name": "Fatshan Post Global Gateway",
-  "description": "Secure domestic bridge for global services, featuring integrated mapping, workspace synchronization, and verified Hugging Face Space certificate issuance for encrypted external node access.",
+  "name": "RoryGpk's website",
+  "description": "RoryGpk's website - Full-stack cloud OS platform with Marketplace, VPN browser tunneling, video streaming, cloud drive integration, remote collaboration, and dynamic UI administration. About RoryGpkOS VirTual.",
   "requestFramePermissions": [
     "camera",
     "microphone",
