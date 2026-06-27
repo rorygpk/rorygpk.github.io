@@ -2028,14 +2028,95 @@ export default function App() {
   
   // GPKOS macOS top-bar menu options & custom desktop settings are state-backed for high-fidelity native feeling
   const [gpkosActiveDropdown, setGpkosActiveDropdown] = useState<"gpkos" | "file" | "edit" | "view" | "kernel" | null>(null);
-  const [gpkosWallpaper, setGpkosWallpaper] = useState<string>("dark-slate");
+  const [gpkosWallpaper, setGpkosWallpaper] = useState<string>(() => {
+    return localStorage.getItem("gpkos_wallpaper") || "dark-slate";
+  });
   const [customWallpaperBase64, setCustomWallpaperBase64] = useState<string | null>(localStorage.getItem("gpkos_custom_wallpaper"));
+
+  // --- Secure VPN States ---
+  const [vpnConnected, setVpnConnected] = useState(false);
+  const [vpnNode, setVpnNode] = useState<"hk" | "jp" | "sg" | "us">("jp");
+  const [vpnConnecting, setVpnConnecting] = useState(false);
+  const [vpnBytesTransferred, setVpnBytesTransferred] = useState(1420580);
+  const [vpnSpeed, setVpnSpeed] = useState(0);
+  const [vpnIP, setVpnIP] = useState("103.45.210.88");
+
+  // --- GPKOS Tube / Video Player States ---
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState("https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-city-street-with-neon-lights-and-rain-40141-large.mp4");
+  const [videoTitleSelected, setVideoTitleSelected] = useState("Cyberpunk Neon City (Sci-Fi Loop)");
+  const [videoIsPlaying, setVideoIsPlaying] = useState(false);
+  const [videoPlayerVolume, setVideoPlayerVolume] = useState(50);
+  const [videoPlayerSpeed, setVideoPlayerSpeed] = useState(1.0);
+  const [videoPlayerQuality, setVideoPlayerQuality] = useState("1080p");
+  const [videoSubtitlesActive, setVideoSubtitlesActive] = useState(true);
+  const [currentVideoSubtitle, setCurrentVideoSubtitle] = useState("GPKOS System Architecture: Decrypting active database indexes...");
+  const [videoComments, setVideoComments] = useState<{user: string, text: string, date: string}[]>([
+    { user: "周锦淇 (Admin)", text: "这个飞航坐标与 Docker 沙箱容器编译演示视频讲得太清晰了！", date: "刚刚" },
+    { user: "Rory_Operator", text: "多速流转播放控制极其流畅，终于实现全功能视频流服务了。", date: "5分钟前" }
+  ]);
+  const [videoCommentInput, setVideoCommentInput] = useState("");
+
+  // --- VPS Host Cluster States (Remote Assist) ---
+  const [remoteNodes, setRemoteNodes] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("gpkos_remote_nodes");
+      return saved ? JSON.parse(saved) : [
+        { id: "node-hk", name: "GPKOS-Node-HK-01", status: "online", os: "CentOS Stream 9", ip: "103.45.210.88", region: "Hong Kong 🇭🇰", spec: "2 vCPU / 4GB RAM", rtt: "12ms" },
+        { id: "node-tokyo", name: "GPKOS-Node-Tokyo-02", status: "online", os: "Ubuntu Server 24.04 LTS", ip: "210.140.8.215", region: "Tokyo 🇯🇵", spec: "4 vCPU / 8GB RAM", rtt: "24ms" },
+        { id: "node-us", name: "GPKOS-Node-US-West-03", status: "online", os: "Debian 12 Buster", ip: "45.79.121.34", region: "Silicon Valley 🇺🇸", spec: "8 vCPU / 16GB RAM", rtt: "115ms" }
+      ];
+    } catch {
+      return [];
+    }
+  });
+
+  const [selectedNodeId, setSelectedNodeId] = useState<string>("loopback");
+  const [isVpsConnecting, setIsVpsConnecting] = useState(false);
+  const [vpsWizardOpen, setVpsWizardOpen] = useState(false);
+  const [vpsInputProxyActive, setVpsInputProxyActive] = useState(false);
+  const [remoteTerminalCommand, setRemoteTerminalCommand] = useState("");
+  const [remoteTerminalHistory, setRemoteTerminalHistory] = useState<string[]>([
+    "GPKOS Secure Node SSH Tunnel established successfully.",
+    "OS: Linux CentOS Stream 9 (Kernel 6.1.20-rorygpkos-virtual)",
+    "Authorized User: @周锦淇 (marvis_zhou2014)",
+    "Type 'help' to see list of valid interactive commands."
+  ]);
+
+  // VPS creation wizard form state
+  const [vpsForm, setVpsForm] = useState({
+    name: "GPKOS-Custom-01",
+    region: "Hong Kong 🇭🇰",
+    os: "Ubuntu Server 24.04 LTS",
+    spec: "2 vCPU / 4GB RAM"
+  });
+  const [isVpsDeploying, setIsVpsDeploying] = useState(false);
+  const [vpsDeployLogs, setVpsDeployLogs] = useState<string[]>([]);
   const [gpkosEncryptionActive, setGpkosEncryptionActive] = useState(true);
   const [gpkosLatencyMonitorOpen, setGpkosLatencyMonitorOpen] = useState(false);
   const [gpkosDiagnosticsModalOpen, setGpkosDiagnosticsModalOpen] = useState(false);
   const [gpkosSystemInfoModalOpen, setGpkosSystemInfoModalOpen] = useState(false);
   const [gpkosSecureTunnelState, setGpkosSecureTunnelState] = useState(true);
   const [gpkosLatencyHistory, setGpkosLatencyHistory] = useState<number[]>([14, 15, 12, 16, 13, 14, 15]);
+
+  // Save wallpaper preference
+  useEffect(() => {
+    localStorage.setItem("gpkos_wallpaper", gpkosWallpaper);
+  }, [gpkosWallpaper]);
+
+  // Simulate live VPN activity (traffic speed, bytes transferred)
+  useEffect(() => {
+    let interval: any;
+    if (vpnConnected) {
+      interval = setInterval(() => {
+        const speed = parseFloat((Math.random() * 8 + 2).toFixed(1)); // 2 - 10 MB/s
+        setVpnSpeed(speed);
+        setVpnBytesTransferred(prev => prev + Math.floor(speed * 1024 * 1024));
+      }, 1000);
+    } else {
+      setVpnSpeed(0);
+    }
+    return () => clearInterval(interval);
+  }, [vpnConnected]);
 
   // Gmail Advanced replying, forwarding & attachment capabilities
   const [gmailReplyText, setGmailReplyText] = useState("");
@@ -5066,6 +5147,7 @@ export default function App() {
                 style={{
                   backgroundColor: gpkosWallpaper === 'light' ? '#f8fafc' : gpkosWallpaper === 'dark-slate' ? '#0f172a' : '#020617',
                   backgroundImage: 
+                    gpkosWallpaper.startsWith('http://') || gpkosWallpaper.startsWith('https://') || gpkosWallpaper.startsWith('data:') ? `url('${gpkosWallpaper}')` :
                     gpkosWallpaper === 'custom' && customWallpaperBase64 ? `url(${customWallpaperBase64})` :
                     gpkosWallpaper === 'russian' ? `url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1920&q=80')` :
                     gpkosWallpaper === 'monet' ? `url('https://images.unsplash.com/photo-1576769267415-9642010aa962?auto=format&fit=crop&w=1920&q=80')` :
@@ -5301,47 +5383,453 @@ export default function App() {
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
                     >
-                      <div className="flex flex-col h-full bg-slate-900">
-                         <div className="flex-grow flex overflow-hidden">
-                            <div className="flex-grow bg-slate-950 relative flex flex-col items-center justify-center border-r border-white/5 overflow-hidden">
-                              {!remoteSessionActive && (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/50 z-10 p-6 text-center">
-                                  <MonitorUp className="w-12 h-12 text-emerald-400 mb-4 animate-pulse opacity-50" />
-                                  <h3 className="text-white font-bold text-lg mb-2 italic tracking-tighter uppercase">Establish协作会话</h3>
-                                  <button onClick={startRemoteSession} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold transition flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/50 uppercase tracking-widest">
-                                    <Share className="w-4 h-4" /> 开启屏幕投屏
-                                  </button>
-                                </div>
-                              )}
-                              <div className="absolute inset-0 flex flex-col pointer-events-none">
-                                <video ref={remoteVideoRef} autoPlay playsInline muted className={`max-w-full max-h-full object-contain ${remoteSessionActive ? 'opacity-100' : 'opacity-0'} transition-opacity outline-none border-none`} />
-                                {remoteSessionActive && (
-                                   <div className="absolute top-2 left-2 right-2 flex justify-between px-2 cursor-pointer pointer-events-auto">
-                                      <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg" onClick={() => { setRemoteSessionActive(false); }}>End Remote Session</div>
-                                      <div className="bg-blue-600/80 text-white px-2 py-1 rounded text-xs font-bold shadow-lg" onClick={() => alert("Mouse and Keyboard remote control proxy is now active.")}>Enable Input Control</div>
-                                   </div>
-                                )}
-                              </div>
+                      <div className="flex h-full bg-slate-950 text-slate-100 overflow-hidden font-sans select-none">
+                         {/* Left Sidebar: Node Selection list */}
+                         <div className="w-64 border-r border-white/5 bg-slate-900/40 flex flex-col shrink-0 overflow-hidden">
+                            <div className="p-3 bg-slate-900/60 border-b border-white/5 flex items-center justify-between shrink-0">
+                               <div className="flex items-center gap-2">
+                                  <MonitorUp className="w-4 h-4 text-emerald-400 animate-pulse" />
+                                  <span className="text-white text-[10px] font-black uppercase tracking-wider">Cluster VM List</span>
+                               </div>
+                               <span className="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono font-bold">ONLINE</span>
                             </div>
-                            <div className="w-64 bg-slate-900 flex flex-col shrink-0 overflow-hidden">
-                               <div className="p-3 border-b border-white/5 flex items-center gap-2 shrink-0 bg-slate-800">
-                                  <MessageSquare className="w-4 h-4 text-cyan-400" />
-                                  <span className="text-white text-[10px] font-black uppercase tracking-widest">Chat Portal</span>
-                               </div>
-                               <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-900/40">
-                                 {remoteChatMessages.map((m, idx) => (
-                                   <div key={idx} className="text-left animate-in slide-in-from-left-2 duration-300">
-                                      <div className={`inline-block max-w-[90%] bg-slate-800 border border-white/5 rounded-2xl px-3 py-2 text-[10px] text-slate-200 shadow-xl`}>
-                                         <div className="text-[8px] text-cyan-400 mb-1 font-black uppercase tracking-tighter">{m.sender}</div>
-                                         <div className="leading-relaxed font-bold italic">{m.text}</div>
+
+                            {/* Node list cards */}
+                            <div className="flex-grow overflow-y-auto p-2.5 flex flex-col gap-2 font-sans">
+                               {/* 1. Local loopback Screen share option */}
+                               <button 
+                                 onClick={() => {
+                                   setSelectedNodeId("loopback");
+                                   setVpsWizardOpen(false);
+                                   setRemoteSessionActive(false);
+                                 }}
+                                 className={`w-full p-2.5 rounded-xl border text-left transition-all flex flex-col ${selectedNodeId === 'loopback' && !vpsWizardOpen ? 'bg-emerald-600/20 border-emerald-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                               >
+                                 <div className="flex items-center gap-2 mb-1.5">
+                                    <Monitor className={`w-4 h-4 ${selectedNodeId === 'loopback' ? 'text-emerald-400' : 'text-slate-400'}`} />
+                                    <span className="font-bold text-[11px] text-white">Local Desktop Share</span>
+                                 </div>
+                                 <span className="text-[9px] text-slate-400 leading-snug">Connect local PC screen capture proxy</span>
+                               </button>
+
+                               <div className="w-full h-px bg-white/5 my-1" />
+                               <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest px-1 font-sans">Virtual Control Machines</span>
+
+                               {/* Dynamic custom nodes list */}
+                               {remoteNodes.map(node => (
+                                 <button 
+                                   key={node.id}
+                                   onClick={() => {
+                                     setSelectedNodeId(node.id);
+                                     setVpsWizardOpen(false);
+                                     setRemoteSessionActive(false);
+                                   }}
+                                   className={`w-full p-2.5 rounded-xl border text-left transition-all flex flex-col ${selectedNodeId === node.id && !vpsWizardOpen ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                 >
+                                   <div className="flex items-center justify-between mb-1 w-full">
+                                      <div className="flex items-center gap-1.5 font-sans">
+                                         <span className="text-xs">${node.region.split(' ')[node.region.split(' ').length - 1]}</span>
+                                         <span className="font-bold text-[11px] text-white truncate max-w-[120px]">${node.name}</span>
                                       </div>
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                    </div>
-                                 ))}
-                               </div>
+                                   <p className="text-[9px] text-slate-400 font-mono">IP: ${node.ip}</p>
+                                   <p className="text-[9px] text-slate-400">${node.os} • ${node.spec}</p>
+                                   <div className="mt-1 flex items-center justify-between w-full font-sans">
+                                      <span className="text-[8px] bg-slate-950 px-1 py-0.5 rounded font-mono text-slate-400">SSH Tunnel</span>
+                                      <span className="text-[8px] font-mono text-emerald-400 font-bold">Ping: ${node.rtt}</span>
+                                   </div>
+                                 </button>
+                               ))}
+                            </div>
+
+                            {/* Create New VPS Machine CTA */}
+                            <div className="p-2.5 border-t border-white/5 shrink-0">
+                               <button 
+                                 onClick={() => {
+                                   setVpsWizardOpen(true);
+                                   setIsVpsDeploying(false);
+                                   setVpsDeployLogs([]);
+                                 }}
+                                 className="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 uppercase tracking-wide shadow-lg shadow-blue-900/40"
+                               >
+                                 <Plus className="w-3.5 h-3.5" /> Deploy New Host
+                               </button>
                             </div>
                          </div>
-                      </div>
-                    </DraggableWindow>
+
+                         {/* Right Panel: Content Area */}
+                         <div className="flex-1 bg-slate-950 flex flex-col overflow-hidden relative font-sans">
+                            {vpsWizardOpen ? (
+                              /* Case 1: Deploy New VPS Wizard */
+                              <div className="flex-1 p-5 overflow-y-auto flex flex-col justify-between">
+                                 <div>
+                                    <h3 className="font-bold text-sm text-white tracking-wide mb-1 uppercase">Deploy Automated Virtual Host Machine</h3>
+                                    <p className="text-[10px] text-slate-400 mb-4">Provision a full-fidelity sandbox container in seconds with a high-bandwidth terminal connection.</p>
+
+                                    <div className="grid grid-cols-2 gap-3 mb-4">
+                                       <div>
+                                          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Host Machine Name</label>
+                                          <input 
+                                            type="text"
+                                            value={vpsForm.name}
+                                            onChange={(e) => setVpsForm(prev => ({ ...prev, name: e.target.value }))}
+                                            disabled={isVpsDeploying}
+                                            className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
+                                          />
+                                       </div>
+                                       <div>
+                                          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Cluster Region</label>
+                                          <select 
+                                            value={vpsForm.region}
+                                            onChange={(e) => setVpsForm(prev => ({ ...prev, region: e.target.value }))}
+                                            disabled={isVpsDeploying}
+                                            className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono cursor-pointer outline-none"
+                                          >
+                                            <option value="Hong Kong 🇭🇰">Hong Kong 🇭🇰 (12ms)</option>
+                                            <option value="Tokyo 🇯🇵">Tokyo 🇯🇵 (24ms)</option>
+                                            <option value="Singapore 🇸🇬">Singapore 🇸🇬 (29ms)</option>
+                                            <option value="Silicon Valley 🇺🇸">Silicon Valley 🇺🇸 (115ms)</option>
+                                            <option value="London 🇬🇧">London 🇬🇧 (165ms)</option>
+                                          </select>
+                                       </div>
+                                       <div>
+                                          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Operating System</label>
+                                          <select 
+                                            value={vpsForm.os}
+                                            onChange={(e) => setVpsForm(prev => ({ ...prev, os: e.target.value }))}
+                                            disabled={isVpsDeploying}
+                                            className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono cursor-pointer outline-none"
+                                          >
+                                            <option value="CentOS Stream 9">CentOS Stream 9 (Default)</option>
+                                            <option value="Ubuntu Server 24.04 LTS">Ubuntu Server 24.04 LTS</option>
+                                            <option value="Debian 12 Buster">Debian 12 Buster</option>
+                                            <option value="Windows Server 2022">Windows Server 2022</option>
+                                          </select>
+                                       </div>
+                                       <div>
+                                          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Hardware Specification</label>
+                                          <select 
+                                            value={vpsForm.spec}
+                                            onChange={(e) => setVpsForm(prev => ({ ...prev, spec: e.target.value }))}
+                                            disabled={isVpsDeploying}
+                                            className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono cursor-pointer outline-none"
+                                          >
+                                            <option value="2 vCPU / 4GB RAM">Lite Node (2 vCPU / 4GB RAM)</option>
+                                            <option value="4 vCPU / 8GB RAM">Pro Node (4 vCPU / 8GB RAM)</option>
+                                            <option value="16 vCPU / 32GB RAM">Ultra Instance (16 vCPU / 32GB RAM)</option>
+                                          </select>
+                                       </div>
+                                    </div>
+
+                                    {/* Deployment Logs Box */}
+                                    {vpsDeployLogs.length > 0 && (
+                                       <div className="bg-black/80 border border-white/5 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-slate-300 leading-normal flex flex-col gap-1.5">
+                                          {vpsDeployLogs.map((log, index) => (
+                                             <div key={index} className="animate-in fade-in slide-in-from-left-2 duration-150">
+                                                <span className="text-emerald-500 font-bold">&gt;&gt;</span> {log}
+                                             </div>
+                                          ))}
+                                          {isVpsDeploying && (
+                                             <div className="flex items-center gap-1.5 mt-1 font-sans">
+                                                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping" />
+                                                <span className="text-slate-500 animate-pulse">Allocating cluster blocks...</span>
+                                             </div>
+                                          )}
+                                       </div>
+                                    )}
+                                 </div>
+
+                                 <div className="flex gap-2 justify-end mt-4 shrink-0 font-sans">
+                                    <button 
+                                      type="button"
+                                      onClick={() => setVpsWizardOpen(false)}
+                                      disabled={isVpsDeploying}
+                                      className="bg-slate-850 hover:bg-slate-800 border border-white/5 text-slate-300 px-4 py-1.5 rounded-lg text-xs font-bold uppercase"
+                                    >
+                                       Cancel
+                                    </button>
+                                    <button 
+                                      type="button"
+                                      disabled={isVpsDeploying}
+                                      onClick={() => {
+                                         setIsVpsDeploying(true);
+                                         setVpsDeployLogs([`[DIAL] Establishing socket dial to cluster controller...`]);
+                                         
+                                         // Step 1
+                                         setTimeout(() => {
+                                            setVpsDeployLogs(prev => [...prev, `[ALLOC] Container assigned. Sandbox ID: gpkos-${Math.floor(Math.random()*9000+1000)}`]);
+                                         }, 500);
+
+                                         // Step 2
+                                         setTimeout(() => {
+                                            setVpsDeployLogs(prev => [...prev, `[SETUP] Injecting operational files into ${vpsForm.os}...`]);
+                                         }, 1100);
+
+                                         // Step 3
+                                         setTimeout(() => {
+                                            const generatedIp = `103.45.${Math.floor(Math.random()*254+1)}.${Math.floor(Math.random()*254+1)}`;
+                                            setVpsDeployLogs(prev => [...prev, `[ATTACH] Network bindings mapped. Static Public IP: ${generatedIp}`]);
+                                            
+                                            // Append Node to State
+                                            const newNodeObj = {
+                                               id: `node-${Date.now()}`,
+                                               name: vpsForm.name,
+                                               status: "online",
+                                               os: vpsForm.os,
+                                               ip: generatedIp,
+                                               region: vpsForm.region,
+                                               spec: vpsForm.spec,
+                                               rtt: vpsForm.region.includes('Hong Kong') ? '12ms' : vpsForm.region.includes('Tokyo') ? '24ms' : vpsForm.region.includes('Singapore') ? '29ms' : '115ms'
+                                            };
+                                            setRemoteNodes(prev => [...prev, newNodeObj]);
+                                         }, 1800);
+
+                                         // Step 4 Complete
+                                         setTimeout(() => {
+                                            setVpsDeployLogs(prev => [...prev, `[COMPLETE] SSH Tunnel bindings successfully synced! Redirecting...`]);
+                                            setIsVpsDeploying(false);
+                                            setTimeout(() => {
+                                               setVpsWizardOpen(false);
+                                               // Auto select the newly created node
+                                               setRemoteNodes(prev => {
+                                                 if (prev.length > 0) {
+                                                   const latest = prev[prev.length - 1];
+                                                   setSelectedNodeId(latest.id);
+                                                 }
+                                                 return prev;
+                                               });
+                                               setRemoteSessionActive(true);
+                                            }, 600);
+                                         }, 2400);
+                                      }}
+                                      className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-1.5 rounded-lg text-xs font-bold uppercase transition"
+                                    >
+                                       Deploy Machine
+                                    </button>
+                                 </div>
+                              </div>
+                            ) : (
+                              /* Case 2: Machine Details / Interactive Active Remote Desktop Screen */
+                              <div className="flex-1 flex flex-col overflow-hidden">
+                                 {!remoteSessionActive ? (
+                                    /* Connection Prompt Screen */
+                                    <div className="flex-1 flex flex-col items-center justify-center p-6 text-center font-sans">
+                                       <MonitorUp className="w-12 h-12 text-blue-500 mb-3 animate-pulse opacity-60" />
+                                       <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">
+                                          {selectedNodeId === 'loopback' ? 'Connect Local Screen Share' : 'Connection Standby: ' + remoteNodes.find(n => n.id === selectedNodeId)?.name}
+                                       </h3>
+                                       <p className="text-[10px] text-slate-400 mb-4 max-w-sm">
+                                          {selectedNodeId === 'loopback' 
+                                            ? 'Secure loopback protocol maps local browser workspace screens natively inside GPKOS sandbox.'
+                                            : 'Click below to initiate high-speed encrypted SSL-SSH remote terminal mouse tracking portal.'}
+                                       </p>
+
+                                       <button 
+                                         onClick={async () => {
+                                            if (selectedNodeId === 'loopback') {
+                                               startRemoteSession();
+                                            } else {
+                                               setIsVpsConnecting(true);
+                                               setTimeout(() => {
+                                                  setIsVpsConnecting(false);
+                                                  setRemoteSessionActive(true);
+                                                  setVpsInputProxyActive(true);
+                                               }, 1200);
+                                            }
+                                         }}
+                                         disabled={isVpsConnecting}
+                                         className="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 uppercase tracking-wide shadow-lg shadow-blue-900/50"
+                                       >
+                                          {isVpsConnecting ? 'Connecting...' : selectedNodeId === 'loopback' ? 'Start Local Share' : 'Establish Direct VNC'}
+                                       </button>
+                                    </div>
+                                 ) : (
+                                    /* Active Session Desktop Screen */
+                                    <div className="flex-1 flex flex-col overflow-hidden relative">
+                                       {/* Interactive Topbar of Active machine */}
+                                       <div className="bg-slate-900 border-b border-white/5 px-3 py-1.5 flex items-center justify-between shrink-0">
+                                          <div className="flex items-center gap-2">
+                                             <span className="text-xs">{selectedNodeId === 'loopback' ? '💻' : '🔒'}</span>
+                                             <div>
+                                                <h4 className="font-bold text-xs text-white">
+                                                   {selectedNodeId === 'loopback' ? 'Local System Loopback' : remoteNodes.find(n => n.id === selectedNodeId)?.name}
+                                                </h4>
+                                                <p className="text-[9px] font-mono text-slate-400">
+                                                   Endpoint: {selectedNodeId === 'loopback' ? '127.0.0.1' : remoteNodes.find(n => n.id === selectedNodeId)?.ip}
+                                                </p>
+                                             </div>
+                                          </div>
+
+                                          <div className="flex items-center gap-2 font-bold">
+                                             {/* Mouse keyboard input tracker */}
+                                             {selectedNodeId !== 'loopback' && (
+                                                <button 
+                                                  onClick={() => setVpsInputProxyActive(!vpsInputProxyActive)}
+                                                  className={`text-[9px] font-bold px-2 py-0.5 rounded border transition flex items-center gap-1 ${vpsInputProxyActive ? 'bg-blue-600/20 border-blue-500 text-blue-300' : 'bg-slate-800 border-white/10 text-slate-400'}`}
+                                                >
+                                                   <MousePointer2 className="w-3 h-3" /> INPUT AGENT: {vpsInputProxyActive ? 'ACTIVE' : 'IDLE'}
+                                                </button>
+                                             )}
+                                             <button 
+                                               onClick={() => setRemoteSessionActive(false)}
+                                               className="bg-red-950/40 border border-red-500/20 text-red-400 px-2 py-0.5 rounded text-[10px] font-bold hover:bg-red-900/30 transition"
+                                             >
+                                                Disconnect
+                                             </button>
+                                          </div>
+                                       </div>
+
+                                       {/* Core Live Screen Frame */}
+                                       {selectedNodeId === 'loopback' ? (
+                                          <div className="flex-grow bg-slate-950 relative flex items-center justify-center overflow-hidden">
+                                             <video ref={remoteVideoRef} autoPlay playsInline muted className="max-w-full max-h-full object-contain outline-none border-none" />
+                                             <div className="absolute top-2 left-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded text-[8px] font-mono font-bold animate-pulse">
+                                                REALTIME VIDEO FEED
+                                             </div>
+                                          </div>
+                                       ) : (
+                                          /* Virtual Linux Interactive Desktop Container */
+                                          <div 
+                                            className="flex-grow bg-[#0c0f17] relative flex flex-col p-3 overflow-hidden cursor-crosshair"
+                                            onClick={(e) => {
+                                               if (!vpsInputProxyActive) return;
+                                               // Render click visual ripple effects
+                                               const rect = e.currentTarget.getBoundingClientRect();
+                                               const x = Math.floor(e.clientX - rect.left);
+                                               const y = Math.floor(e.clientY - rect.top);
+                                               
+                                               // Flash a small console log of pointer coordinates
+                                               setRemoteTerminalHistory(prev => [
+                                                 ...prev,
+                                                 `[MOUSE] LeftClick capture at: {X: ${x}px, Y: ${y}px}`
+                                               ]);
+                                            }}
+                                          >
+                                             {/* Live coordinates marker overlay */}
+                                             {vpsInputProxyActive && (
+                                                <div className="absolute bottom-2 right-2 bg-slate-900/90 border border-white/5 p-1.5 rounded text-[8px] font-mono text-slate-400 pointer-events-none z-10">
+                                                   Pointer Capture Agent Active (Zero Lag)
+                                                </div>
+                                             )}
+
+                                             {/* Fully functional Linux Shell Interactive terminal */}
+                                             <div className="flex-1 bg-black/90 border border-white/10 rounded-xl p-3 font-mono text-[10px] text-emerald-400 overflow-y-auto flex flex-col leading-normal shadow-inner">
+                                                <div className="flex-grow overflow-y-auto flex flex-col gap-1">
+                                                   {remoteTerminalHistory.map((line, idx) => (
+                                                      <div key={idx} className="whitespace-pre-wrap leading-relaxed">{line}</div>
+                                                   ))}
+                                                </div>
+                                                
+                                                {/* Prompt input row */}
+                                                <form 
+                                                  onSubmit={(e) => {
+                                                     e.preventDefault();
+                                                     const cmd = remoteTerminalCommand.trim().toLowerCase();
+                                                     if (!cmd) return;
+                                                     
+                                                     // Echo Command
+                                                     setRemoteTerminalHistory(prev => [...prev, `[root@gpkos-host ~]# ${remoteTerminalCommand}`]);
+                                                     
+                                                     // Command Logic
+                                                     if (cmd === 'help') {
+                                                        setRemoteTerminalHistory(prev => [
+                                                           ...prev,
+                                                           "Available virtual commands:",
+                                                           "  help         - Display list of executable shell programs.",
+                                                           "  whoami       - Display active operator profile.",
+                                                           "  neofetch     - Show detailed system information logo.",
+                                                           "  ping         - Test high-speed network latency.",
+                                                           "  date         - Fetch Greenwich Mean Time.",
+                                                           "  top          - Live list of CPU thread workloads.",
+                                                           "  ls           - List files in current user context.",
+                                                           "  vpn-tunnel   - Inspect virtual node proxy pipeline.",
+                                                           "  clear        - Wipe console buffer history."
+                                                        ]);
+                                                     } else if (cmd === 'whoami') {
+                                                        setRemoteTerminalHistory(prev => [...prev, `root @ \u5468\u9526\u6dc0 (Administrator Profile)`]);
+                                                     } else if (cmd === 'clear') {
+                                                        setRemoteTerminalHistory([]);
+                                                     } else if (cmd === 'neofetch') {
+                                                        setRemoteTerminalHistory(prev => [
+                                                           ...prev,
+                                                           "      .---.       root@gpkos-virtual-vm",
+                                                           "     /     \\      OS: GPKOS Linux CentOS Stream 9",
+                                                           "     \\_.._/       Kernel: 6.1.20-rorygpkos-virtual",
+                                                           "     //  \\\\       Uptime: 2 days, 14 hours",
+                                                           "    ((    ))      Shell: bash 5.1.16",
+                                                           "     \\\\  //       CPU: AMD EPYC 9654 (32 Cores) @ 2.4GHz",
+                                                           "      `---`       Memory: 4.12 GB / 8.00 GB (51%)",
+                                                           "                  Proxy Tunnel: GPKOS VPN Active Node"
+                                                        ]);
+                                                     } else if (cmd === 'date') {
+                                                        setRemoteTerminalHistory(prev => [...prev, new Date().toUTCString()]);
+                                                     } else if (cmd === 'ls') {
+                                                        setRemoteTerminalHistory(prev => [
+                                                           ...prev,
+                                                           "drwxr-xr-x  2 root  root    4096 Jun 27 03:00  ./",
+                                                           "drwxr-xr-x  4 root  root    4096 Jun 27 02:40  ../",
+                                                           "-rwxr-xr-x  1 root  root  842104 Jun 27 03:01  gpkos_core.bin",
+                                                           "-rw-r--r--  1 root  root    1204 Jun 27 03:01  config.json",
+                                                           "-rw-r--r--  1 root  root    1675 Jun 27 02:50  secure_tunnel_keys.pem"
+                                                        ]);
+                                                     } else if (cmd === 'ping') {
+                                                        setRemoteTerminalHistory(prev => [
+                                                           ...prev,
+                                                           "PING google.com (142.250.190.46) 56(84) bytes of data.",
+                                                           "64 bytes from lhr25s34-in-f4.1e100.net: icmp_seq=1 ttl=118 time=12.2 ms",
+                                                           "64 bytes from lhr25s34-in-f4.1e100.net: icmp_seq=2 ttl=118 time=11.9 ms",
+                                                           "64 bytes from lhr25s34-in-f4.1e100.net: icmp_seq=3 ttl=118 time=12.1 ms",
+                                                           "--- google.com ping statistics ---",
+                                                           "3 packets transmitted, 3 received, 0% packet loss, time 2002ms",
+                                                           "rtt min/avg/max/mdev = 11.912/12.066/12.204/0.142 ms"
+                                                        ]);
+                                                     } else if (cmd === 'top') {
+                                                        setRemoteTerminalHistory(prev => [
+                                                           ...prev,
+                                                           "top - 03:54:15 up 2 days, 14:12,  1 user,  load average: 0.12, 0.08, 0.05",
+                                                           "Tasks:  45 total,   1 running,  44 sleeping,   0 stopped,   0 zombie",
+                                                           "%Cpu(s):  1.2 us,  0.5 sy,  0.0 ni, 98.3 id,  0.0 wa,  0.0 hi,  0.0 si",
+                                                           "  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND",
+                                                           " 1245 root      20   0  145.2m  45.8m  12.4m S   0.5   1.1   0:04.22 gpkos_core",
+                                                           "    1 root      20   0   42.1m   4.2m   2.1m S   0.0   0.1   0:00.12 systemd",
+                                                           " 1024 root      20   0   12.5m   2.1m   1.2m S   0.0   0.0   0:00.00 sshd"
+                                                        ]);
+                                                     } else if (cmd === 'vpn-tunnel') {
+                                                        setRemoteTerminalHistory(prev => [
+                                                           ...prev,
+                                                           "--- GPKOS Node Proxy Tunnel Audit ---",
+                                                           `Local Interface Bindings: 127.0.0.1:4500 <-> ${remoteNodes.find(n => n.id === selectedNodeId)?.ip}:4500`,
+                                                           "Protocol: GPKOS WireGuard AES-256-GCM Handshake Secured",
+                                                           "Bypass State: bypass_all_firewalls=true",
+                                                           "Uptime: 2 hours, 14 minutes, 5 seconds"
+                                                        ]);
+                                                     } else {
+                                                        setRemoteTerminalHistory(prev => [...prev, `-bash: ${cmd}: command not found. Type 'help' to see valid commands.`]);
+                                                     }
+                                                     
+                                                     setRemoteTerminalCommand("");
+                                                  }}
+                                                  className="flex gap-2 items-center border-t border-emerald-500/30 pt-2 shrink-0 font-mono"
+                                                >
+                                                   <span className="text-emerald-500 font-bold shrink-0">[root@gpkos-host ~]#</span>
+                                                   <input 
+                                                     type="text"
+                                                     value={remoteTerminalCommand}
+                                                     onChange={(e) => setRemoteTerminalCommand(e.target.value)}
+                                                     placeholder="Type program commands here (e.g. 'help', 'neofetch', 'top')..."
+                                                     className="flex-grow bg-transparent border-none outline-none text-emerald-400 font-mono text-[10px]"
+                                                   />
+                                                </form>
+                                             </div>
+                                          </div>
+                                       )}
+                                    </div>
+                                 )}
+                              </div>
+                            )}
+                         </div>
+                      </div>                    </DraggableWindow>
                   )}
 
                   {/* Compiler Logs Window */}
@@ -7395,6 +7883,446 @@ export default function App() {
                           }
                       }} />}
                       {win.appId === 'marketplace' && <MarketplaceApp />}
+                      {win.appId === 'vpn' && (
+                        <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden select-none font-sans">
+                          {/* VPN Top Bar Indicator */}
+                          <div className="bg-slate-900 px-4 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-2">
+                              <Globe className={`w-5 h-5 ${vpnConnected ? 'text-blue-400 animate-spin' : 'text-slate-400'}`} style={{ animationDuration: '6s' }} />
+                              <div>
+                                <h3 className="font-bold text-xs tracking-wide text-white">GPKOS Secure Node Tunnel v4.2</h3>
+                                <p className="text-[9px] text-slate-400 font-mono">Status: {vpnConnecting ? 'STABILIZING PROTOCOL...' : vpnConnected ? 'CONNECTED (SECURE)' : 'DISCONNECTED'}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <p className="text-[9px] text-slate-400 font-mono">IP: {vpnConnected ? vpnIP : '127.0.0.1'}</p>
+                                <p className="text-[9px] text-slate-400 font-mono">Enc: AES-256-GCM</p>
+                              </div>
+                              <span className={`w-2.5 h-2.5 rounded-full ${vpnConnecting ? 'bg-amber-500 animate-pulse' : vpnConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500'}`} />
+                            </div>
+                          </div>
+
+                          {/* VPN Main Workspace Grid */}
+                          <div className="flex-1 grid grid-cols-5 overflow-hidden">
+                            {/* Node selection column (2/5) */}
+                            <div className="col-span-2 border-r border-white/5 bg-slate-900/40 p-3 overflow-y-auto flex flex-col gap-2">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Tunnel Endpoint</span>
+                              
+                              {/* Node 1 */}
+                              <button 
+                                onClick={() => {
+                                  setVpnNode("hk");
+                                  setVpnIP("103.45.210.88");
+                                }}
+                                disabled={vpnConnecting}
+                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'hk' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm">🇭🇰</span>
+                                  <div>
+                                    <p className="font-bold text-[11px] text-white">Hong Kong Node-01</p>
+                                    <p className="text-[9px] text-slate-400 font-mono">103.45.210.88</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">12ms</span>
+                              </button>
+
+                              {/* Node 2 */}
+                              <button 
+                                onClick={() => {
+                                  setVpnNode("jp");
+                                  setVpnIP("210.140.8.215");
+                                }}
+                                disabled={vpnConnecting}
+                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'jp' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm">🇯🇵</span>
+                                  <div>
+                                    <p className="font-bold text-[11px] text-white">Tokyo Node-02</p>
+                                    <p className="text-[9px] text-slate-400 font-mono">210.140.8.215</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">24ms</span>
+                              </button>
+
+                              {/* Node 3 */}
+                              <button 
+                                onClick={() => {
+                                  setVpnNode("sg");
+                                  setVpnIP("188.166.195.12");
+                                }}
+                                disabled={vpnConnecting}
+                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'sg' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm">🇸🇬</span>
+                                  <div>
+                                    <p className="font-bold text-[11px] text-white">Singapore Node-03</p>
+                                    <p className="text-[9px] text-slate-400 font-mono">188.166.195.12</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">29ms</span>
+                              </button>
+
+                              {/* Node 4 */}
+                              <button 
+                                onClick={() => {
+                                  setVpnNode("us");
+                                  setVpnIP("45.79.121.34");
+                                }}
+                                disabled={vpnConnecting}
+                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'us' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm">🇺🇸</span>
+                                  <div>
+                                    <p className="font-bold text-[11px] text-white">US Silicon Valley-04</p>
+                                    <p className="text-[9px] text-slate-400 font-mono">45.79.121.34</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">115ms</span>
+                              </button>
+
+                              <div className="mt-auto bg-blue-950/30 border border-blue-500/20 p-2.5 rounded-xl">
+                                <p className="text-[10px] text-blue-300 font-bold">💡 Multi-Hop Secure Routing</p>
+                                <p className="text-[9px] text-slate-400 mt-1 leading-relaxed">All GPKOS traffic is encrypted via zero-knowledge endpoints to bypass firewalls natively.</p>
+                              </div>
+                            </div>
+
+                            {/* Control Pane & Analytics (3/5) */}
+                            <div className="col-span-3 p-4 flex flex-col justify-between items-center bg-gradient-to-b from-slate-950 to-slate-900">
+                              
+                              {/* Connection status circle / button */}
+                              <div className="flex flex-col items-center justify-center py-4">
+                                <button 
+                                  onClick={() => {
+                                    if (vpnConnected) {
+                                      setVpnConnected(false);
+                                    } else {
+                                      setVpnConnecting(true);
+                                      setTimeout(() => {
+                                        setVpnConnecting(false);
+                                        setVpnConnected(true);
+                                      }, 1500);
+                                    }
+                                  }}
+                                  disabled={vpnConnecting}
+                                  className={`w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center transition-all ${
+                                    vpnConnecting ? 'border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-pulse' :
+                                    vpnConnected ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:bg-blue-950/30 bg-blue-900/10' :
+                                    'border-slate-800 shadow-md hover:border-slate-700 hover:bg-slate-900 bg-slate-950'
+                                  }`}
+                                >
+                                  <Power className={`w-6 h-6 ${vpnConnecting ? 'text-amber-500' : vpnConnected ? 'text-blue-400' : 'text-slate-500'}`} />
+                                  <span className="text-[9px] font-black uppercase mt-1 tracking-widest text-white">
+                                    {vpnConnecting ? 'Connecting...' : vpnConnected ? 'Disconnect' : 'Connect'}
+                                  </span>
+                                </button>
+                                
+                                <p className="text-[10px] text-slate-400 font-mono mt-3">
+                                  {vpnConnected ? 'Active Node: ' + vpnNode.toUpperCase() : 'Idle & Secured'}
+                                </p>
+                              </div>
+
+                              {/* Speeds Panel */}
+                              <div className="w-full grid grid-cols-2 gap-3">
+                                <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
+                                  <div className="bg-blue-500/10 p-1.5 rounded-lg"><Cpu className="w-4 h-4 text-blue-400" /></div>
+                                  <div>
+                                    <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Tunnel Speed</p>
+                                    <p className="font-mono text-xs font-bold text-white">{vpnConnected ? `${vpnSpeed} MB/s` : '0.0 MB/s'}</p>
+                                  </div>
+                                </div>
+                                <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
+                                  <div className="bg-emerald-500/10 p-1.5 rounded-lg"><Activity className="w-4 h-4 text-emerald-400" /></div>
+                                  <div>
+                                    <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Transferred</p>
+                                    <p className="font-mono text-xs font-bold text-white">
+                                      {(vpnBytesTransferred / (1024 * 1024)).toFixed(2)} MB
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Dynamic connection wave graph */}
+                              <div className="w-full h-12 bg-slate-950/80 border border-white/5 rounded-xl overflow-hidden relative flex items-end">
+                                <span className="absolute top-1 left-2 text-[7px] font-mono font-bold uppercase tracking-wider text-slate-500 z-10">Real-time Tunnel Traffic</span>
+                                <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
+                                  <path 
+                                    d={`M 0 60 Q 30 ${vpnConnected ? 60 - vpnSpeed * 4 : 55} 60 60 T 120 60 T 180 60 T 240 60 T 300 60 L 300 60 L 0 60 Z`} 
+                                    fill="rgba(59, 130, 246, 0.1)"
+                                    stroke="rgba(59, 130, 246, 0.4)"
+                                    strokeWidth="1.5"
+                                    className={vpnConnected ? 'animate-pulse' : ''}
+                                  />
+                                </svg>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {win.appId === 'video-player' && (
+                        <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden font-sans">
+                          {/* Player Top bar */}
+                          <div className="bg-slate-900 px-4 py-2 border-b border-white/5 flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-2">
+                              <Youtube className="w-4 h-4 text-rose-500 animate-pulse" />
+                              <div>
+                                <h3 className="font-bold text-[11px] tracking-wide text-white">GPKOS Tube Video Stream (Full Fidelity)</h3>
+                                <p className="text-[8px] font-mono text-slate-400">Resolution: {videoPlayerQuality} | Playback: {videoPlayerSpeed}x</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[8px] bg-rose-950/50 text-rose-400 border border-rose-500/20 font-mono px-2 py-0.5 rounded-full font-bold">LIVE STREAM</span>
+                            </div>
+                          </div>
+
+                          {/* Player Layout Split */}
+                          <div className="flex-1 flex overflow-hidden">
+                            {/* Video Stream Screen Left */}
+                            <div className="flex-1 bg-black flex flex-col justify-between relative overflow-hidden">
+                              
+                              {/* Native Video Tag */}
+                              <div className="flex-1 relative flex items-center justify-center bg-slate-950">
+                                <video 
+                                  id="gpkos-tube-html5-video"
+                                  key={selectedVideoUrl}
+                                  src={selectedVideoUrl}
+                                  autoPlay={videoIsPlaying}
+                                  controls={false}
+                                  className="w-full h-full object-contain"
+                                  onTimeUpdate={(e: any) => {
+                                    // Update subtitles dynamically based on duration ratio
+                                    const ratio = e.target.currentTime / e.target.duration;
+                                    if (ratio < 0.25) {
+                                      setCurrentVideoSubtitle("GPKOS System Architecture: Decrypting active database indexes...");
+                                    } else if (ratio < 0.5) {
+                                      setCurrentVideoSubtitle("Securing VPN Tunnel Node interfaces and setting up firewalls...");
+                                    } else if (ratio < 0.75) {
+                                      setCurrentVideoSubtitle("Establishing high-bandwidth Remote Control Session via WebRTC relays...");
+                                    } else {
+                                      setCurrentVideoSubtitle("Automated Cluster Deployment complete. GPKOS Secure Node standing by.");
+                                    }
+                                  }}
+                                />
+
+                                {/* Subtitles Overlay */}
+                                {videoSubtitlesActive && (
+                                  <div className="absolute bottom-4 left-4 right-4 text-center z-10 pointer-events-none">
+                                    <span className="bg-black/85 text-white border border-white/10 px-3 py-1 rounded-[4px] text-[10px] font-mono font-bold tracking-tight shadow-lg leading-relaxed">
+                                      {currentVideoSubtitle}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Pause Icon Indicator Overlay */}
+                                {!videoIsPlaying && (
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                                    <button 
+                                      onClick={() => {
+                                        setVideoIsPlaying(true);
+                                        const vid = document.getElementById("gpkos-tube-html5-video") as HTMLVideoElement;
+                                        if (vid) vid.play();
+                                      }}
+                                      className="bg-rose-600 hover:bg-rose-500 hover:scale-110 active:scale-95 text-white p-4 rounded-full shadow-2xl transition duration-200"
+                                    >
+                                      <Play className="w-6 h-6 fill-white ml-0.5" />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Custom Video Controls Panel */}
+                              <div className="bg-slate-900/95 border-t border-white/5 p-2 flex flex-col gap-2 shrink-0">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <button 
+                                      onClick={() => {
+                                        const vid = document.getElementById("gpkos-tube-html5-video") as HTMLVideoElement;
+                                        if (vid) {
+                                          if (videoIsPlaying) {
+                                            vid.pause();
+                                            setVideoIsPlaying(false);
+                                          } else {
+                                            vid.play();
+                                            setVideoIsPlaying(true);
+                                          }
+                                        }
+                                      }}
+                                      className="bg-slate-800 hover:bg-slate-700 text-white p-1.5 rounded transition text-[10px] font-bold"
+                                    >
+                                      {videoIsPlaying ? 'PAUSE' : 'PLAY'}
+                                    </button>
+
+                                    <div className="flex items-center gap-1.5">
+                                      <Volume2 className="w-3.5 h-3.5 text-slate-400" />
+                                      <input 
+                                        type="range" 
+                                        min="0" 
+                                        max="100" 
+                                        value={videoPlayerVolume}
+                                        onChange={(e) => {
+                                          const vol = parseInt(e.target.value);
+                                          setVideoPlayerVolume(vol);
+                                          const vid = document.getElementById("gpkos-tube-html5-video") as HTMLVideoElement;
+                                          if (vid) vid.volume = vol / 100;
+                                        }}
+                                        className="w-12 accent-rose-500 h-1 cursor-pointer"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Subtitles & Speed Settings */}
+                                  <div className="flex items-center gap-1.5">
+                                    {/* Speed select */}
+                                    <select 
+                                      value={videoPlayerSpeed}
+                                      onChange={(e) => {
+                                        const speed = parseFloat(e.target.value);
+                                        setVideoPlayerSpeed(speed);
+                                        const vid = document.getElementById("gpkos-tube-html5-video") as HTMLVideoElement;
+                                        if (vid) vid.playbackRate = speed;
+                                      }}
+                                      className="bg-slate-800 text-white border border-white/5 text-[9px] rounded px-1 py-0.5 font-mono cursor-pointer outline-none"
+                                    >
+                                      <option value="0.5">0.5x</option>
+                                      <option value="1.0">1.0x</option>
+                                      <option value="1.25">1.25x</option>
+                                      <option value="1.5">1.5x</option>
+                                      <option value="2.0">2.0x</option>
+                                    </select>
+
+                                    {/* Quality select */}
+                                    <select 
+                                      value={videoPlayerQuality}
+                                      onChange={(e) => setVideoPlayerQuality(e.target.value)}
+                                      className="bg-slate-800 text-white border border-white/5 text-[9px] rounded px-1 py-0.5 font-mono cursor-pointer outline-none"
+                                    >
+                                      <option value="720p">720p</option>
+                                      <option value="1080p">1080p</option>
+                                      <option value="4K">4K UHD</option>
+                                    </select>
+
+                                    {/* Toggle Subtitles */}
+                                    <button 
+                                      onClick={() => setVideoSubtitlesActive(!videoSubtitlesActive)}
+                                      className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded border transition ${videoSubtitlesActive ? 'bg-rose-600/20 border-rose-500 text-rose-300' : 'bg-slate-800 border-white/10 text-slate-400'}`}
+                                    >
+                                      SUB
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Bottom Metadata & User Comments (Scrollable) */}
+                              <div className="p-3 bg-slate-950 border-t border-white/5 overflow-y-auto max-h-40 shrink-0">
+                                <h4 className="font-bold text-xs text-white mb-1">{videoTitleSelected}</h4>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-[9px] bg-slate-900 text-slate-400 px-2 py-0.5 rounded-full">34,102 Views</span>
+                                  <span className="text-[9px] bg-rose-950/30 text-rose-400 px-2 py-0.5 rounded-full font-bold">100% Secure Link</span>
+                                </div>
+
+                                <div className="border-t border-white/5 pt-2">
+                                  <p className="text-[10px] font-bold text-slate-400 mb-1.5">Platform Comments</p>
+                                  
+                                  {/* Add Comment input */}
+                                  <form 
+                                    onSubmit={(e) => {
+                                      e.preventDefault();
+                                      if (!videoCommentInput.trim()) return;
+                                      setVideoComments(prev => [
+                                        { user: "周锦淇 (Admin)", text: videoCommentInput.trim(), date: "刚刚" },
+                                        ...prev
+                                      ]);
+                                      setVideoCommentInput("");
+                                    }}
+                                    className="flex gap-2 mb-2"
+                                  >
+                                    <input 
+                                      type="text"
+                                      placeholder="发表您的评论..."
+                                      value={videoCommentInput}
+                                      onChange={(e) => setVideoCommentInput(e.target.value)}
+                                      className="flex-grow bg-slate-900 border border-white/5 text-[11px] rounded px-2 py-1 text-white focus:outline-none focus:border-rose-500"
+                                    />
+                                    <button type="submit" className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1 rounded text-[11px] transition uppercase">发送</button>
+                                  </form>
+
+                                  <div className="flex flex-col gap-1.5">
+                                    {videoComments.map((com, idx) => (
+                                      <div key={idx} className="bg-slate-900/40 p-1.5 rounded-lg border border-white/5">
+                                        <div className="flex items-center justify-between mb-0.5">
+                                          <span className="text-[9px] font-black text-rose-400">{com.user}</span>
+                                          <span className="text-[8px] font-mono text-slate-500">{com.date}</span>
+                                        </div>
+                                        <p className="text-[11px] text-slate-300 leading-relaxed">{com.text}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+
+                            {/* Video Playlist Sidebar Right */}
+                            <div className="w-48 border-l border-white/5 bg-slate-900/50 p-2 overflow-y-auto flex flex-col gap-2 shrink-0">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Recommended</span>
+                              
+                              {/* Video Card 1 */}
+                              <button 
+                                onClick={() => {
+                                  setSelectedVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-city-street-with-neon-lights-and-rain-40141-large.mp4");
+                                  setVideoTitleSelected("Cyberpunk Neon City (Sci-Fi Loop)");
+                                  setVideoIsPlaying(true);
+                                }}
+                                className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl.includes('cyberpunk') ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
+                                  <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">1080P</span>
+                                  <div className="text-[8px] text-slate-500 font-mono">Cyberpunk Loop</div>
+                                </div>
+                                <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">Cyberpunk Neon City</p>
+                              </button>
+
+                              {/* Video Card 2 */}
+                              <button 
+                                onClick={() => {
+                                  setSelectedVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-rotating-world-globe-in-a-cyber-network-environment-41584-large.mp4");
+                                  setVideoTitleSelected("Earth Globe Cyber Network (Global Sync)");
+                                  setVideoIsPlaying(true);
+                                }}
+                                className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl.includes('globe') ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
+                                  <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">4K</span>
+                                  <div className="text-[8px] text-slate-500 font-mono">Globe Network</div>
+                                </div>
+                                <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">Earth Cyber Globe</p>
+                              </button>
+
+                              {/* Video Card 3 */}
+                              <button 
+                                onClick={() => {
+                                  setSelectedVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-forest-stream-with-sunbeams-flowing-peacefully-41566-large.mp4");
+                                  setVideoTitleSelected("Tranquil Sunlit Forest Stream (Nature Relax)");
+                                  setVideoIsPlaying(true);
+                                }}
+                                className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl.includes('forest') ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                              >
+                                <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
+                                  <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">HD</span>
+                                  <div className="text-[8px] text-slate-500 font-mono">Forest Stream</div>
+                                </div>
+                                <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">Forest Stream Relax</p>
+                              </button>
+
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {win.appId === 'gmail' && (
                          <GmailApp 
                             currentUser={currentUser}
@@ -7413,7 +8341,7 @@ export default function App() {
                          />
                       )}
                       {/* Fallback for other apps */}
-                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace'].includes(win.appId) && (
+                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace', 'vpn', 'video-player'].includes(win.appId) && (
                         <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
                            {win.title} Module Loaded
                         </div>
@@ -7470,6 +8398,14 @@ export default function App() {
                     <button onClick={() => launchApp('profile', 'User Profile Account')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 hover:border-pink-500/50 transition-colors"><User className="h-6 w-6 text-pink-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Profile</span>
+                    </button>
+                    <button onClick={() => launchApp('vpn', 'GPKOS Secure VPN Node')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                       <div className="bg-blue-950/50 p-2.5 rounded-xl shadow border border-blue-500/30 hover:border-blue-400/50 transition-colors"><Globe className="h-6 w-6 text-blue-400 animate-pulse" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Secure VPN</span>
+                    </button>
+                    <button onClick={() => launchApp('video-player', 'GPKOS Tube Video Stream')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                       <div className="bg-rose-950/50 p-2.5 rounded-xl shadow border border-rose-500/30 hover:border-rose-400/50 transition-colors"><Video className="h-6 w-6 text-rose-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">GPKOS Tube</span>
                     </button>
                     <div className="w-px h-8 bg-white/20 mx-1"></div>
                     <button onClick={() => launchApp('settings', 'System Preferences')} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2">
