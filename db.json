@@ -1,19 +1,15 @@
 {
-  "activeDomain": "fatshanpost.com",
-  "oldDomain": "outlook.com",
-  "dualDomainOverlap": true,
-  "dualDomainDays": 14,
   "users": [
     {
       "id": "1",
-      "emailUsername": "marvis_zhou",
-      "emailDomain": "outlook.com",
-      "fullName": "Marvis Zhou",
-      "contact": "marvis_zhou@outlook.com",
+      "emailUsername": "marvis_zhou2014",
+      "emailDomain": "ais-dev-6qcabvgjotnwj36ompxa44-20397951791.us-east1.run.app",
+      "fullName": "周锦淇",
+      "contact": "marviszhou2014@gmail.com",
       "loginType": "password",
       "password": "admin",
       "role": "admin",
-      "storageQuota": "10 GB",
+      "storageQuota": "100 GB",
       "storageUsed": "24.5 MB",
       "verified": true,
       "verificationType": "identity",
@@ -21,15 +17,29 @@
       "banReason": "",
       "banExpiry": null,
       "medals": [
-        { "id": "m1", "title": "FATSHAN PIONEER", "type": "honor", "icon": "ShieldCheck", "color": "text-emerald-500", "description": "Highest level administrator of Fatshan Post" },
-        { "id": "m2", "title": "SYSTEM BUILDER", "type": "honor", "icon": "Award", "color": "text-cyan-500", "description": "Owner of Rory GPKOS core compiler engine" }
+        {
+          "id": "m1",
+          "title": "ROOT SYSADMIN",
+          "type": "honor",
+          "icon": "ShieldCheck",
+          "color": "text-emerald-500",
+          "description": "系统最高管理员 周锦淇"
+        },
+        {
+          "id": "m2",
+          "title": "CREATOR",
+          "type": "honor",
+          "icon": "Award",
+          "color": "text-cyan-500",
+          "description": "Rory GPKOS 创始人架构师"
+        }
       ],
       "activeBackground": "slate-classic"
     },
     {
       "id": "2",
       "emailUsername": "guest_tester",
-      "emailDomain": "fatshanpost.com",
+      "emailDomain": "ais-dev-6qcabvgjotnwj36ompxa44-20397951791.us-east1.run.app",
       "fullName": "Guest Tester",
       "contact": "guest_tester@fatshanpost.com",
       "loginType": "password",
@@ -43,7 +53,14 @@
       "banReason": "",
       "banExpiry": null,
       "medals": [
-        { "id": "m3", "title": "BETA GUEST", "type": "honor", "icon": "Sparkles", "color": "text-amber-500", "description": "Participated in initial Outlook system beta validation" }
+        {
+          "id": "m3",
+          "title": "BETA GUEST",
+          "type": "honor",
+          "icon": "Sparkles",
+          "color": "text-amber-500",
+          "description": "Participated in initial Outlook system beta validation"
+        }
       ],
       "activeBackground": "space-dream"
     }
@@ -63,7 +80,10 @@
       "isStarred": true,
       "folder": "inbox",
       "category": "work",
-      "tags": ["Important", "Console"],
+      "tags": [
+        "Important",
+        "Console"
+      ],
       "attachments": []
     },
     {
@@ -80,10 +100,32 @@
       "isStarred": false,
       "folder": "inbox",
       "category": "personal",
-      "tags": ["AI-Scanned"],
+      "tags": [
+        "AI-Scanned"
+      ],
       "attachments": []
     }
   ],
+  "orders": [
+    {
+      "id": "FP-9082",
+      "userEmail": "guest_tester@fatshanpost.com",
+      "items": [
+        {
+          "name": "Premium High-Altitude Boeing 737 Flight Pack",
+          "price": 249,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 249,
+      "status": "paid",
+      "shippingAddress": "No.88 Fatshan Road, Guangdong, CN",
+      "shippingLogistics": "SF-908234-CN (In Transit)",
+      "assignedTo": "周锦淇",
+      "timestamp": "2026-05-26T11:40:00Z"
+    }
+  ],
+  "feedback": [],
   "blogs": [
     {
       "id": "b1",
@@ -92,12 +134,29 @@
       "title": "A Look into High-fidelity Multi-branch Workspace Design Standards",
       "content": "Developing real custom interfaces requires clear adherence to standard operational structures.\n\n### Designing With Identity\n\nTypography defines our user experience. In our workspace, we combine **Vibrant Cyan Display Accents** on the Home tab with **Soft Royal Blues** in our Work layout. Custom layout controls bind users to high-performance containers.\n\n### Key Concepts\n- Complete macOS clone desktops with full simulation sandboxing.\n- Decoupled domain email structures preserving data states.\n- AI-driven triage desks acting on curated knowledge engines.\n\nJoin our community today!",
       "category": "Technology",
-      "tags": ["Vite", "Express", "System"],
+      "tags": [
+        "Vite",
+        "Express",
+        "System"
+      ],
       "timestamp": "2026-05-26T10:30:00Z",
       "likes": 5,
       "comments": [
-        { "id": "bc1", "author": "Tester Beta", "content": "Awesome IDE playground, compiler sandbox behaves perfectly like Docker!", "timestamp": "2026-05-26T11:15:00Z" }
+        {
+          "id": "bc1",
+          "author": "Tester Beta",
+          "content": "Awesome IDE playground, compiler sandbox behaves perfectly like Docker!",
+          "timestamp": "2026-05-26T11:15:00Z"
+        }
       ]
+    }
+  ],
+  "chatMessages": [
+    {
+      "id": "msg1",
+      "sender": "Marvis Zhou",
+      "content": "The standard validator token is FATSHAN POST, which is verified across our compiler.",
+      "timestamp": "2026-05-26T14:00:00Z"
     }
   ],
   "friendshipRecords": [
@@ -109,21 +168,6 @@
       "timestamp": "2026-05-26T09:00:00Z"
     }
   ],
-  "orders": [
-    {
-      "id": "FP-9082",
-      "userEmail": "guest_tester@fatshanpost.com",
-      "items": [
-        { "name": "Premium High-Altitude Boeing 737 Flight Pack", "price": 249, "quantity": 1 }
-      ],
-      "totalAmount": 249,
-      "status": "paid",
-      "shippingAddress": "No.88 Fatshan Road, Guangdong, CN",
-      "shippingLogistics": "SF-908234-CN (In Transit)",
-      "assignedTo": "Marvis Zhou",
-      "timestamp": "2026-05-26T11:40:00Z"
-    }
-  ],
   "customButtons": [
     {
       "id": "btn-1",
@@ -132,7 +176,10 @@
       "page": "home",
       "visibility": "all",
       "specifiedUsers": [],
-      "styling": { "bgColor": "bg-cyan-600", "textColor": "text-white" },
+      "styling": {
+        "bgColor": "bg-cyan-600",
+        "textColor": "text-white"
+      },
       "banned": false
     },
     {
@@ -141,26 +188,67 @@
       "actionUrl": "#work",
       "page": "work",
       "visibility": "specified",
-      "specifiedUsers": ["marvis_zhou@outlook.com"],
-      "styling": { "bgColor": "bg-indigo-600", "textColor": "text-white" },
+      "specifiedUsers": [
+        "marvis_zhou@outlook.com"
+      ],
+      "styling": {
+        "bgColor": "bg-indigo-600",
+        "textColor": "text-white"
+      },
       "banned": false
     }
   ],
   "backgrounds": [
-    { "id": "slate-classic", "name": "Slate Classic Theme", "color": "bg-slate-900 text-slate-100", "price": "Free" },
-    { "id": "space-dream", "name": "Cosmic Nebula Aura", "color": "bg-neutral-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900 via-indigo-950 to-neutral-950 text-indigo-50", "price": "100 MB Quota" },
-    { "id": "emerald-pro", "name": "Emerald Glass Slate", "color": "bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-slate-950 to-slate-950 text-emerald-50", "price": "200 MB Quota" }
+    {
+      "id": "slate-classic",
+      "name": "Slate Classic Theme",
+      "color": "bg-slate-900 text-slate-100",
+      "price": "Free"
+    },
+    {
+      "id": "space-dream",
+      "name": "Cosmic Nebula Aura",
+      "color": "bg-neutral-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900 via-indigo-950 to-neutral-950 text-indigo-50",
+      "price": "100 MB Quota"
+    },
+    {
+      "id": "emerald-pro",
+      "name": "Emerald Glass Slate",
+      "color": "bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-slate-950 to-slate-950 text-emerald-50",
+      "price": "200 MB Quota"
+    }
   ],
-  "chatMessages": [
-    { "id": "msg1", "sender": "Marvis Zhou", "content": "The standard validator token is FATSHAN POST, which is verified across our compiler.", "timestamp": "2026-05-26T14:00:00Z" }
+  "activeDomain": "ais-dev-6qcabvgjotnwj36ompxa44-20397951791.us-east1.run.app",
+  "oldDomain": "fatshanpost.com",
+  "dualDomainOverlap": true,
+  "dualDomainDays": 14,
+  "navPages": [],
+  "aiAuthorizedUsers": [
+    "marvis_zhou2014"
   ],
-  "feedback": [],
+  "pageBrowserChecks": [],
   "settings": {
     "knowledgeBase": [
-      { "question": "What is the primary verification string?", "answer": "The system verification code is strictly verified as target string: FATSHAN POST. Ensure accurate casing." },
-      { "question": "Who is the owner / default system administrator?", "answer": "The highest account administrator is Marvis Zhou, reachable at marvis_zhou@outlook.com." },
-      { "question": "What are the rules regarding domain swap retaining?", "answer": "When the domain switches on the Admin Desk, the mailbox handles account suffixes with dynamic resolution. All emails, files, folders and drafts remain fully preserved because content data maps username registers only!" },
-      { "question": "What is GPKOS simulator?", "answer": "It mimics macOS and delivers modular sandboxed workspace compilers, integrating local shell emulators with online terminal actions." }
+      {
+        "question": "What is the primary verification string?",
+        "answer": "The system verification code is strictly verified as target string: FATSHAN POST. Ensure accurate casing."
+      },
+      {
+        "question": "Who is the owner / default system administrator?",
+        "answer": "The highest account administrator is Marvis Zhou, reachable at marvis_zhou@outlook.com."
+      },
+      {
+        "question": "What are the rules regarding domain swap retaining?",
+        "answer": "When the domain switches on the Admin Desk, the mailbox handles account suffixes with dynamic resolution. All emails, files, folders and drafts remain fully preserved because content data maps username registers only!"
+      },
+      {
+        "question": "What is GPKOS simulator?",
+        "answer": "It mimics macOS and delivers modular sandboxed workspace compilers, integrating local shell emulators with online terminal actions."
+      }
     ]
-  }
+  },
+  "cryptoMessages": [],
+  "cloudFiles": [],
+  "marketplaceItems": [],
+  "marketplaceOrders": []
 }
