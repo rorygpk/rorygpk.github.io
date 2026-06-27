@@ -166,6 +166,7 @@ export interface SubPage {
   titleZh: string;
   contentEn: string;
   contentZh: string;
+  htmlContent?: string;
   externalLink?: string; // If it's an external URL
   isExternal: boolean; // true if it's an external link
   isVisible: boolean; // whether to show in top nav
@@ -199,6 +200,8 @@ export interface SystemState {
   outerWebAuthorizedUsers?: string[];
   cloudFiles?: CloudDriveFile[];
   pageBrowserChecks?: PageBrowserCheck[];
+  marketplaceItems?: any[];
+  marketplaceOrders?: any[];
   settings: {
     knowledgeBase: { question: string; answer: string }[];
   };

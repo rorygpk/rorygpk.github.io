@@ -60,7 +60,9 @@ function readDB() {
     pageBrowserChecks: db.pageBrowserChecks || [],
     settings: db.settings || { knowledgeBase: [] },
     cryptoMessages: db.cryptoMessages || [],
-    cloudFiles: db.cloudFiles || []
+    cloudFiles: db.cloudFiles || [],
+    marketplaceItems: db.marketplaceItems || [],
+    marketplaceOrders: db.marketplaceOrders || []
   };
 }
 
