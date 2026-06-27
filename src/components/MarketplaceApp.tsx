@@ -14,95 +14,89 @@ import {
   Trash2,
   Plus,
   Info,
+  Sliders,
+  User,
+  Settings,
+  ShieldCheck,
+  Award,
+  List,
+  ChevronRight,
+  PlusCircle,
+  AlertCircle,
+  ShoppingBag,
+  Coins,
+  History,
+  Unlock,
+  CheckCircle
 } from "lucide-react";
 
-// Pre-populated high-quality items in case the backend items list is empty or to complement it
+// Pre-populated items
 const PRESET_MARKET_ITEMS = [
   {
     id: "preset-1",
     title: "IBM ThinkPad 760ED (Vintage Retro Laptop)",
-    description:
-      "Classic IBM ThinkPad from 1996. Features Intel Pentium 133MHz, 16MB RAM, and beautiful active matrix screen. Perfect for retro collectors.",
+    description: "Classic IBM ThinkPad from 1996. Features Intel Pentium 133MHz, 16MB RAM, and beautiful active matrix screen. Perfect for retro collectors.",
     price: 349.99,
     condition: "Used - Excellent",
     seller: "RetroTech_Collector",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/e/e0/IBM_Thinkpad_760ED.jpg",
-    paymentMethods: ["card", "alipay", "wechat"],
-    createdAt: new Date().toISOString(),
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e0/IBM_Thinkpad_760ED.jpg",
+    paymentMethods: ["card", "alipay", "wechat", "paypal"],
+    stock: 5,
+    options: {
+      "Memory": ["16MB RAM (Original)", "32MB RAM (Max Upgraded)"],
+      "OS": ["Windows 95", "MS-DOS 6.22"]
+    },
+    createdAt: new Date().toISOString()
   },
   {
     id: "preset-2",
     title: "Apple Watch Series 8 GPS - 45mm Midnight",
-    description:
-      "Midnight aluminum case with Midnight sport band. Excellent battery health, minor wear on the screen. Complete with original box and magnetic charger.",
-    price: 249.0,
+    description: "Midnight aluminum case with Midnight sport band. Excellent battery health, minor wear on the screen. Complete with original box and magnetic charger.",
+    price: 249.00,
     condition: "Used - Excellent",
     seller: "TechFlip",
-    imageUrl:
-      "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=600&q=80",
-    paymentMethods: ["card", "alipay"],
-    createdAt: new Date().toISOString(),
+    imageUrl: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=600&q=80",
+    paymentMethods: ["card", "alipay", "paypal"],
+    stock: 12,
+    options: {
+      "Band Color": ["Midnight Sport", "Pride Edition", "Milanese Loop"],
+      "Protection": ["None", "AppleCare+ (+$49)"]
+    },
+    createdAt: new Date().toISOString()
   },
   {
     id: "preset-3",
     title: "iPhone 13 Pro Max - 256GB Sierra Blue (Unlocked)",
-    description:
-      "Unlocked for any carrier. Sierra Blue, pristine condition. Back glass and screen are completely flawless. Battery health is at 89%.",
-    price: 680.0,
+    description: "Unlocked for any carrier. Sierra Blue, pristine condition. Back glass and screen are completely flawless. Battery health is at 89%.",
+    price: 680.00,
     condition: "Used - Excellent",
     seller: "GadgetHub",
-    imageUrl:
-      "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=600&q=80",
-    paymentMethods: ["card", "alipay", "wechat"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "preset-4",
-    title: "Custom Mechanical Keyboard (GMMK Pro, Holy Panda)",
-    description:
-      "Gaddet premium GMMK Pro build. features lubed Holy Panda tactile switches, premium brass plate, and retro PBT keycaps. Heavy brass feel.",
-    price: 189.5,
-    condition: "New with tags",
-    seller: "KeebBuilder_Zhou",
-    imageUrl:
-      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
-    paymentMethods: ["card", "alipay", "wechat"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "preset-5",
-    title: "Sony WH-1000XM4 Noise Canceling Headphones",
-    description:
-      "Industry-leading noise cancellation. Silver model, pristine cups and head arch. Includes flight adapter, USB cable and carry case.",
-    price: 159.0,
-    condition: "Used - Good",
-    seller: "AudioEnthusiast",
-    imageUrl:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-    paymentMethods: ["card", "alipay"],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "preset-6",
-    title: "Fujifilm X100V Digital Camera (Silver)",
-    description:
-      "Highly sought-after compact street photography machine. Fixed 23mm F2 lens. Includes 2 batteries, leather half-case, and lens hood. 3200 shutter count.",
-    price: 1399.0,
-    condition: "Used - Excellent",
-    seller: "ShutterBugs",
-    imageUrl:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80",
-    paymentMethods: ["card", "alipay", "wechat"],
-    createdAt: new Date().toISOString(),
-  },
+    imageUrl: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=600&q=80",
+    paymentMethods: ["card", "alipay", "wechat", "paypal"],
+    stock: 2,
+    options: {
+      "Storage": ["256GB", "512GB (+$120)"],
+      "Battery Level": ["89% (Original)", "100% (New Battery +$40)"]
+    },
+    createdAt: new Date().toISOString()
+  }
 ];
+
+interface MerchantPaymentProfile {
+  alipayAccount: string;
+  alipayQR: string;
+  wechatAccount: string;
+  wechatQR: string;
+  paypalEmail: string;
+  cardDetails: string;
+  balance: number;
+}
 
 export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
   const [search, setSearch] = useState("");
-  const [view, setView] = useState<
-    "browse" | "sell" | "cart" | "checkout" | "success"
-  >("browse");
+  const [view, setView] = useState<"browse" | "sell" | "cart" | "checkout" | "success" | "merchant" | "admin-escrow">("browse");
+  
+  // Cart state
   const [cart, setCart] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem("gpkos_market_cart");
@@ -112,22 +106,64 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
     }
   });
 
+  // Items and Orders state
   const [items, setItems] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  
+  // File drag-drop for seller
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [uploadedFileBase64, setUploadedFileBase64] = useState<string>("");
   const [uploadedFileName, setUploadedFileName] = useState("");
+  
+  // Add product form
   const [sellForm, setSellForm] = useState({
     title: "",
     description: "",
     price: "",
     condition: "New with tags",
+    stock: "5",
+    paymentMethods: {
+      alipay: true,
+      wechat: true,
+      paypal: true,
+      card: true
+    },
+    optionsRaw: "Color: Black, White, Silver\nSize: Standard, Professional (+100)"
   });
-  const [transferTarget, setTransferTarget] = useState("");
 
-  // Filtering states
-  const [filterConditions, setFilterConditions] = useState<{
-    [key: string]: boolean;
-  }>({
+  // Payee profiles state
+  const [merchantProfile, setMerchantProfile] = useState<MerchantPaymentProfile>(() => {
+    try {
+      const saved = localStorage.getItem("gpkos_merchant_profile");
+      return saved ? JSON.parse(saved) : {
+        alipayAccount: "gpk_payee_alipay@rorygpk.com",
+        alipayQR: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150",
+        wechatAccount: "gpkos_merchant_wechat",
+        wechatQR: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150",
+        paypalEmail: "paypal-seller@rorygpkos.com",
+        cardDetails: "VISA Merchant ID: #99281-GPK",
+        balance: 1540.00
+      };
+    } catch {
+      return {
+        alipayAccount: "gpk_payee_alipay@rorygpk.com",
+        alipayQR: "",
+        wechatAccount: "gpkos_merchant_wechat",
+        wechatQR: "",
+        paypalEmail: "paypal-seller@rorygpkos.com",
+        cardDetails: "VISA Merchant ID: #99281-GPK",
+        balance: 1540.00
+      };
+    }
+  });
+
+  // Selected Options popup state when buyer clicks Buy Now
+  const [optionPopupItem, setOptionPopupItem] = useState<any | null>(null);
+  const [popupSelectedOptions, setPopupSelectedOptions] = useState<{[key: string]: string}>({});
+  const [popupQuantity, setPopupQuantity] = useState(1);
+
+  // Filter criteria
+  const [filterConditions, setFilterConditions] = useState<{ [key: string]: boolean }>({
     "New with tags": false,
     "Used - Excellent": false,
     "Used - Good": false,
@@ -137,34 +173,55 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
   const [maxPrice, setMaxPrice] = useState("");
 
   useEffect(() => {
-    fetchItems();
-  }, []);
-
-  useEffect(() => {
     localStorage.setItem("gpkos_market_cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem("gpkos_merchant_profile", JSON.stringify(merchantProfile));
+  }, [merchantProfile]);
+
+  useEffect(() => {
+    fetchItems();
+    fetchOrders();
+  }, []);
 
   const fetchItems = async () => {
     try {
       const res = await fetch("/api/marketplace/items");
       const data = await res.json();
       if (data.success && data.items && data.items.length > 0) {
-        // Merge DB items with presets (filtering duplicates just in case)
-        const dbItems = data.items;
         const merged = [
-          ...dbItems,
-          ...PRESET_MARKET_ITEMS.filter(
-            (p) => !dbItems.some((d: any) => d.title === p.title),
-          ),
+          ...data.items,
+          ...PRESET_MARKET_ITEMS.filter(p => !data.items.some((d: any) => d.title === p.title))
         ];
         setItems(merged);
       } else {
         setItems(PRESET_MARKET_ITEMS);
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
       setItems(PRESET_MARKET_ITEMS);
     }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch("/api/marketplace/orders");
+      const data = await res.json();
+      if (data.success && data.orders) {
+        setOrders(data.orders);
+      } else {
+        const saved = localStorage.getItem("gpkos_market_orders");
+        setOrders(saved ? JSON.parse(saved) : []);
+      }
+    } catch {
+      const saved = localStorage.getItem("gpkos_market_orders");
+      setOrders(saved ? JSON.parse(saved) : []);
+    }
+  };
+
+  const saveOrders = (updatedOrders: any[]) => {
+    setOrders(updatedOrders);
+    localStorage.setItem("gpkos_market_orders", JSON.stringify(updatedOrders));
   };
 
   const handleList = async (e: React.FormEvent) => {
@@ -178,228 +235,203 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
       return;
     }
 
-    try {
-      // Default placeholder images matching typical categories
-      let finalImg = uploadedFileBase64;
-      if (!finalImg) {
-        const titleLower = sellForm.title.toLowerCase();
-        if (
-          titleLower.includes("camera") ||
-          titleLower.includes("lens") ||
-          titleLower.includes("photo")
-        ) {
-          finalImg =
-            "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80";
-        } else if (
-          titleLower.includes("watch") ||
-          titleLower.includes("wearable")
-        ) {
-          finalImg =
-            "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=600&q=80";
-        } else if (
-          titleLower.includes("phone") ||
-          titleLower.includes("iphone") ||
-          titleLower.includes("android")
-        ) {
-          finalImg =
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80";
-        } else if (
-          titleLower.includes("laptop") ||
-          titleLower.includes("thinkpad") ||
-          titleLower.includes("macbook") ||
-          titleLower.includes("computer")
-        ) {
-          finalImg =
-            "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80";
-        } else {
-          finalImg =
-            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80"; // generic product
+    // Parse options input (e.g. "Color: Black, White\nSize: S, M, L")
+    const parsedOptions: {[key: string]: string[]} = {};
+    sellForm.optionsRaw.split("\n").forEach(line => {
+      const pts = line.split(":");
+      if (pts.length === 2) {
+        const key = pts[0].trim();
+        const vals = pts[1].split(",").map(v => v.trim());
+        if (key && vals.length > 0) {
+          parsedOptions[key] = vals;
         }
       }
+    });
 
+    const activeMethods = Object.keys(sellForm.paymentMethods).filter(k => (sellForm.paymentMethods as any)[k]);
+
+    const finalImg = uploadedFileBase64 || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80";
+
+    const newItem = {
+      id: Date.now().toString(),
+      title: sellForm.title,
+      description: sellForm.description || "暂无详细描述。",
+      price: parseFloat(sellForm.price),
+      condition: sellForm.condition,
+      seller: currentUser.emailUsername || "Zhou_Admin",
+      imageUrl: finalImg,
+      paymentMethods: activeMethods,
+      stock: parseInt(sellForm.stock) || 5,
+      options: parsedOptions,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
       const res = await fetch("/api/marketplace/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: sellForm.title,
-          description: sellForm.description || "暂无详细描述。",
-          price: parseFloat(sellForm.price),
-          condition: sellForm.condition,
-          seller: currentUser.emailUsername || "Zhou_Admin",
-          imageUrl: finalImg,
-          paymentMethods: ["card", "alipay", "wechat"],
-        }),
+        body: JSON.stringify(newItem)
       });
-
       const data = await res.json();
       if (data.success) {
         alert("🎉 商品发布成功！已同步至全球去中心化数据库节点。");
-        // Reset state
-        setSellForm({
-          title: "",
-          description: "",
-          price: "",
-          condition: "New with tags",
-        });
-        setUploadedFileName("");
-        setUploadedFileBase64("");
-        fetchItems();
-        setView("browse");
-      } else {
-        alert("发布商品失败，请重试。");
       }
-    } catch (err) {
-      console.error(err);
-      alert("发布接口连接错误，正在使用本地存储代理...");
-      // Fallback local mock insertion
-      const newItem = {
-        id: "local-" + Date.now().toString(),
-        title: sellForm.title,
-        description: sellForm.description || "暂无详细描述。",
-        price: parseFloat(sellForm.price),
-        condition: sellForm.condition,
-        seller: currentUser.emailUsername || "Zhou_Admin",
-        imageUrl:
-          uploadedFileBase64 ||
-          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
-        paymentMethods: ["card", "alipay", "wechat"],
-        createdAt: new Date().toISOString(),
-      };
-      setItems((prev) => [newItem, ...prev]);
-      setSellForm({
-        title: "",
-        description: "",
-        price: "",
-        condition: "New with tags",
-      });
-      setUploadedFileName("");
-      setUploadedFileBase64("");
-      setView("browse");
+    } catch {
+      alert("发布接口连接错误，正在使用本地模拟存储...");
     }
+
+    setItems(prev => [newItem, ...prev]);
+    // Reset listing form
+    setSellForm({
+      title: "",
+      description: "",
+      price: "",
+      condition: "New with tags",
+      stock: "5",
+      paymentMethods: { alipay: true, wechat: true, paypal: true, card: true },
+      optionsRaw: "Color: Black, White, Silver\nSize: Standard, Professional (+100)"
+    });
+    setUploadedFileName("");
+    setUploadedFileBase64("");
+    setView("browse");
   };
 
-  const handleCheckout = async (
-    paymentMethod: "card" | "alipay" | "wechat",
-  ) => {
+  const handleAddToCartFromPopup = () => {
+    if (!optionPopupItem) return;
+    
+    // Add selected options metadata
+    const itemInCart = {
+      ...optionPopupItem,
+      selectedOptions: { ...popupSelectedOptions },
+      quantity: popupQuantity,
+      totalPrice: optionPopupItem.price * popupQuantity
+    };
+
+    setCart(prev => [...prev, itemInCart]);
+    alert(`🛒 已将 ${popupQuantity} 件「${optionPopupItem.title}」成功加入您的全球购物车！`);
+    setOptionPopupItem(null);
+  };
+
+  const handleCheckoutSubmit = async (paymentMethod: "card" | "alipay" | "wechat" | "paypal") => {
     if (!currentUser) {
       alert("请先登录您的 GPKOS 虚拟主机会话再进行付款结算。");
       return;
     }
     if (cart.length === 0) return;
 
+    const computedTotal = cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15;
+
+    // Create a new order with pending system escrow
+    const newOrder = {
+      id: "ORD-" + Date.now().toString(),
+      items: [...cart],
+      buyer: currentUser.emailUsername || "guest_buyer",
+      total: computedTotal,
+      paymentMethod: paymentMethod,
+      escrowStatus: "pending_verification", // 系统收账：等待托管价格及数量校验
+      escrowStatusText: "系统已收账，等待价格验证 & 释放担保",
+      seller: cart[0]?.seller || "Zhou_Admin",
+      createdAt: new Date().toISOString()
+    };
+
     try {
-      const res = await fetch("/api/marketplace/orders", {
+      await fetch("/api/marketplace/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: cart,
-          buyer: currentUser.emailUsername || "guest_buyer",
-          total: cart.reduce((a, b) => a + b.price, 0) + 15,
-          paymentMethod: paymentMethod,
-        }),
+        body: JSON.stringify(newOrder)
       });
-      const data = await res.json();
-      if (data.success) {
-        setCart([]);
-        setView("success");
-      } else {
-        alert("订单提交失败，请重试。");
+    } catch {
+      console.log("Mocking checkout route locally");
+    }
+
+    saveOrders([newOrder, ...orders]);
+    setCart([]);
+    setView("success");
+  };
+
+  // Escrow Audit System Actions
+  const handleVerifyPrice = (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    // Verify calculated amount vs items prices
+    let calculatedSum = 0;
+    order.items.forEach((it: any) => {
+      calculatedSum += it.price * (it.quantity || 1);
+    });
+    calculatedSum += 15; // ship fee
+
+    const isMatch = Math.abs(calculatedSum - order.total) < 0.05;
+
+    if (isMatch) {
+      const updated = orders.map(o => {
+        if (o.id === orderId) {
+          return {
+            ...o,
+            escrowStatus: "price_verified",
+            escrowStatusText: "系统已确认价格无误，保障金锁仓托管中"
+          };
+        }
+        return o;
+      });
+      saveOrders(updated);
+      alert("✅ 系统确定价格无误！资金已锁定进入多签托管智能账户，等待转交商家。");
+    } else {
+      alert("⚠️ 校验失败！订单支付总额与系统商品价格明细不匹配，拒绝托管。");
+    }
+  };
+
+  const handleReleaseFunds = (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    // Release to merchant
+    const updated = orders.map(o => {
+      if (o.id === orderId) {
+        return {
+          ...o,
+          escrowStatus: "completed",
+          escrowStatusText: "已转交商家，资金已到账"
+        };
       }
-    } catch (e) {
-      console.error(e);
-      // Fallback checkout success anyway
-      setCart([]);
-      setView("success");
-    }
+      return o;
+    });
+    saveOrders(updated);
+
+    // Update merchant profile wallet
+    setMerchantProfile(prev => ({
+      ...prev,
+      balance: prev.balance + order.total
+    }));
+
+    alert(`💸 托管款 $${order.total.toFixed(2)} 已成功拨付给商家 [${order.seller}] 的账户余额中！`);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsDraggingFile(true);
+    alert("💾 商家收款方式及提现账户已保存至系统冷钱包。");
+    setView("browse");
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingFile(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingFile(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      handleFile(e.target.files[0]);
-    }
-  };
-
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
-      alert("只允许上传商品展示图片或视频文件。");
+  const handleWithdraw = () => {
+    if (merchantProfile.balance <= 0) {
+      alert("账户余额不足，无法发起提现。");
       return;
     }
-    const MAX_SIZE = 30 * 1024 * 1024; // 30MB limit to comfortably allow video uploads
-    if (file.size > MAX_SIZE) {
-      alert("文件大小超过 30MB 限制。");
-      return;
-    }
-
-    setUploadedFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        setUploadedFileBase64(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+    const sum = merchantProfile.balance;
+    setMerchantProfile(prev => ({ ...prev, balance: 0 }));
+    alert(`💸 提现成功！已将 $${sum.toFixed(2)} 提现至您指定的账户通道。`);
   };
-
-  const addToCart = (item: any) => {
-    if (cart.some((c) => c.id === item.id)) {
-      alert("该商品已在购物车中。");
-      return;
-    }
-    setCart((prev) => [...prev, item]);
-    alert(`🛒 已将「${item.title}」成功加入您的全球购物车！`);
-  };
-
-  const removeFromCart = (index: number) => {
-    setCart((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleOrderTransfer = () => {
-    if (!transferTarget.trim()) {
-      alert("请输入合法的网关账户名称或邮箱地址。");
-      return;
-    }
-    alert(
-      `✈️ 订单接收网关就绪：已向 [${transferTarget}] 成功发出订单中转让渡请求，等待对方在消息中心确认。`,
-    );
-    setTransferTarget("");
-  };
-
-  // Filtering Logic
-  const activeConditionFilters = Object.keys(filterConditions).filter(
-    (k) => filterConditions[k],
-  );
 
   const filteredItems = items.filter((item) => {
-    // Search keyword
     const matchSearch =
       item.title.toLowerCase().includes(search.toLowerCase()) ||
       item.description.toLowerCase().includes(search.toLowerCase()) ||
       item.seller.toLowerCase().includes(search.toLowerCase());
 
-    // Condition filters
-    const matchCondition =
-      activeConditionFilters.length === 0 ||
-      activeConditionFilters.includes(item.condition);
+    const activeConditionFilters = Object.keys(filterConditions).filter((k) => filterConditions[k]);
+    const matchCondition = activeConditionFilters.length === 0 || activeConditionFilters.includes(item.condition);
 
-    // Price range filters
     const numericMin = parseFloat(minPrice);
     const numericMax = parseFloat(maxPrice);
     const matchMin = isNaN(numericMin) || item.price >= numericMin;
@@ -409,285 +441,182 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
   });
 
   return (
-    <div className="flex flex-col h-full bg-slate-100 text-slate-900 border border-slate-300 rounded-xl overflow-hidden shadow-2xl">
-      {/* Marketplace Header */}
-      <div className="bg-white px-6 py-4 flex flex-col md:flex-row items-center gap-4 justify-between border-b border-slate-200">
-        <div
-          className="flex items-center gap-2.5 cursor-pointer select-none"
-          onClick={() => setView("browse")}
-        >
-          <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-200">
-            <ShoppingCart className="w-5 h-5" />
+    <div className="flex flex-col h-full bg-slate-100 text-slate-900 border border-slate-300 rounded-2xl overflow-hidden shadow-2xl">
+      {/* Top Header section */}
+      <div className="bg-white px-6 py-4 flex flex-col md:flex-row items-center gap-4 justify-between border-b border-slate-200 shrink-0">
+        <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setView("browse")}>
+          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+            <ShoppingBag className="w-5 h-5" />
           </div>
-          <div>
-            <span className="font-black text-xl tracking-tighter text-blue-900 flex items-center gap-1">
-              Rory<span className="text-blue-600">eBay</span>
+          <div className="text-left">
+            <span className="font-extrabold text-lg tracking-tighter text-blue-900 flex items-center gap-1">
+              RoryGpk<span className="text-blue-600">Marketplace</span>
             </span>
             <span className="text-[9px] block uppercase font-mono tracking-widest text-slate-400 font-bold -mt-1">
-              Super-Grid Multi-Trading Node
+              Decentralized Escrow Exchange Network
             </span>
           </div>
         </div>
 
         {view === "browse" && (
-          <div className="flex-grow max-w-xl relative">
+          <div className="flex-grow max-w-md relative">
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="搜索任何全球在售宝贝、复古古玩、极客硬件 (如: ThinkPad, iPhone)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-20 py-2.5 border-2 border-slate-200 rounded-full bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500 transition text-xs font-semibold"
+              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500 transition text-xs font-semibold"
             />
-            <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-blue-600 text-white px-5 rounded-full text-[10px] font-black uppercase hover:bg-blue-700 transition tracking-wider">
-              Search
-            </button>
           </div>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setView("sell")}
-            className={`px-3 py-2 flex items-center gap-1.5 text-xs font-black rounded-lg transition-all ${view === "sell" ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"}`}
+            className={`px-3 py-2 flex items-center gap-1 text-xs font-black rounded-lg transition-all ${view === "sell" ? "bg-blue-50 text-blue-700 border border-blue-200" : "text-slate-600 hover:text-blue-600 hover:bg-slate-50 border border-transparent"}`}
           >
-            <DollarSign className="w-4.5 h-4.5" /> 我要卖宝贝 (List)
+            <Upload className="w-4 h-4" /> 发布宝贝 (List)
           </button>
+          
+          <button
+            onClick={() => setView("merchant")}
+            className={`px-3 py-2 flex items-center gap-1 text-xs font-black rounded-lg transition-all ${view === "merchant" ? "bg-blue-50 text-blue-700 border border-blue-200" : "text-slate-600 hover:text-blue-600 hover:bg-slate-50 border border-transparent"}`}
+          >
+            <Settings className="w-4 h-4" /> 商家收款设置 (My Shop)
+          </button>
+
+          <button
+            onClick={() => setView("admin-escrow")}
+            className={`px-3 py-2 flex items-center gap-1 text-xs font-black rounded-lg transition-all ${view === "admin-escrow" ? "bg-amber-50 text-amber-800 border border-amber-200" : "text-slate-600 hover:text-amber-600 hover:bg-slate-50 border border-transparent"}`}
+          >
+            <ShieldCheck className="w-4 h-4 text-amber-500" /> 系统收账担保台 ({orders.filter(o => o.escrowStatus !== 'completed').length})
+          </button>
+
           <button
             onClick={() => setView("cart")}
-            className={`px-3 py-2 flex items-center gap-1.5 text-xs font-black rounded-lg transition-all relative ${view === "cart" ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"}`}
+            className={`px-3 py-2 flex items-center gap-1 text-xs font-black rounded-lg transition-all relative ${view === "cart" ? "bg-blue-50 text-blue-700 border border-blue-200" : "text-slate-600 hover:text-blue-600 hover:bg-slate-50 border border-transparent"}`}
           >
-            <ShoppingCart className="w-4.5 h-4.5" /> 购物车 (Cart)
-            {cart.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-white shadow animate-bounce">
-                {cart.length}
-              </span>
-            )}
+            <ShoppingCart className="w-4 h-4" /> 购物车 ({cart.length})
           </button>
         </div>
       </div>
 
-      {view === "browse" && (
-        <>
-          {/* Categories Sub-menu bar */}
-          <div className="bg-white border-b border-slate-200 px-6 py-2 flex items-center gap-6 text-[10px] font-black text-slate-500 uppercase tracking-widest overflow-x-auto select-none shrink-0 custom-scrollbar">
-            <span className="text-blue-600 border-b-2 border-blue-600 pb-0.5 cursor-pointer whitespace-nowrap">
-              🔥 今日热销推荐 (Daily Deals)
-            </span>
-            <span
-              className="hover:text-blue-600 cursor-pointer whitespace-nowrap transition"
-              onClick={() => setSearch("ThinkPad")}
-            >
-              💻 极客电脑 (Electronics)
-            </span>
-            <span
-              className="hover:text-blue-600 cursor-pointer whitespace-nowrap transition"
-              onClick={() => setSearch("Camera")}
-            >
-              📷 复古相机 (Collectibles & Art)
-            </span>
-            <span
-              className="hover:text-blue-600 cursor-pointer whitespace-nowrap transition"
-              onClick={() => setSearch("Watch")}
-            >
-              ⌚ 智能穿戴 (Fashion & Wear)
-            </span>
-            <span
-              className="hover:text-blue-600 cursor-pointer whitespace-nowrap transition"
-              onClick={() => {
-                setSearch("");
-                setMinPrice("");
-                setMaxPrice("");
-              }}
-            >
-              🔄 重置全部 (Reset Filters)
-            </span>
-          </div>
-
-          <div className="flex flex-grow overflow-hidden">
-            {/* Sidebar Filters */}
-            <div className="w-56 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 p-4 overflow-y-auto hidden md:flex text-left">
-              <div className="font-bold text-xs text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2 uppercase tracking-wider">
-                <Filter className="w-4 h-4 text-blue-500" /> 多维属性筛选
-                (Filters)
-              </div>
-              <div className="space-y-5">
+      {/* Main workspace */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        {view === "browse" && (
+          <div className="flex-grow flex overflow-hidden">
+            {/* Left sidebar filters */}
+            <div className="w-56 bg-slate-50 border-r border-slate-200 p-4 text-left overflow-y-auto hidden md:block shrink-0">
+              <h3 className="font-bold text-xs text-slate-800 mb-4 border-b border-slate-200 pb-2 flex items-center gap-1">
+                <Filter className="w-4 h-4 text-blue-500" /> 商品属性过滤
+              </h3>
+              <div className="space-y-4">
                 <div>
-                  <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider mb-2.5">
-                    商品成色 (Condition)
-                  </div>
-                  {Object.keys(filterConditions).map((cond) => (
-                    <label
-                      key={cond}
-                      className="flex items-center gap-2 text-xs font-semibold text-slate-600 mb-2 cursor-pointer hover:text-slate-900"
-                    >
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-2">商品成色</span>
+                  {Object.keys(filterConditions).map(cond => (
+                    <label key={cond} className="flex items-center gap-2 text-xs text-slate-600 mb-1.5 cursor-pointer hover:text-slate-900 font-medium">
                       <input
                         type="checkbox"
                         checked={filterConditions[cond]}
-                        onChange={() =>
-                          setFilterConditions((prev) => ({
-                            ...prev,
-                            [cond]: !prev[cond],
-                          }))
-                        }
-                        className="rounded text-blue-600 focus:ring-blue-500 border-slate-300 w-4 h-4"
+                        onChange={() => setFilterConditions(prev => ({ ...prev, [cond]: !prev[cond] }))}
+                        className="rounded border-slate-300 text-blue-600"
                       />
-                      <span>
-                        {cond === "New with tags"
-                          ? "🆕 全新未拆封"
-                          : cond === "Used - Excellent"
-                            ? "💎 充新极品"
-                            : cond === "Used - Good"
-                              ? "👍 良好二手"
-                              : "🔧 故障/报废"}
-                      </span>
+                      <span>{cond}</span>
                     </label>
                   ))}
                 </div>
+
                 <div>
-                  <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider mb-2.5">
-                    价格区间 (Price $)
-                  </div>
-                  <div className="flex gap-2 items-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-2">价格区间</span>
+                  <div className="flex items-center gap-2">
                     <input
                       type="number"
-                      placeholder="最低"
+                      placeholder="Min"
                       value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                      className="w-full text-xs p-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+                      onChange={e => setMinPrice(e.target.value)}
+                      className="w-full text-xs p-1.5 border border-slate-200 rounded-lg bg-white"
                     />
-                    <span className="text-slate-400 text-xs">-</span>
+                    <span className="text-slate-400">-</span>
                     <input
                       type="number"
-                      placeholder="最高"
+                      placeholder="Max"
                       value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                      className="w-full text-xs p-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+                      onChange={e => setMaxPrice(e.target.value)}
+                      className="w-full text-xs p-1.5 border border-slate-200 rounded-lg bg-white"
                     />
                   </div>
                 </div>
+
                 <div className="pt-2 border-t border-slate-200">
-                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-[10px] text-blue-700 leading-relaxed">
-                    <div className="font-bold flex items-center gap-1.5 mb-1">
-                      <Info className="w-3.5 h-3.5 text-blue-500" />{" "}
-                      安全保障服务
+                  <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-3 text-[10px] text-blue-800 leading-relaxed">
+                    <div className="font-bold flex items-center gap-1.5 mb-1 text-blue-900">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> 智能担保合约已启用
                     </div>
-                    支持支付宝、微信支付与国际VISA信用卡。全部款项均通过多签冷钱包提供履约担保。
+                    买家付款将先由系统进行校验锁仓（收账），核对订单各项费用及数量无误后，安全拨付至商家账户。
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Product Grid Area */}
-            <div className="flex-grow bg-slate-100 p-6 overflow-y-auto">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2 text-left">
-                <h2 className="text-base font-black text-slate-800 flex items-center gap-2">
-                  <Zap className="text-yellow-500 w-5 h-5 animate-pulse" />
-                  <span>全球链上优选宝贝 ({filteredItems.length}件在售)</span>
-                </h2>
-                {search && (
-                  <span className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold">
-                    搜索: "{search}"
-                  </span>
-                )}
+            {/* Marketplace Items Grid */}
+            <div className="flex-grow p-6 overflow-y-auto bg-slate-50 text-left">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                  <Zap className="text-amber-500 w-4 h-4 animate-pulse" />
+                  <span>集市精选货架 ({filteredItems.length} 件商品在售)</span>
+                </h3>
               </div>
 
               {filteredItems.length === 0 ? (
-                <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center max-w-lg mx-auto mt-8 shadow-sm">
-                  <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                  <h3 className="font-bold text-slate-700 mb-1">
-                    未找到符合筛选条件的宝贝
-                  </h3>
-                  <p className="text-slate-400 text-xs">
-                    请尝试清除搜索关键词或重置价格、成色筛选条件。
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSearch("");
-                      setMinPrice("");
-                      setMaxPrice("");
-                      setFilterConditions({
-                        "New with tags": false,
-                        "Used - Excellent": false,
-                        "Used - Good": false,
-                        "For parts or not working": false,
-                      });
-                    }}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition"
-                  >
-                    清除所有过滤器
-                  </button>
+                <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center max-w-sm mx-auto mt-8">
+                  <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                  <h4 className="font-bold text-slate-700 text-sm">未找到宝贝</h4>
+                  <p className="text-slate-400 text-xs mt-1">请尝试清除过滤条件。</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                  {filteredItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-xl hover:border-blue-400 transition-all duration-300 flex flex-col justify-between text-left relative group"
-                    >
-                      {item.condition.includes("New") && (
-                        <span className="absolute top-3 left-3 bg-red-500 text-white text-[8px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full z-10">
-                          Brand New
-                        </span>
-                      )}
-                      <div className="aspect-video bg-slate-50 rounded-xl mb-4 overflow-hidden relative border border-slate-100 flex items-center justify-center shrink-0">
-                        {item.imageUrl?.startsWith("data:video/") || item.imageUrl?.endsWith(".mp4") || item.imageUrl?.endsWith(".webm") || item.imageUrl?.includes("video") ? (
-                          <video
-                            src={item.imageUrl}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            controls
-                            muted
-                            loop
-                            playsInline
-                          />
-                        ) : (
-                          <img
-                            src={item.imageUrl}
-                            alt={item.title}
-                            className="max-h-full max-w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            referrerPolicy="no-referrer"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-grow flex flex-col justify-between mb-4">
-                        <div>
-                          <h3
-                            className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition line-clamp-1 mb-1.5"
-                            title={item.title}
-                          >
-                            {item.title}
-                          </h3>
-                          <p
-                            className="text-slate-500 text-xs leading-relaxed line-clamp-2 h-8 mb-3"
-                            title={item.description}
-                          >
-                            {item.description}
-                          </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredItems.map(item => (
+                    <div key={item.id} className="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-xl hover:border-blue-400 transition-all duration-300 flex flex-col justify-between">
+                      <div>
+                        {/* Image area */}
+                        <div className="aspect-video bg-slate-50 border border-slate-100 rounded-xl overflow-hidden mb-3 relative flex items-center justify-center">
+                          <img src={item.imageUrl} alt="item" className="max-h-full max-w-full object-cover" />
+                          <span className="absolute top-2 left-2 bg-black/60 text-white text-[8px] font-bold px-2 py-0.5 rounded-full font-mono">
+                            Qty: {item.stock}
+                          </span>
                         </div>
-                        <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-                          <div>
-                            <div className="text-[9px] uppercase font-bold text-slate-400">
-                              Seller Node
-                            </div>
-                            <span className="font-mono font-bold text-[10px] text-slate-700 block">
-                              {item.seller}
+
+                        <h4 className="font-bold text-sm text-slate-900 truncate">{item.title}</h4>
+                        <p className="text-xs text-slate-400 line-clamp-2 h-8 mt-1 leading-relaxed">{item.description}</p>
+                        
+                        <div className="flex flex-wrap gap-1 mt-3">
+                          {item.paymentMethods?.map((m: string) => (
+                            <span key={m} className="bg-slate-100 text-slate-500 text-[8px] font-bold px-1.5 py-0.2 rounded font-mono uppercase">
+                              {m === 'alipay' ? '支付宝' : m === 'wechat' ? '微信' : m === 'paypal' ? 'PayPal' : '银行卡'}
                             </span>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-[10px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full text-slate-600 font-bold block mb-1">
-                              {item.condition}
-                            </span>
-                          </div>
+                          ))}
                         </div>
                       </div>
-                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 mt-auto">
-                        <div className="font-black text-xl text-slate-900">
-                          ${item.price.toFixed(2)}
-                        </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-100 mt-4">
+                        <span className="font-black text-lg text-slate-900">${item.price.toFixed(2)}</span>
                         <button
-                          onClick={() => addToCart(item)}
-                          className="px-4 py-2 bg-blue-600 text-white text-xs font-black rounded-xl hover:bg-blue-700 transition flex items-center gap-1.5"
+                          onClick={() => {
+                            setOptionPopupItem(item);
+                            // Set default selected options
+                            const defaults: {[key: string]: string} = {};
+                            if (item.options) {
+                              Object.keys(item.options).forEach(k => {
+                                defaults[k] = item.options[k][0];
+                              });
+                            }
+                            setPopupSelectedOptions(defaults);
+                            setPopupQuantity(1);
+                          }}
+                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition"
                         >
-                          <Plus className="w-3.5 h-3.5" /> 立即抢购
+                          立即抢购
                         </button>
                       </div>
                     </div>
@@ -696,395 +625,554 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
               )}
             </div>
           </div>
-        </>
-      )}
+        )}
 
-      {view === "sell" && (
-        <div className="flex-grow bg-slate-50 p-8 overflow-y-auto">
-          <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 shadow-md text-left">
-            <h2 className="text-2xl font-black text-slate-800 mb-2 flex items-center gap-2">
-              <Upload className="text-blue-500 w-6 h-6" /> 发布您的全球链上宝贝
-            </h2>
-            <p className="text-xs text-slate-400 mb-6 border-b border-slate-200 pb-4">
-              商品将实时写入 GPKOS
-              链上共享数据库，所有网络接入节点与终端皆可无延迟实时发现并付款抢购。
-            </p>
-
-            <form onSubmit={handleList} className="space-y-5">
-              <div>
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">
-                  商品名称 (Title) *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 经典珍藏 ThinkPad X220 纯IBM血统键盘"
-                  required
-                  value={sellForm.title}
-                  onChange={(e) =>
-                    setSellForm((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-xs font-semibold bg-slate-50 focus:bg-white transition"
-                />
+        {/* Option popup selector when user clicks Buy */}
+        {optionPopupItem && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+            <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 text-left shadow-2xl space-y-4 animate-fade-in">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h4 className="font-bold text-slate-900 text-sm">选择宝贝款式 & 选项</h4>
+                <button onClick={() => setOptionPopupItem(null)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div className="flex gap-3">
+                <img src={optionPopupItem.imageUrl} className="w-16 h-16 rounded-xl object-cover border border-slate-100" />
                 <div>
-                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">
-                    宝贝标价 ($ USD) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    placeholder="0.00"
-                    value={sellForm.price}
-                    onChange={(e) =>
-                      setSellForm((prev) => ({
-                        ...prev,
-                        price: e.target.value,
-                      }))
-                    }
-                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-xs font-semibold bg-slate-50 focus:bg-white transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">
-                    商品成色 (Condition)
-                  </label>
-                  <select
-                    value={sellForm.condition}
-                    onChange={(e) =>
-                      setSellForm((prev) => ({
-                        ...prev,
-                        condition: e.target.value,
-                      }))
-                    }
-                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-xs font-semibold bg-white cursor-pointer"
-                  >
-                    <option value="New with tags">
-                      New with tags (全新未拆封)
-                    </option>
-                    <option value="Used - Excellent">
-                      Used - Excellent (充新极品二手)
-                    </option>
-                    <option value="Used - Good">
-                      Used - Good (极佳实用二手)
-                    </option>
-                    <option value="For parts or not working">
-                      For parts or not working (配件机/故障故障)
-                    </option>
-                  </select>
+                  <h5 className="font-bold text-xs text-slate-800 line-clamp-1">{optionPopupItem.title}</h5>
+                  <p className="font-black text-sm text-blue-600 mt-1">${optionPopupItem.price.toFixed(2)}</p>
+                  <p className="text-[10px] text-slate-400 font-mono">存量: {optionPopupItem.stock} 件可用</p>
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">
-                  详细描述 (Description)
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="详细描述您的宝贝规格、瑕疵成色、快递说明，这样能大大提升成交几率..."
-                  value={sellForm.description}
-                  onChange={(e) =>
-                    setSellForm((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-xs font-semibold bg-slate-50 focus:bg-white transition resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">
-                  宝贝实拍美图或展示视频 (Product Showcase Image/Video)
-                </label>
-                <label
-                  className={`block border-2 border-dashed ${isDraggingFile ? "border-blue-500 bg-blue-50/50" : "border-slate-300 bg-slate-50"} rounded-2xl p-6 text-center cursor-pointer hover:bg-slate-100/80 transition`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <Upload
-                    className={`w-8 h-8 mx-auto mb-2 ${isDraggingFile ? "text-blue-500" : "text-slate-400"}`}
-                  />
-                  <span className="text-xs font-bold text-slate-600 block">
-                    {uploadedFileName
-                      ? `📸 媒体文件已就绪: ${uploadedFileName}`
-                      : "拖放实拍图片/视频至此，或点击浏览本地文件上传"}
-                  </span>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    支持图片 (JPG, PNG, WEBP) 及 视频 (MP4, WEBM, MOV)。大小 30MB 以内
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                </label>
-              </div>
 
-              <div className="flex gap-4 pt-4 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setView("browse")}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition text-xs text-center"
-                >
-                  取消返回
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition text-xs shadow-lg shadow-blue-200"
-                >
-                  立刻全网公开发售
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {view === "cart" && (
-        <div className="flex-grow bg-slate-50 p-8 overflow-y-auto">
-          <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 text-left">
-            <div className="lg:col-span-2 space-y-4">
-              <h2 className="text-2xl font-black text-slate-800 mb-4 flex items-center gap-2">
-                <ShoppingCart className="text-blue-600" /> 您的全球购物车
-              </h2>
-
-              {cart.map((item, i) => (
-                <div
-                  key={item.id + "-" + i}
-                  className="bg-white border border-slate-200 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition"
-                >
-                  <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden">
-                    {item.imageUrl?.startsWith("data:video/") || item.imageUrl?.endsWith(".mp4") || item.imageUrl?.endsWith(".webm") || item.imageUrl?.includes("video") ? (
-                      <video
-                        src={item.imageUrl}
-                        className="max-h-full max-w-full object-cover"
-                        muted
-                        autoPlay
-                        loop
-                        playsInline
-                      />
-                    ) : (
-                      <img
-                        src={item.imageUrl}
-                        className="max-h-full max-w-full object-cover"
-                        alt="item"
-                        referrerPolicy="no-referrer"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-grow min-w-0">
-                    <h3 className="font-bold text-sm text-slate-800 truncate">
-                      {item.title}
-                    </h3>
-                    <div className="text-[10px] text-slate-400 font-bold mt-0.5">
-                      成色: {item.condition} • 卖家节点: @{item.seller}
-                    </div>
-                    <button
-                      onClick={() => removeFromCart(i)}
-                      className="text-[10px] text-red-500 font-bold hover:underline mt-2 flex items-center gap-1.5"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> 移出购物车
-                    </button>
-                  </div>
-                  <div className="font-black text-lg text-slate-900 shrink-0">
-                    ${item.price.toFixed(2)}
+              {/* Dynamic options selections */}
+              {optionPopupItem.options && Object.keys(optionPopupItem.options).map(key => (
+                <div key={key} className="space-y-1.5">
+                  <span className="block text-[10px] font-black uppercase text-slate-400 tracking-wider">{key}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {optionPopupItem.options[key].map((val: string) => (
+                      <button
+                        key={val}
+                        onClick={() => setPopupSelectedOptions(prev => ({ ...prev, [key]: val }))}
+                        className={`px-2.5 py-1 text-xs rounded-lg border transition ${popupSelectedOptions[key] === val ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                      >
+                        {val}
+                      </button>
+                    ))}
                   </div>
                 </div>
               ))}
 
-              {cart.length === 0 && (
-                <div className="text-center p-12 text-slate-400 bg-white rounded-2xl border border-slate-200 shadow-inner">
-                  <ShoppingCart className="w-12 h-12 mx-auto text-slate-200 mb-4" />
-                  <span className="font-black text-slate-600 block text-sm">
-                    您的购物车空空如也
-                  </span>
-                  <p className="text-xs text-slate-400 mt-1 mb-4">
-                    赶紧去挑选一些惊艳的极客硬件或复古古董吧！
-                  </p>
-                  <button
-                    onClick={() => setView("browse")}
-                    className="px-5 py-2 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition"
+              {/* Quantity Selector */}
+              <div className="space-y-1.5">
+                <span className="block text-[10px] font-black uppercase text-slate-400 tracking-wider">购买数量 (Quantity)</span>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => setPopupQuantity(Math.max(1, popupQuantity - 1))}
+                    className="w-8 h-8 rounded-lg bg-slate-100 font-bold border border-slate-200 flex items-center justify-center hover:bg-slate-200"
                   >
-                    回到集市浏览
+                    -
+                  </button>
+                  <span className="font-bold font-mono text-xs">{popupQuantity}</span>
+                  <button 
+                    onClick={() => setPopupQuantity(Math.min(optionPopupItem.stock || 5, popupQuantity + 1))}
+                    className="w-8 h-8 rounded-lg bg-slate-100 font-bold border border-slate-200 flex items-center justify-center hover:bg-slate-200"
+                  >
+                    +
                   </button>
                 </div>
-              )}
+              </div>
 
-              {cart.length > 0 && (
-                <div className="bg-white border border-slate-200 p-5 rounded-2xl mt-6 shadow-sm">
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
-                    <ArrowRightLeft className="w-4 h-4 text-blue-500" />{" "}
-                    链上订单支付权让渡请求 (Order Transfer)
-                  </h3>
-                  <p className="text-[11px] text-slate-500 mb-3.5 leading-relaxed">
-                    您可以将当前未结算订单的所有权及支付义务安全转移给您本局网络内的其他协作者或主管账户代付。
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="输入接收人系统 ID (如: marvis_zhou2014)"
-                      value={transferTarget}
-                      onChange={(e) => setTransferTarget(e.target.value)}
-                      className="flex-grow p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 bg-slate-50 font-semibold"
-                    />
-                    <button
-                      onClick={handleOrderTransfer}
-                      className="px-5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-black uppercase transition shrink-0"
-                    >
-                      发起让渡请求
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {cart.length > 0 && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 h-fit shadow-md">
-                <h3 className="font-black text-sm uppercase tracking-wider text-slate-700 mb-4 border-b border-slate-100 pb-3">
-                  账单总览 (Summary)
-                </h3>
-                <div className="space-y-3.5 text-xs text-slate-500 mb-5">
-                  <div className="flex justify-between">
-                    <span>商品小计 (Subtotal)</span>
-                    <span className="font-bold text-slate-800">
-                      ${cart.reduce((a, b) => a + b.price, 0).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>链上担保交易险与快递 (Insured Ship)</span>
-                    <span className="font-bold text-slate-800">$15.00</span>
-                  </div>
-                  <div className="flex justify-between font-black text-slate-950 text-base pt-3 border-t border-slate-100 mt-3">
-                    <span>总计金额 (Total)</span>
-                    <span>
-                      ${(cart.reduce((a, b) => a + b.price, 0) + 15).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
+              <div className="pt-3 border-t border-slate-100 flex gap-3">
                 <button
-                  disabled={cart.length === 0}
-                  onClick={() => setView("checkout")}
-                  className="w-full py-3.5 bg-blue-600 disabled:bg-slate-300 hover:bg-blue-700 text-white font-black rounded-xl transition shadow-lg shadow-blue-100 text-xs text-center uppercase tracking-wider"
+                  onClick={() => setOptionPopupItem(null)}
+                  className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition"
                 >
-                  前往安全结算收银台
+                  取消
+                </button>
+                <button
+                  onClick={handleAddToCartFromPopup}
+                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-blue-100"
+                >
+                  加入购物车
                 </button>
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {view === "checkout" && (
-        <div className="flex-grow bg-slate-50 p-8 overflow-y-auto">
-          <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 shadow-md text-left">
-            <h2 className="text-2xl font-black text-slate-800 mb-2 flex items-center gap-2">
-              <CreditCard className="text-blue-500 w-6 h-6" /> GPKOS
-              链上担保收银台
-            </h2>
-            <p className="text-xs text-slate-400 mb-6 border-b border-slate-200 pb-4">
-              请选择您偏好的底层支付渠道，款项将被智能合约托管直到您确认收货。
-            </p>
-
-            <div className="space-y-6">
+        {/* VIEW: List a product */}
+        {view === "sell" && (
+          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left">
+            <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 shadow-md space-y-4">
               <div>
-                <h3 className="font-bold text-xs uppercase tracking-widest text-slate-500 mb-3">
-                  1. 挑选支付网络 (Payment Network)
+                <h3 className="font-extrabold text-slate-800 text-base flex items-center gap-2">
+                  <Upload className="text-blue-500 w-5 h-5" /> 发布新的产品到全球集市
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <button
-                    onClick={() => handleCheckout("card")}
-                    className="border-2 border-blue-600 bg-blue-50/50 p-4 rounded-2xl font-bold flex flex-col items-center gap-1.5 text-blue-900 hover:bg-blue-50 transition"
-                  >
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                    <span className="text-xs font-black tracking-tighter">
-                      信用卡/储蓄卡
+                <p className="text-xs text-slate-400 mt-0.5">商品将实时添加到分布式数据库，并支持高安全性托管到账服务。</p>
+              </div>
+
+              <form onSubmit={handleList} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">商品名称 *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 珍藏 IBM ThinkPad X220 键盘"
+                      value={sellForm.title}
+                      onChange={e => setSellForm(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">宝贝定价 ($) *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      required
+                      placeholder="0.00"
+                      value={sellForm.price}
+                      onChange={e => setSellForm(prev => ({ ...prev, price: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">发布数量/库存 *</label>
+                    <input
+                      type="number"
+                      required
+                      value={sellForm.stock}
+                      onChange={e => setSellForm(prev => ({ ...prev, stock: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">成色成色 *</label>
+                    <select
+                      value={sellForm.condition}
+                      onChange={e => setSellForm(prev => ({ ...prev, condition: e.target.value }))}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    >
+                      <option value="New with tags">New with tags (全新未拆封)</option>
+                      <option value="Used - Excellent">Used - Excellent (充新二手)</option>
+                      <option value="Used - Good">Used - Good (良好二手)</option>
+                      <option value="For parts or not working">For parts or not working (报废/零件机)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">商品介绍/简介 *</label>
+                  <textarea
+                    rows={3}
+                    placeholder="请输入商品的详细成色描述，规格，以及发货说明等..."
+                    value={sellForm.description}
+                    onChange={e => setSellForm(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none resize-none"
+                  />
+                </div>
+
+                {/* Options Builder */}
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">
+                    定制选项配置 (Options - 按行配置)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={sellForm.optionsRaw}
+                    onChange={e => setSellForm(prev => ({ ...prev, optionsRaw: e.target.value }))}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* Payment selection support */}
+                <div>
+                  <span className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">
+                    支持的收款通道 (Payment Channels)
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {Object.keys(sellForm.paymentMethods).map(method => (
+                      <label key={method} className="flex items-center gap-2 p-2.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition text-xs font-bold text-slate-700 capitalize">
+                        <input
+                          type="checkbox"
+                          checked={(sellForm.paymentMethods as any)[method]}
+                          onChange={() => {
+                            setSellForm(prev => ({
+                              ...prev,
+                              paymentMethods: {
+                                ...prev.paymentMethods,
+                                [method]: !(prev.paymentMethods as any)[method]
+                              }
+                            }));
+                          }}
+                          className="rounded text-blue-600 border-slate-300"
+                        />
+                        <span>{method === 'alipay' ? '支付宝' : method === 'wechat' ? '微信支付' : method === 'paypal' ? 'PayPal' : '信用卡'}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">商品图展示 (Image Dropzone)</label>
+                  <label className="block border border-dashed border-slate-300 p-5 rounded-2xl text-center bg-slate-50 hover:bg-slate-100 transition cursor-pointer">
+                    <span className="text-xs text-slate-500 block font-bold">
+                      {uploadedFileName ? `📸 媒体图已就绪: ${uploadedFileName}` : "拖拽或点击上传宝贝实物照片"}
                     </span>
-                    <span className="text-[8px] uppercase font-mono tracking-wider opacity-60">
-                      VISA/MasterCard
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleCheckout("alipay")}
-                    className="border border-slate-200 hover:border-blue-400 p-4 rounded-2xl font-bold flex flex-col items-center gap-1.5 text-slate-700 transition hover:bg-slate-50"
-                  >
-                    <div className="text-lg font-black tracking-tighter text-blue-500">
-                      Alipay
-                    </div>
-                    <span className="text-xs">支付宝担保</span>
-                    <span className="text-[8px] uppercase text-slate-400 font-mono tracking-wider">
-                      实时到账
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleCheckout("wechat")}
-                    className="border border-slate-200 hover:border-green-500 p-4 rounded-2xl font-bold flex flex-col items-center gap-1.5 text-slate-700 transition hover:bg-slate-50"
-                  >
-                    <div className="text-lg font-black tracking-tighter text-green-500">
-                      WeChat
-                    </div>
-                    <span className="text-xs">微信极速付</span>
-                    <span className="text-[8px] uppercase text-slate-400 font-mono tracking-wider">
-                      扫码支付
-                    </span>
-                  </button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadedFileName(file.name);
+                          const reader = new FileReader();
+                          reader.onload = re => setUploadedFileBase64(re.target?.result as string);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="flex gap-3 pt-3 border-t border-slate-100">
+                  <button type="button" onClick={() => setView("browse")} className="flex-grow py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">取消</button>
+                  <button type="submit" className="flex-grow py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-blue-100">发布到集市</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW: Merchant payee set up */}
+        {view === "merchant" && (
+          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left">
+            <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 shadow-md space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                    <Settings className="text-blue-500 w-5 h-5" /> 商家收款配置与账单包
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">在此配置您的收款二维码或提现目标。买家通过该通道支付，系统多签确认价格无误后划拨。</p>
+                </div>
+                <div className="bg-blue-50 border border-blue-100 p-3 rounded-2xl text-right">
+                  <span className="text-[10px] text-slate-400 uppercase font-black block">账户余额 (Balance)</span>
+                  <span className="font-mono font-black text-lg text-blue-600">${merchantProfile.balance.toFixed(2)}</span>
+                  <button onClick={handleWithdraw} className="block mt-1 text-[10px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-lg transition ml-auto">提现到账</button>
                 </div>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-4">
-                <h3 className="font-bold text-xs uppercase tracking-widest text-slate-500">
-                  2. 虚拟卡/支付账单模拟
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">支付宝收款账号</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. pay@myalipay.com"
+                      value={merchantProfile.alipayAccount}
+                      onChange={e => setMerchantProfile(prev => ({ ...prev, alipayAccount: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">微信收款识别账号</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. wx_payee_id"
+                      value={merchantProfile.wechatAccount}
+                      onChange={e => setMerchantProfile(prev => ({ ...prev, wechatAccount: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">PayPal 商家邮箱 (PayPal Email)</label>
+                    <input
+                      type="email"
+                      placeholder="e.g. seller-payout@paypal.com"
+                      value={merchantProfile.paypalEmail}
+                      onChange={e => setMerchantProfile(prev => ({ ...prev, paypalEmail: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">信用卡/借记卡商户结算 ID</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. CARD-MERCH-882172"
+                      value={merchantProfile.cardDetails}
+                      onChange={e => setMerchantProfile(prev => ({ ...prev, cardDetails: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-3 border-t border-slate-100">
+                  <button type="button" onClick={() => setView("browse")} className="flex-grow py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">取消</button>
+                  <button type="submit" className="flex-grow py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition">保存收款设置</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW: Admin Escrow Audit Deck */}
+        {view === "admin-escrow" && (
+          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left">
+            <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 shadow-md space-y-4">
+              <div>
+                <h3 className="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <ShieldCheck className="text-amber-500 w-5 h-5 animate-pulse" /> 系统多签收账与安全托管台 (System Escrow Desk)
                 </h3>
-                <p className="text-[11px] text-slate-400">
-                  选择信用卡或快捷结算将自动从您的当前绑定网卡中扣除并部署物流分配。请直接点击上方卡片极速付款结算。
+                <p className="text-xs text-slate-400 mt-0.5">
+                  所有买家付出的担保资金均在系统冷钱包内进行托管审核。管理员点击价格校验后通过智能节点划拨划账给商家。
                 </p>
               </div>
 
-              <div className="flex gap-4 pt-4 border-t border-slate-100">
+              {orders.length === 0 ? (
+                <div className="text-center py-12 text-slate-400">目前没有任何系统托管订单。</div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.map(order => {
+                    return (
+                      <div key={order.id} className="border border-slate-200 rounded-2xl p-4 space-y-3 bg-slate-50 hover:bg-slate-100/50 transition">
+                        <div className="flex flex-wrap items-center justify-between border-b border-slate-200 pb-2.5 gap-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold bg-slate-200 px-2 py-0.5 rounded text-slate-700">{order.id}</span>
+                            <span className="text-slate-400">买家: <strong className="text-slate-700">@{order.buyer}</strong></span>
+                            <span className="text-slate-400">卖家: <strong className="text-slate-700">@{order.seller}</strong></span>
+                          </div>
+                          <div>
+                            <span className={`px-2.5 py-0.5 rounded-full font-bold text-[9px] uppercase ${
+                              order.escrowStatus === 'completed' ? 'bg-green-100 text-green-700' :
+                              order.escrowStatus === 'price_verified' ? 'bg-blue-100 text-blue-700' :
+                              'bg-amber-100 text-amber-700 animate-pulse'
+                            }`}>
+                              {order.escrowStatusText}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Order Items description */}
+                        <div className="space-y-1.5 pl-3 border-l-2 border-slate-200">
+                          {order.items?.map((it: any, idx: number) => (
+                            <div key={idx} className="flex justify-between items-center text-xs">
+                              <span className="font-medium text-slate-700">
+                                {it.title} <span className="text-slate-400">x{it.quantity || 1}</span>
+                              </span>
+                              <span className="font-mono text-slate-500">${it.price.toFixed(2)} / ea</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Escrow totals & actions */}
+                        <div className="flex flex-wrap justify-between items-center pt-2.5 border-t border-slate-200 gap-3">
+                          <div className="text-xs">
+                            <span className="text-slate-400">担保总额:</span>
+                            <span className="font-black text-slate-900 ml-1.5 text-sm">${order.total.toFixed(2)}</span>
+                            <span className="text-slate-400 text-[10px] ml-2"> (包含 $15.00 系统理赔担保费)</span>
+                          </div>
+
+                          <div className="flex gap-2">
+                            {order.escrowStatus === 'pending_verification' && (
+                              <button
+                                onClick={() => handleVerifyPrice(order.id)}
+                                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl transition"
+                              >
+                                确定价格无误 (Verify Price)
+                              </button>
+                            )}
+                            {order.escrowStatus === 'price_verified' && (
+                              <button
+                                onClick={() => handleReleaseFunds(order.id)}
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow"
+                              >
+                                安全转交商家 (Release Funds)
+                              </button>
+                            )}
+                            {order.escrowStatus === 'completed' && (
+                              <span className="text-xs text-green-600 font-bold flex items-center gap-1">
+                                <CheckCircle className="w-4 h-4" /> 托管已划拨
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* VIEW: Shopping Cart */}
+        {view === "cart" && (
+          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left">
+            <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Left Column: Cart items */}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="font-extrabold text-slate-800 text-base">全球分布式购物车</h3>
+                {cart.length === 0 ? (
+                  <div className="bg-white border border-slate-200 p-8 rounded-2xl text-center">
+                    <ShoppingCart className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                    <span className="font-bold text-slate-600 block text-xs">购物车暂无商品</span>
+                    <button onClick={() => setView("browse")} className="mt-3 px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-500 transition">回到货架</button>
+                  </div>
+                ) : (
+                  cart.map((it, i) => (
+                    <div key={i} className="bg-white border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <img src={it.imageUrl} className="w-12 h-12 rounded-lg object-cover" />
+                        <div>
+                          <h4 className="font-bold text-xs text-slate-900 line-clamp-1">{it.title}</h4>
+                          <span className="text-[10px] text-slate-400 block font-mono">
+                            数量: {it.quantity || 1} ea • 卖家: @{it.seller}
+                          </span>
+                          {it.selectedOptions && (
+                            <div className="flex gap-1.5 mt-1 flex-wrap">
+                              {Object.keys(it.selectedOptions).map(ok => (
+                                <span key={ok} className="bg-slate-100 text-slate-500 text-[8px] font-bold px-1.5 py-0.2 rounded">
+                                  {ok}: {it.selectedOptions[ok]}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-right flex items-center gap-4 shrink-0">
+                        <span className="font-black text-xs text-slate-900">${(it.price * (it.quantity || 1)).toFixed(2)}</span>
+                        <button onClick={() => setCart(prev => prev.filter((_, idx) => idx !== i))} className="text-red-500 hover:text-red-700">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Right Column: Checkout Summary */}
+              {cart.length > 0 && (
+                <div className="bg-white border border-slate-200 p-5 rounded-3xl h-fit space-y-4 shadow">
+                  <h3 className="font-extrabold text-slate-800 text-xs border-b border-slate-100 pb-2">账单总和</h3>
+                  <div className="text-xs space-y-2 text-slate-500">
+                    <div className="flex justify-between">
+                      <span>商品金额</span>
+                      <span className="font-bold text-slate-800">${cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>托管担保手续险 & 快递</span>
+                      <span className="font-bold text-slate-800">$15.00</span>
+                    </div>
+                    <div className="flex justify-between font-black text-sm text-slate-900 pt-2.5 border-t border-slate-100">
+                      <span>总计金额 (Total)</span>
+                      <span>${(cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15).toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setView("checkout")}
+                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-blue-100 text-center"
+                  >
+                    前往收银台安全支付
+                  </button>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* VIEW: Safe checkout */}
+        {view === "checkout" && (
+          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left">
+            <div className="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 shadow-md space-y-4">
+              <div>
+                <h3 className="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <CreditCard className="text-blue-500 w-5 h-5" /> 链上安全托管收银台
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">请挑选任一支付通道。系统将代保管款项直至您价格无误确认拨付。</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 text-center text-xs">
                 <button
-                  type="button"
-                  onClick={() => setView("cart")}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition text-xs text-center"
+                  onClick={() => handleCheckoutSubmit("alipay")}
+                  className="p-3 border border-slate-200 rounded-2xl hover:border-blue-500 transition-colors flex flex-col items-center gap-1"
                 >
-                  返回购物车
+                  <span className="text-blue-500 font-extrabold">Alipay</span>
+                  <span className="text-[10px] text-slate-500">支付宝担保付</span>
                 </button>
                 <button
-                  onClick={() => handleCheckout("card")}
-                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition text-xs shadow-lg shadow-blue-200 text-center uppercase tracking-wider"
+                  onClick={() => handleCheckoutSubmit("wechat")}
+                  className="p-3 border border-slate-200 rounded-2xl hover:border-green-500 transition-colors flex flex-col items-center gap-1"
                 >
-                  确认付款 $
-                  {(cart.reduce((a, b) => a + b.price, 0) + 15).toFixed(2)}
+                  <span className="text-green-500 font-extrabold">WeChat</span>
+                  <span className="text-[10px] text-slate-500">微信极速收</span>
+                </button>
+                <button
+                  onClick={() => handleCheckoutSubmit("paypal")}
+                  className="p-3 border border-slate-200 rounded-2xl hover:border-indigo-500 transition-colors flex flex-col items-center gap-1"
+                >
+                  <span className="text-indigo-600 font-extrabold">PayPal</span>
+                  <span className="text-[10px] text-slate-500">PayPal 国际付</span>
+                </button>
+                <button
+                  onClick={() => handleCheckoutSubmit("card")}
+                  className="p-3 border border-slate-200 rounded-2xl hover:border-slate-800 transition-colors flex flex-col items-center gap-1"
+                >
+                  <CreditCard className="w-4 h-4 text-slate-700" />
+                  <span className="text-[10px] text-slate-500 font-bold">信用卡/借记卡</span>
+                </button>
+              </div>
+
+              <div className="flex gap-2.5 pt-3 border-t border-slate-100">
+                <button onClick={() => setView("cart")} className="flex-grow py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">返回</button>
+                <button
+                  onClick={() => handleCheckoutSubmit("card")}
+                  className="flex-grow py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition shadow"
+                >
+                  确认付款 ${(cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15).toFixed(2)}
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {view === "success" && (
-        <div className="flex-grow bg-slate-50 flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-md shadow-green-200 animate-bounce">
-            <CheckCircle2 className="w-10 h-10 text-green-500" />
+        {/* VIEW: Escrow Payment Success */}
+        {view === "success" && (
+          <div className="flex-grow bg-slate-50 flex flex-col items-center justify-center p-6 text-center text-left">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8 text-green-500" />
+            </div>
+            <h3 className="font-extrabold text-slate-800 text-base mb-1">🎉 智能托管付款成功！</h3>
+            <p className="text-slate-500 max-w-sm text-xs leading-relaxed mb-6">
+              您的宝贝款项已成功锁定保存在 **GPKOS 系统多签收账中心**。价格核实后，托管款将全额安全拨付给卖家。
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setView("browse")}
+                className="px-6 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-500 transition"
+              >
+                回到货架
+              </button>
+              <button
+                onClick={() => setView("admin-escrow")}
+                className="px-6 py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-700 transition"
+              >
+                前往收账中心
+              </button>
+            </div>
           </div>
-          <h2 className="text-2xl font-black text-slate-800 mb-2">
-            🎉 担保付款成功！
-          </h2>
-          <p className="text-slate-500 max-w-md mb-8 text-xs leading-relaxed">
-            您选购的宝贝已在 GPKOS
-            链上智能交易合约中成功结算锁定。我们已为您自动向系统超级管理员{" "}
-            <strong className="text-slate-800">@周锦淇</strong>{" "}
-            报备出货，出货单回执已发送至您在 secure outlook 绑定的私密数字信箱。
-          </p>
-          <button
-            onClick={() => setView("browse")}
-            className="px-8 py-3 bg-blue-600 text-white text-xs font-bold rounded-full hover:bg-blue-700 transition shadow-lg shadow-blue-200 uppercase tracking-widest"
-          >
-            返回全球二手集市
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -2040,6 +2040,8 @@ export default function App() {
   const [vpnBytesTransferred, setVpnBytesTransferred] = useState(1420580);
   const [vpnSpeed, setVpnSpeed] = useState(0);
   const [vpnIP, setVpnIP] = useState("103.45.210.88");
+  const [vpnBrowserUrl, setVpnBrowserUrl] = useState("https://www.google.com");
+  const [vpnBrowserActiveUrl, setVpnBrowserActiveUrl] = useState("https://www.google.com");
 
   // --- GPKOS Tube / Video Player States ---
   const [selectedVideoUrl, setSelectedVideoUrl] = useState("https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-city-street-with-neon-lights-and-rain-40141-large.mp4");
@@ -2951,7 +2953,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                {t("rorygpkos virtual")} <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
+                RoryGpk's website <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
               </h1>
               <p className="text-xs text-slate-400 hidden sm:block">{t("Owner Terminal Desk • Administrator: 周锦淇 (marvis_zhou2014)")}</p>
             </div>
@@ -7905,162 +7907,373 @@ export default function App() {
 
                           {/* VPN Main Workspace Grid */}
                           <div className="flex-1 grid grid-cols-5 overflow-hidden">
-                            {/* Node selection column (2/5) */}
-                            <div className="col-span-2 border-r border-white/5 bg-slate-900/40 p-3 overflow-y-auto flex flex-col gap-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Tunnel Endpoint</span>
-                              
-                              {/* Node 1 */}
-                              <button 
-                                onClick={() => {
-                                  setVpnNode("hk");
-                                  setVpnIP("103.45.210.88");
-                                }}
-                                disabled={vpnConnecting}
-                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'hk' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm">🇭🇰</span>
-                                  <div>
-                                    <p className="font-bold text-[11px] text-white">Hong Kong Node-01</p>
-                                    <p className="text-[9px] text-slate-400 font-mono">103.45.210.88</p>
+                            {!vpnConnected ? (
+                              <>
+                                {/* Node selection column (2/5) */}
+                                <div className="col-span-2 border-r border-white/5 bg-slate-900/40 p-3 overflow-y-auto flex flex-col gap-2">
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Tunnel Endpoint</span>
+                                  
+                                  {/* Node 1 */}
+                                  <button 
+                                    onClick={() => {
+                                      setVpnNode("hk");
+                                      setVpnIP("103.45.210.88");
+                                    }}
+                                    disabled={vpnConnecting}
+                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'hk' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm">🇭🇰</span>
+                                      <div>
+                                        <p className="font-bold text-[11px] text-white">Hong Kong Node-01</p>
+                                        <p className="text-[9px] text-slate-400 font-mono">103.45.210.88</p>
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">12ms</span>
+                                  </button>
+
+                                  {/* Node 2 */}
+                                  <button 
+                                    onClick={() => {
+                                      setVpnNode("jp");
+                                      setVpnIP("210.140.8.215");
+                                    }}
+                                    disabled={vpnConnecting}
+                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'jp' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm">🇯🇵</span>
+                                      <div>
+                                        <p className="font-bold text-[11px] text-white">Tokyo Node-02</p>
+                                        <p className="text-[9px] text-slate-400 font-mono">210.140.8.215</p>
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">24ms</span>
+                                  </button>
+
+                                  {/* Node 3 */}
+                                  <button 
+                                    onClick={() => {
+                                      setVpnNode("sg");
+                                      setVpnIP("188.166.195.12");
+                                    }}
+                                    disabled={vpnConnecting}
+                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'sg' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm">🇸🇬</span>
+                                      <div>
+                                        <p className="font-bold text-[11px] text-white">Singapore Node-03</p>
+                                        <p className="text-[9px] text-slate-400 font-mono">188.166.195.12</p>
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">29ms</span>
+                                  </button>
+
+                                  {/* Node 4 */}
+                                  <button 
+                                    onClick={() => {
+                                      setVpnNode("us");
+                                      setVpnIP("45.79.121.34");
+                                    }}
+                                    disabled={vpnConnecting}
+                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'us' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm">🇺🇸</span>
+                                      <div>
+                                        <p className="font-bold text-[11px] text-white">US Silicon Valley-04</p>
+                                        <p className="text-[9px] text-slate-400 font-mono">45.79.121.34</p>
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">115ms</span>
+                                  </button>
+
+                                  <div className="mt-auto bg-blue-950/30 border border-blue-500/20 p-2.5 rounded-xl">
+                                    <p className="text-[10px] text-blue-300 font-bold">💡 Multi-Hop Secure Routing</p>
+                                    <p className="text-[9px] text-slate-400 mt-1 leading-relaxed">All GPKOS traffic is encrypted via zero-knowledge endpoints to bypass firewalls natively.</p>
                                   </div>
                                 </div>
-                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">12ms</span>
-                              </button>
 
-                              {/* Node 2 */}
-                              <button 
-                                onClick={() => {
-                                  setVpnNode("jp");
-                                  setVpnIP("210.140.8.215");
-                                }}
-                                disabled={vpnConnecting}
-                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'jp' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm">🇯🇵</span>
-                                  <div>
-                                    <p className="font-bold text-[11px] text-white">Tokyo Node-02</p>
-                                    <p className="text-[9px] text-slate-400 font-mono">210.140.8.215</p>
-                                  </div>
-                                </div>
-                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">24ms</span>
-                              </button>
-
-                              {/* Node 3 */}
-                              <button 
-                                onClick={() => {
-                                  setVpnNode("sg");
-                                  setVpnIP("188.166.195.12");
-                                }}
-                                disabled={vpnConnecting}
-                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'sg' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm">🇸🇬</span>
-                                  <div>
-                                    <p className="font-bold text-[11px] text-white">Singapore Node-03</p>
-                                    <p className="text-[9px] text-slate-400 font-mono">188.166.195.12</p>
-                                  </div>
-                                </div>
-                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">29ms</span>
-                              </button>
-
-                              {/* Node 4 */}
-                              <button 
-                                onClick={() => {
-                                  setVpnNode("us");
-                                  setVpnIP("45.79.121.34");
-                                }}
-                                disabled={vpnConnecting}
-                                className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'us' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm">🇺🇸</span>
-                                  <div>
-                                    <p className="font-bold text-[11px] text-white">US Silicon Valley-04</p>
-                                    <p className="text-[9px] text-slate-400 font-mono">45.79.121.34</p>
-                                  </div>
-                                </div>
-                                <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">115ms</span>
-                              </button>
-
-                              <div className="mt-auto bg-blue-950/30 border border-blue-500/20 p-2.5 rounded-xl">
-                                <p className="text-[10px] text-blue-300 font-bold">💡 Multi-Hop Secure Routing</p>
-                                <p className="text-[9px] text-slate-400 mt-1 leading-relaxed">All GPKOS traffic is encrypted via zero-knowledge endpoints to bypass firewalls natively.</p>
-                              </div>
-                            </div>
-
-                            {/* Control Pane & Analytics (3/5) */}
-                            <div className="col-span-3 p-4 flex flex-col justify-between items-center bg-gradient-to-b from-slate-950 to-slate-900">
-                              
-                              {/* Connection status circle / button */}
-                              <div className="flex flex-col items-center justify-center py-4">
-                                <button 
-                                  onClick={() => {
-                                    if (vpnConnected) {
-                                      setVpnConnected(false);
-                                    } else {
-                                      setVpnConnecting(true);
-                                      setTimeout(() => {
-                                        setVpnConnecting(false);
-                                        setVpnConnected(true);
-                                      }, 1500);
-                                    }
-                                  }}
-                                  disabled={vpnConnecting}
-                                  className={`w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center transition-all ${
-                                    vpnConnecting ? 'border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-pulse' :
-                                    vpnConnected ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:bg-blue-950/30 bg-blue-900/10' :
-                                    'border-slate-800 shadow-md hover:border-slate-700 hover:bg-slate-900 bg-slate-950'
-                                  }`}
-                                >
-                                  <Power className={`w-6 h-6 ${vpnConnecting ? 'text-amber-500' : vpnConnected ? 'text-blue-400' : 'text-slate-500'}`} />
-                                  <span className="text-[9px] font-black uppercase mt-1 tracking-widest text-white">
-                                    {vpnConnecting ? 'Connecting...' : vpnConnected ? 'Disconnect' : 'Connect'}
-                                  </span>
-                                </button>
-                                
-                                <p className="text-[10px] text-slate-400 font-mono mt-3">
-                                  {vpnConnected ? 'Active Node: ' + vpnNode.toUpperCase() : 'Idle & Secured'}
-                                </p>
-                              </div>
-
-                              {/* Speeds Panel */}
-                              <div className="w-full grid grid-cols-2 gap-3">
-                                <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
-                                  <div className="bg-blue-500/10 p-1.5 rounded-lg"><Cpu className="w-4 h-4 text-blue-400" /></div>
-                                  <div>
-                                    <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Tunnel Speed</p>
-                                    <p className="font-mono text-xs font-bold text-white">{vpnConnected ? `${vpnSpeed} MB/s` : '0.0 MB/s'}</p>
-                                  </div>
-                                </div>
-                                <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
-                                  <div className="bg-emerald-500/10 p-1.5 rounded-lg"><Activity className="w-4 h-4 text-emerald-400" /></div>
-                                  <div>
-                                    <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Transferred</p>
-                                    <p className="font-mono text-xs font-bold text-white">
-                                      {(vpnBytesTransferred / (1024 * 1024)).toFixed(2)} MB
+                                {/* Control Pane & Analytics (3/5) */}
+                                <div className="col-span-3 p-4 flex flex-col justify-between items-center bg-gradient-to-b from-slate-950 to-slate-900">
+                                  
+                                  {/* Connection status circle / button */}
+                                  <div className="flex flex-col items-center justify-center py-4">
+                                    <button 
+                                      onClick={() => {
+                                        setVpnConnecting(true);
+                                        setTimeout(() => {
+                                          setVpnConnecting(false);
+                                          setVpnConnected(true);
+                                        }, 1500);
+                                      }}
+                                      disabled={vpnConnecting}
+                                      className={`w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center transition-all ${
+                                        vpnConnecting ? 'border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-pulse' :
+                                        'border-slate-800 shadow-md hover:border-slate-700 hover:bg-slate-900 bg-slate-950'
+                                      }`}
+                                    >
+                                      <Power className={`w-6 h-6 ${vpnConnecting ? 'text-amber-500' : 'text-slate-500'}`} />
+                                      <span className="text-[9px] font-black uppercase mt-1 tracking-widest text-white">
+                                        {vpnConnecting ? 'Connecting...' : 'Connect'}
+                                      </span>
+                                    </button>
+                                    
+                                    <p className="text-[10px] text-slate-400 font-mono mt-3">
+                                      Idle & Secured
                                     </p>
                                   </div>
+
+                                  {/* Speeds Panel */}
+                                  <div className="w-full grid grid-cols-2 gap-3">
+                                    <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
+                                      <div className="bg-blue-500/10 p-1.5 rounded-lg"><Cpu className="w-4 h-4 text-blue-400" /></div>
+                                      <div>
+                                        <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Tunnel Speed</p>
+                                        <p className="font-mono text-xs font-bold text-white">0.0 MB/s</p>
+                                      </div>
+                                    </div>
+                                    <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
+                                      <div className="bg-emerald-500/10 p-1.5 rounded-lg"><Activity className="w-4 h-4 text-emerald-400" /></div>
+                                      <div>
+                                        <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Transferred</p>
+                                        <p className="font-mono text-xs font-bold text-white">
+                                          {(vpnBytesTransferred / (1024 * 1024)).toFixed(2)} MB
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Dynamic connection wave graph */}
+                                  <div className="w-full h-12 bg-slate-950/80 border border-white/5 rounded-xl overflow-hidden relative flex items-end">
+                                    <span className="absolute top-1 left-2 text-[7px] font-mono font-bold uppercase tracking-wider text-slate-500 z-10">Real-time Tunnel Traffic</span>
+                                    <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
+                                      <path 
+                                        d="M 0 60 Q 30 55 60 60 T 120 60 T 180 60 T 240 60 T 300 60 L 300 60 L 0 60 Z" 
+                                        fill="rgba(59, 130, 246, 0.1)"
+                                        stroke="rgba(59, 130, 246, 0.4)"
+                                        strokeWidth="1.5"
+                                      />
+                                    </svg>
+                                  </div>
                                 </div>
-                              </div>
+                              </>
+                            ) : (
+                              <>
+                                {/* Active Node strip (col-span-1) */}
+                                <div className="col-span-1 border-r border-white/5 bg-slate-950 p-2 flex flex-col gap-3 justify-between">
+                                  <div className="flex flex-col gap-3">
+                                    <div className="bg-blue-950/40 border border-blue-500/30 p-2 rounded-xl text-center">
+                                      <div className="text-xl mb-1">
+                                        {vpnNode === 'hk' ? '🇭🇰' : vpnNode === 'jp' ? '🇯🇵' : vpnNode === 'sg' ? '🇸🇬' : '🇺🇸'}
+                                      </div>
+                                      <p className="font-bold text-[10px] text-white">
+                                        {vpnNode === 'hk' ? 'Hong Kong' : vpnNode === 'jp' ? 'Tokyo' : vpnNode === 'sg' ? 'Singapore' : 'Silicon Valley'}
+                                      </p>
+                                      <p className="text-[8px] text-blue-400 font-mono mt-0.5">{vpnIP}</p>
+                                    </div>
 
-                              {/* Dynamic connection wave graph */}
-                              <div className="w-full h-12 bg-slate-950/80 border border-white/5 rounded-xl overflow-hidden relative flex items-end">
-                                <span className="absolute top-1 left-2 text-[7px] font-mono font-bold uppercase tracking-wider text-slate-500 z-10">Real-time Tunnel Traffic</span>
-                                <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
-                                  <path 
-                                    d={`M 0 60 Q 30 ${vpnConnected ? 60 - vpnSpeed * 4 : 55} 60 60 T 120 60 T 180 60 T 240 60 T 300 60 L 300 60 L 0 60 Z`} 
-                                    fill="rgba(59, 130, 246, 0.1)"
-                                    stroke="rgba(59, 130, 246, 0.4)"
-                                    strokeWidth="1.5"
-                                    className={vpnConnected ? 'animate-pulse' : ''}
-                                  />
-                                </svg>
-                              </div>
+                                    <div className="space-y-2">
+                                      <div className="bg-slate-900/80 border border-white/5 p-1.5 rounded-lg">
+                                        <p className="text-[7px] text-slate-400 uppercase tracking-widest font-mono">Tunnel Speed</p>
+                                        <p className="font-mono text-[10px] font-bold text-emerald-400">{vpnSpeed} MB/s</p>
+                                      </div>
+                                      <div className="bg-slate-900/80 border border-white/5 p-1.5 rounded-lg">
+                                        <p className="text-[7px] text-slate-400 uppercase tracking-widest font-mono">Transferred</p>
+                                        <p className="font-mono text-[10px] font-bold text-cyan-400">
+                                          {(vpnBytesTransferred / (1024 * 1024)).toFixed(1)} MB
+                                        </p>
+                                      </div>
+                                      <div className="bg-slate-900/80 border border-white/5 p-1.5 rounded-lg">
+                                        <p className="text-[7px] text-slate-400 uppercase tracking-widest font-mono">Ping Latency</p>
+                                        <p className="font-mono text-[10px] font-bold text-yellow-400">
+                                          {vpnNode === 'hk' ? '12ms' : vpnNode === 'jp' ? '24ms' : vpnNode === 'sg' ? '29ms' : '115ms'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
 
-                            </div>
+                                  <div className="flex flex-col gap-2">
+                                    <div className="text-[7px] bg-emerald-950/50 text-emerald-400 border border-emerald-500/20 rounded px-1.5 py-1 text-center font-mono">
+                                      🔒 STABLE TUNNEL
+                                    </div>
+                                    <button 
+                                      onClick={() => setVpnConnected(false)}
+                                      className="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-[9px] py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                                    >
+                                      <Power className="w-3 h-3" /> Disconnect
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Stealth Private Browser Space (col-span-4) */}
+                                <div className="col-span-4 flex flex-col bg-slate-900 overflow-hidden">
+                                  {/* Browser Header Bar */}
+                                  <div className="bg-slate-950 p-2 border-b border-white/10 flex flex-col gap-1.5 shrink-0">
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-1">
+                                        <button 
+                                          onClick={() => {
+                                            setVpnBrowserUrl("https://www.google.com");
+                                            setVpnBrowserActiveUrl("https://www.google.com");
+                                          }} 
+                                          className="p-1 hover:bg-white/5 rounded text-slate-400 hover:text-white"
+                                          title="Back to Google"
+                                        >
+                                          <ArrowLeft className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button 
+                                          onClick={() => {
+                                            const current = vpnBrowserActiveUrl;
+                                            setVpnBrowserActiveUrl("");
+                                            setTimeout(() => setVpnBrowserActiveUrl(current), 10);
+                                          }} 
+                                          className="p-1 hover:bg-white/5 rounded text-slate-400 hover:text-white"
+                                          title="Reload Page"
+                                        >
+                                          <RefreshCw className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+
+                                      <form 
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          let finalUrl = vpnBrowserUrl.trim();
+                                          if (!finalUrl) return;
+                                          
+                                          // If it doesn't look like a URL, do google search
+                                          const isUrl = finalUrl.includes('.') && !finalUrl.includes(' ');
+                                          if (!isUrl) {
+                                            finalUrl = "https://www.google.com/search?q=" + encodeURIComponent(finalUrl);
+                                          } else if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+                                            finalUrl = 'https://' + finalUrl;
+                                          }
+                                          setVpnBrowserUrl(finalUrl);
+                                          setVpnBrowserActiveUrl(finalUrl);
+                                        }}
+                                        className="flex-grow flex items-center relative"
+                                      >
+                                        <div className="absolute left-2.5 flex items-center gap-1 pointer-events-none">
+                                          <Lock className="w-3 h-3 text-emerald-400" />
+                                          <span className="text-[8px] bg-emerald-950 text-emerald-400 font-bold px-1 rounded">HTTPS</span>
+                                        </div>
+                                        <input
+                                          type="text"
+                                          value={vpnBrowserUrl}
+                                          onChange={(e) => setVpnBrowserUrl(e.target.value)}
+                                          className="w-full bg-slate-900 border border-white/10 rounded-lg py-1 pl-16 pr-8 text-[11px] text-white focus:outline-none focus:border-blue-500 font-mono"
+                                          placeholder="Enter URL or search secure Google..."
+                                        />
+                                        <button type="submit" className="absolute right-2 text-slate-400 hover:text-white">
+                                          <Search className="w-3 h-3" />
+                                        </button>
+                                      </form>
+                                    </div>
+
+                                    {/* Preset Fast Dial Shortcuts */}
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-1">Stealth Nodes:</span>
+                                      
+                                      <button 
+                                        onClick={() => {
+                                          setVpnBrowserUrl("https://www.google.com");
+                                          setVpnBrowserActiveUrl("https://www.google.com");
+                                        }}
+                                        className="text-[9px] bg-slate-900 hover:bg-slate-800 text-blue-300 px-2 py-0.5 rounded border border-blue-500/10 flex items-center gap-1 transition"
+                                      >
+                                        🔍 Google
+                                      </button>
+
+                                      <button 
+                                        onClick={() => {
+                                          setVpnBrowserUrl("https://chat.openai.com");
+                                          setVpnBrowserActiveUrl("https://chat.openai.com");
+                                        }}
+                                        className="text-[9px] bg-slate-900 hover:bg-slate-800 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/10 flex items-center gap-1 transition"
+                                      >
+                                        💬 ChatGPT Secure
+                                      </button>
+
+                                      <button 
+                                        onClick={() => {
+                                          setVpnBrowserUrl("https://gemini.google.com");
+                                          setVpnBrowserActiveUrl("https://gemini.google.com");
+                                        }}
+                                        className="text-[9px] bg-slate-900 hover:bg-slate-800 text-purple-300 px-2 py-0.5 rounded border border-purple-500/10 flex items-center gap-1 transition"
+                                      >
+                                        ✨ Gemini Bypassed
+                                      </button>
+
+                                      <button 
+                                        onClick={() => {
+                                          setVpnBrowserUrl("https://www.youtube.com");
+                                          setVpnBrowserActiveUrl("https://www.youtube.com");
+                                        }}
+                                        className="text-[9px] bg-slate-900 hover:bg-slate-800 text-red-300 px-2 py-0.5 rounded border border-red-500/10 flex items-center gap-1 transition"
+                                      >
+                                        📺 YouTube
+                                      </button>
+
+                                      <button 
+                                        onClick={() => {
+                                          setVpnBrowserUrl("https://www.wikipedia.org");
+                                          setVpnBrowserActiveUrl("https://www.wikipedia.org");
+                                        }}
+                                        className="text-[9px] bg-slate-900 hover:bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-white/10 flex items-center gap-1 transition"
+                                      >
+                                        📖 Wikipedia
+                                      </button>
+
+                                      <button 
+                                        onClick={() => {
+                                          setVpnBrowserUrl("https://github.com");
+                                          setVpnBrowserActiveUrl("https://github.com");
+                                        }}
+                                        className="text-[9px] bg-slate-900 hover:bg-slate-800 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/10 flex items-center gap-1 transition"
+                                      >
+                                        🐙 GitHub
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Bypass Warning Alert Banner */}
+                                  <div className="bg-emerald-950/70 border-b border-emerald-500/15 px-3 py-1 flex items-center justify-between text-[8px] text-emerald-400 shrink-0">
+                                    <div className="flex items-center gap-1 font-medium">
+                                      <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                                      <span>SHIELD ACTIVE: Traffic routed over {vpnNode.toUpperCase()} Node. Spoofed user-agent headers block AI-crawler alerts. No account records logged.</span>
+                                    </div>
+                                    <a 
+                                      href={vpnBrowserActiveUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="text-white hover:underline flex items-center gap-0.5 text-[8px] font-bold"
+                                    >
+                                      Open Tab Native <ExternalLink className="w-2.5 h-2.5" />
+                                    </a>
+                                  </div>
+
+                                  {/* Webview Iframe Display area */}
+                                  <div className="flex-grow bg-white relative">
+                                    {vpnBrowserActiveUrl ? (
+                                      <iframe
+                                        src={`/api/web/proxy-html?url=${encodeURIComponent(vpnBrowserActiveUrl)}`}
+                                        className="w-full h-full border-0 bg-white"
+                                        title="Stealth VPN Private Browser"
+                                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
+                                        referrerPolicy="no-referrer"
+                                        allowFullScreen
+                                      />
+                                    ) : (
+                                      <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center text-center p-4">
+                                        <Globe className="w-8 h-8 text-slate-600 animate-spin mb-2" />
+                                        <p className="text-slate-400 text-[10px] font-mono">Bypassing local node gateways...</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       )}

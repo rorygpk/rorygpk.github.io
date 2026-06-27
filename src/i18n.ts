@@ -39,8 +39,8 @@ const zhDict: Record<string, string> = {
   "Success": "成功",
   
   // Specific Strings
-  "rorygpkos virtual": "rorygpkos virtual",
-  "Welcome to rorygpkos virtual": "欢迎来到 rorygpkos virtual",
+  "rorygpkos virtual": "RoryGpkOS VirTual",
+  "Welcome to rorygpkos virtual": "欢迎来到 RoryGpkOS VirTual",
   "Login to your account": "登录您的账户",
   "Create an account": "创建账户",
   "Log out": "登出",
@@ -52,7 +52,7 @@ const zhDict: Record<string, string> = {
   // Nav
   "#home": "系统首页",
   "#work": "工作邮箱",
-  "#rory-gpkos IDE": "核心终端 IDE",
+  "#rory-gpkos IDE": "RoryGpkOS VirTual",
   "msfs Sim": "飞行模拟器",
   "Remote Screen": "远程屏幕",
   "Video Stream": "监控流",
