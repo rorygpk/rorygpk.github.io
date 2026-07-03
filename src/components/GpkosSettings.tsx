@@ -11,9 +11,28 @@ interface SettingsProps {
   setPowerMode: (mode: GpkosPowerMode) => void;
   activeBackground: string;
   setActiveBackground: (bg: string) => void;
+  glassEffect?: boolean;
+  setGlassEffect?: (effect: boolean) => void;
+  glassBlur?: number;
+  setGlassBlur?: (blur: number) => void;
+  gpkosBackgroundMode?: "static" | "video" | "slideshow";
+  setGpkosBackgroundMode?: (mode: "static" | "video" | "slideshow") => void;
+  onStartSelfHealing?: () => void;
 }
 
-export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode, activeBackground, setActiveBackground }) => {
+export const GpkosSettings: React.FC<SettingsProps> = ({ 
+  powerMode, 
+  setPowerMode, 
+  activeBackground, 
+  setActiveBackground,
+  glassEffect = true,
+  setGlassEffect,
+  glassBlur = 20,
+  setGlassBlur,
+  gpkosBackgroundMode = "static",
+  setGpkosBackgroundMode,
+  onStartSelfHealing
+}) => {
   const [activeTab, setActiveTab] = React.useState("general");
 
   const tabs = [
@@ -66,17 +85,56 @@ export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode
                       </div>
                    </div>
                    <div className="bg-slate-900/80 border border-white/5 p-4 rounded-2xl">
-                      <div className="flex items-center gap-3 mb-4">
-                         <Layout className="w-4 h-4 text-cyan-400" />
-                         <span className="text-white text-xs font-bold">Desktop Blur</span>
+                      <div className="flex items-center justify-between mb-4">
+                         <div className="flex items-center gap-3">
+                            <Layout className="w-4 h-4 text-cyan-400" />
+                            <span className="text-white text-xs font-bold">磨砂液态玻璃 (Glass)</span>
+                         </div>
+                         <button 
+                            onClick={() => setGlassEffect && setGlassEffect(!glassEffect)}
+                            className={`px-2 py-0.5 text-[9px] font-black uppercase rounded ${glassEffect ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+                         >
+                            {glassEffect ? 'ON' : 'OFF'}
+                         </button>
                       </div>
-                      <input type="range" className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500" />
+                      <div className="flex items-center justify-between gap-4">
+                         <input 
+                            type="range" 
+                            min="0"
+                            max="40"
+                            value={glassBlur}
+                            onChange={(e) => setGlassBlur && setGlassBlur(Number(e.target.value))}
+                            className="flex-grow h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500" 
+                         />
+                         <span className="text-[10px] font-mono text-cyan-400 font-bold w-10 text-right">{glassBlur}px</span>
+                      </div>
                    </div>
                 </div>
               </section>
+
+              <section>
+                 <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">System Maintenance</h3>
+                 <div className="bg-slate-950/40 border border-rose-500/10 p-5 rounded-2xl hover:border-rose-500/20 transition-colors">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                       <div>
+                          <h4 className="text-white text-xs font-bold mb-1">GPKOS 一键自修复系统 (Self-Healing)</h4>
+                          <p className="text-[10px] text-slate-400 leading-relaxed max-w-md">
+                             若遇到背景加载异常、文件损坏、或设置错乱，可启动极客一键式自修复引擎。
+                             系统将自动进行组件完整性校验、修复Unsplash通道、重构虚拟文件系统并一键重生。
+                          </p>
+                       </div>
+                       <button 
+                          onClick={onStartSelfHealing}
+                          className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-lg shadow-rose-950/20 hover:shadow-rose-500/30 shrink-0 border border-rose-500/30"
+                       >
+                          一键自修复
+                       </button>
+                    </div>
+                 </div>
+              </section>
              
-             <section>
-                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Network Services</h3>
+              <section>
+                 <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Network Services</h3>
                 <div className="space-y-2">
                    {['Global Proxy Bridge', 'RSA Handshake', 'Quantum Tunneling'].map(svc => (
                      <div key={svc} className="flex items-center justify-between p-4 bg-slate-950/30 border border-white/5 rounded-2xl hover:bg-white/5 transition-colors group">
@@ -97,7 +155,26 @@ export const GpkosSettings: React.FC<SettingsProps> = ({ powerMode, setPowerMode
         {activeTab === 'display' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
              <section>
-                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Desktop Background</h3>
+                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Background Display Mode</h3>
+                <div className="grid grid-cols-3 gap-3 p-1 bg-black/60 rounded-xl border border-white/5 mb-6">
+                   {[
+                     { id: 'static', label: '静态图片 (Static)' },
+                     { id: 'video', label: '动态粒子 (Dynamic)' },
+                     { id: 'slideshow', label: '幻灯片轮播 (Slideshow)' }
+                   ].map(mode => (
+                     <button 
+                       key={mode.id}
+                       onClick={() => setGpkosBackgroundMode && setGpkosBackgroundMode(mode.id as any)}
+                       className={`py-2 px-3 rounded-lg text-[9px] font-black uppercase tracking-wider transition ${gpkosBackgroundMode === mode.id ? 'bg-cyan-500 text-slate-950 shadow-lg font-black' : 'text-slate-400 hover:text-white bg-transparent'}`}
+                     >
+                       {mode.label}
+                     </button>
+                   ))}
+                </div>
+             </section>
+
+             <section>
+                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">Desktop Background Selection</h3>
                 <div className="grid grid-cols-2 gap-4">
                    {[
                      { id: 'dark-slate', label: 'Dark Default (黑)' },

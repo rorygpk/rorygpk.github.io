@@ -112,6 +112,7 @@ import { motion, AnimatePresence, useDragControls } from "motion/react";
 import { GpkosSettings } from "./components/GpkosSettings";
 import { VerificationScreen } from "./components/VerificationScreen";
 import { GmailApp } from "./components/GpkosReplicas";
+import { NanoBanangBackground } from "./components/NanoBanangBackground";
 
 const PRESET_BACKGROUNDS = [
   { id: "default", name: "默认深黑或深白(系统)", type: "image", color: "bg-slate-900 text-slate-100", imageUrl: "" },
@@ -153,9 +154,24 @@ interface WindowProps {
   children: React.ReactNode;
   isFocused: boolean;
   constraintsRef?: React.RefObject<HTMLDivElement | null>;
+  glassEffect?: boolean;
+  glassBlur?: number;
 }
 
-const DraggableWindow: React.FC<WindowProps> = ({ window: win, onClose, onMinimize, onFocus, onPositionChange, onSizeChange, onMaximize, children, isFocused, constraintsRef }) => {
+const DraggableWindow: React.FC<WindowProps> = ({ 
+  window: win, 
+  onClose, 
+  onMinimize, 
+  onFocus, 
+  onPositionChange, 
+  onSizeChange, 
+  onMaximize, 
+  children, 
+  isFocused, 
+  constraintsRef,
+  glassEffect = true,
+  glassBlur = 20
+}) => {
   const [resizing, setResizing] = useState(false);
   const winRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
@@ -184,6 +200,8 @@ const DraggableWindow: React.FC<WindowProps> = ({ window: win, onClose, onMinimi
         top: 0,
         left: 0,
         zIndex: win.zIndex,
+        backdropFilter: glassEffect ? `blur(${glassBlur}px)` : 'none',
+        backgroundColor: glassEffect ? `rgba(15, 23, 42, ${0.4 + (40 - glassBlur) * 0.01})` : 'rgba(15, 23, 42, 0.96)',
       }}
       animate={{ 
         x: actualX,
@@ -206,11 +224,12 @@ const DraggableWindow: React.FC<WindowProps> = ({ window: win, onClose, onMinimi
         onPositionChange(win.id, actualX + info.offset.x, actualY + info.offset.y);
       }}
       onPointerDown={() => onFocus(win.id)}
-      className={`bg-slate-900/60 border border-white/20 shadow-2xl flex flex-col overflow-hidden backdrop-blur-3xl transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${win.isMaximized ? 'border-none' : ''}`}
+      className={`border border-white/20 shadow-2xl flex flex-col overflow-hidden transition-shadow ${isFocused ? 'ring-1 ring-cyan-500/50 shadow-cyan-900/40 shadow-2xl' : 'opacity-95 shadow-black/80'} ${win.isMaximized ? 'border-none' : ''}`}
     >
       {/* Window Header */}
       <div 
-        className="bg-white/5 backdrop-blur-xl p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
+        className="bg-white/5 p-3 border-b border-white/10 flex items-center justify-between cursor-move shrink-0 select-none"
+        style={{ backdropFilter: glassEffect ? `blur(${glassBlur * 0.5}px)` : 'none' }}
         onPointerDown={(e) => !win.isMaximized && dragControls.start(e)}
         onDoubleClick={() => onMaximize(win.id)}
       >
@@ -2031,7 +2050,20 @@ export default function App() {
   const [gpkosWallpaper, setGpkosWallpaper] = useState<string>(() => {
     return localStorage.getItem("gpkos_wallpaper") || "dark-slate";
   });
+  const [gpkosBackgroundMode, setGpkosBackgroundMode] = useState<"static" | "video" | "slideshow">(() => {
+    return (localStorage.getItem("gpkos_background_mode") as any) || "static";
+  });
+  const [glassBlur, setGlassBlur] = useState<number>(() => {
+    const val = localStorage.getItem("gpkos_glass_blur");
+    return val ? Number(val) : 20;
+  });
   const [customWallpaperBase64, setCustomWallpaperBase64] = useState<string | null>(localStorage.getItem("gpkos_custom_wallpaper"));
+
+  // --- GPKOS One-Click Self Healing (自修复) States ---
+  const [isSelfHealing, setIsSelfHealing] = useState(false);
+  const [selfHealingProgress, setSelfHealingProgress] = useState(0);
+  const [selfHealingLogs, setSelfHealingLogs] = useState<string[]>([]);
+  const [showSelfHealingSuccess, setShowSelfHealingSuccess] = useState(false);
 
   // --- Secure VPN States ---
   const [vpnConnected, setVpnConnected] = useState(false);
@@ -2100,10 +2132,61 @@ export default function App() {
   const [gpkosSecureTunnelState, setGpkosSecureTunnelState] = useState(true);
   const [gpkosLatencyHistory, setGpkosLatencyHistory] = useState<number[]>([14, 15, 12, 16, 13, 14, 15]);
 
-  // Save wallpaper preference
+  // Save wallpaper preference and other display parameters
   useEffect(() => {
     localStorage.setItem("gpkos_wallpaper", gpkosWallpaper);
   }, [gpkosWallpaper]);
+
+  useEffect(() => {
+    localStorage.setItem("gpkos_background_mode", gpkosBackgroundMode);
+  }, [gpkosBackgroundMode]);
+
+  useEffect(() => {
+    localStorage.setItem("gpkos_glass_blur", String(glassBlur));
+  }, [glassBlur]);
+
+  useEffect(() => {
+    localStorage.setItem("gpkos_glass", String(glassEffect));
+  }, [glassEffect]);
+
+  // GPKOS One-Click Self-Healing Engine (一键自修复)
+  const startSelfHealing = () => {
+    setIsSelfHealing(true);
+    setSelfHealingProgress(0);
+    setSelfHealingLogs(["[SYS] 初始化 GPKOS 自修复引擎 v4.0...", "[SYS] 沙箱虚拟化完整性保护协议激活..."]);
+    
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      currentStep += 1;
+      if (currentStep === 1) {
+        setSelfHealingProgress(15);
+        setSelfHealingLogs(prev => [...prev, "[OK] 核对虚拟操作系统全局符号索引...", "[WARN] 检测到桌面毛玻璃设置可能存在缓存冲突！正在释放显存缓存..."]);
+      } else if (currentStep === 2) {
+        setSelfHealingProgress(45);
+        setSelfHealingLogs(prev => [...prev, "[OK] 重构毛玻璃硬件加速底层高阶模糊图层...", "[OK] 清理并重置 Unsplash 图像解析缓存管道...", "[INFO] 正在校验“梵高”、“鸣沙山/莫高”等系统内置背景壁纸资源..."]);
+      } else if (currentStep === 3) {
+        setSelfHealingProgress(70);
+        setSelfHealingLogs(prev => [...prev, "[OK] 系统背景壁纸管道校验完毕，已切换至超高可用稳定 CDN 通道！", "[OK] 清理冗余的浏览器缓存与数据库挂起事务...", "[INFO] 正在同步 Google OAuth、Gmail 与 Chrome 系统代理规则..."]);
+      } else if (currentStep === 4) {
+        setSelfHealingProgress(90);
+        setSelfHealingLogs(prev => [...prev, "[OK] Google 核心服务与 Gmail 沙箱数据库规则已修复并同步完毕！", "[OK] 重构桌面极客操作系统(GPKOS)状态与 Linux 容器内核配置...", "[INFO] 准备恢复桌面高可用初始化状态..."]);
+      } else if (currentStep === 5) {
+        setSelfHealingProgress(100);
+        setSelfHealingLogs(prev => [...prev, "[OK] 修复成功！系统全部核心服务恢复至 100% 纯净健康状态。"]);
+        clearInterval(interval);
+        setTimeout(() => {
+          // Reset system to clean default states
+          setGpkosWallpaper("dark-slate");
+          setGpkosBackgroundMode("static");
+          setGlassEffect(true);
+          setGlassBlur(20);
+          
+          setIsSelfHealing(false);
+          setShowSelfHealingSuccess(true);
+        }, 1000);
+      }
+    }, 800);
+  };
 
   // Simulate live VPN activity (traffic speed, bytes transferred)
   useEffect(() => {
@@ -5144,30 +5227,12 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <div 
-                className={`absolute inset-0 transition-all duration-500 flex flex-col`}
-                style={{
-                  backgroundColor: gpkosWallpaper === 'light' ? '#f8fafc' : gpkosWallpaper === 'dark-slate' ? '#0f172a' : '#020617',
-                  backgroundImage: 
-                    gpkosWallpaper.startsWith('http://') || gpkosWallpaper.startsWith('https://') || gpkosWallpaper.startsWith('data:') ? `url('${gpkosWallpaper}')` :
-                    gpkosWallpaper === 'custom' && customWallpaperBase64 ? `url(${customWallpaperBase64})` :
-                    gpkosWallpaper === 'russian' ? `url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'monet' ? `url('https://images.unsplash.com/photo-1576769267415-9642010aa962?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'vangogh' ? `url('https://images.unsplash.com/photo-1578301978693-85fa9c026f19?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'forest' ? `url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'grassland' ? `url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'hunan' ? `url('https://images.unsplash.com/photo-1555899434-94d1368aa7af?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'river' ? `url('https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'mingsha' ? `url('https://images.unsplash.com/photo-1547333590-bc4d2c80fb14?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'uk' ? `url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'shenzhen' ? `url('https://images.unsplash.com/photo-1506377711776-dbfc2f939dd1?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'local' ? `url('https://images.unsplash.com/photo-1477959858617-67f851086b9f?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'map' ? `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1920&q=80')` :
-                    gpkosWallpaper === 'bw-mosaic' ? 'linear-gradient(45deg,#1f2937 25%,transparent 25%,transparent 75%,#1f2937 75%,#1f2937),linear-gradient(45deg,#1f2937 25%,transparent 25%,transparent 75%,#1f2937 75%,#1f2937)' : 'none',
-                  backgroundSize: gpkosWallpaper === 'bw-mosaic' ? '20px 20px' : 'cover',
-                  backgroundPosition: gpkosWallpaper === 'bw-mosaic' ? '0 0, 10px 10px' : 'center',
-                }}
-              >
+              <div className="absolute inset-0 transition-all duration-500 flex flex-col overflow-hidden">
+                <NanoBanangBackground 
+                  backgroundId={gpkosWallpaper} 
+                  mode={gpkosBackgroundMode} 
+                  customWallpaperUrl={customWallpaperBase64} 
+                />
                 {/* Full screen blur overlay when top menu is open */}
                 {gpkosActiveDropdown && (
                   <div 
@@ -5324,6 +5389,8 @@ export default function App() {
                       onSizeChange={updateWindowSize}
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
+                      glassEffect={glassEffect}
+                      glassBlur={glassBlur}
                     >
                       <div className="flex flex-col h-full bg-slate-950">
                         <div className="bg-slate-900 px-4 py-2 flex justify-between items-center text-xs shrink-0 border-b border-white/10">
@@ -5384,6 +5451,8 @@ export default function App() {
                       onSizeChange={updateWindowSize}
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
+                      glassEffect={glassEffect}
+                      glassBlur={glassBlur}
                     >
                       <div className="flex h-full bg-slate-950 text-slate-100 overflow-hidden font-sans select-none">
                          {/* Left Sidebar: Node Selection list */}
@@ -5846,6 +5915,8 @@ export default function App() {
                       onSizeChange={updateWindowSize}
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
+                      glassEffect={glassEffect}
+                      glassBlur={glassBlur}
                     >
                       <div className="flex flex-col h-full bg-[#0a0a0c] font-mono text-[9px] text-blue-400 p-4 border-t border-white/5">
                          <div className="flex items-center justify-between mb-4 pb-2 border-b border-blue-900/30">
@@ -5871,6 +5942,8 @@ export default function App() {
                       onSizeChange={updateWindowSize}
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
+                      glassEffect={glassEffect}
+                      glassBlur={glassBlur}
                     >
                       <div className="flex flex-col h-full bg-[#050505] font-mono text-[10px] p-0 relative overflow-hidden">
                          <div className="bg-[#111] px-4 py-1.5 border-b border-white/5 flex items-center justify-between shrink-0">
@@ -7835,10 +7908,26 @@ export default function App() {
                       onSizeChange={updateWindowSize}
                       onMaximize={toggleMaximizeW}
                       constraintsRef={desktopRef}
+                      glassEffect={glassEffect}
+                      glassBlur={glassBlur}
                     >
                       {win.appId === 'maps' && <GoogleMapsWidget />}
                       {win.appId === 'drive' && <CloudDrive currentUser={currentUser} />}
-                      {win.appId === 'settings' && <GpkosSettings powerMode={powerMode} setPowerMode={setPowerMode} activeBackground={gpkosWallpaper} setActiveBackground={setGpkosWallpaper} />}
+                      {win.appId === 'settings' && (
+                        <GpkosSettings 
+                          powerMode={powerMode} 
+                          setPowerMode={setPowerMode} 
+                          activeBackground={gpkosWallpaper} 
+                          setActiveBackground={setGpkosWallpaper} 
+                          glassEffect={glassEffect}
+                          setGlassEffect={setGlassEffect}
+                          glassBlur={glassBlur}
+                          setGlassBlur={setGlassBlur}
+                          gpkosBackgroundMode={gpkosBackgroundMode}
+                          setGpkosBackgroundMode={setGpkosBackgroundMode}
+                          onStartSelfHealing={startSelfHealing}
+                        />
+                      )}
                       {win.appId === 'global-bridge' && <GlobalBrowser />}
                       {win.appId === 'profile' && <UserProfileApp currentUser={currentUser} onUpdatePassword={() => alert('密码已使用零知识协议安全更新。')} onUploadAvatar={(passedFile?: File) => {
                           const processFile = (file: File) => {
@@ -9437,6 +9526,83 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* GPKOS Kernel-Level Self-Healing Core Loader */}
+      {isSelfHealing && (
+        <div className="fixed inset-0 bg-black/95 z-[99999] flex flex-col items-center justify-center p-6 select-none font-mono">
+          <div className="max-w-xl w-full bg-slate-950 border border-rose-500/30 p-8 rounded-3xl shadow-[0_0_50px_rgba(244,63,94,0.15)] flex flex-col gap-6 relative overflow-hidden">
+            {/* Spinning scanning circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl animate-pulse"></div>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-full border-2 border-rose-500/20 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full border-2 border-rose-500 border-t-transparent animate-spin"></div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-rose-400 text-sm font-black uppercase tracking-[0.2em] mb-1">GPKOS Kernel Repair</h3>
+                <p className="text-[10px] text-slate-500">一键极客自修复引擎激活 - 沙箱完整性重组中</p>
+              </div>
+              <div className="ml-auto text-right">
+                <span className="text-rose-500 text-2xl font-black">{selfHealingProgress}%</span>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full bg-slate-900 border border-white/5 h-2 rounded-full overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-rose-500 to-amber-500 h-full transition-all duration-300"
+                style={{ width: `${selfHealingProgress}%` }}
+              />
+            </div>
+
+            {/* Diagnostics terminal logs */}
+            <div className="bg-black/80 border border-white/5 rounded-2xl p-4 h-48 overflow-y-auto flex flex-col gap-1.5 text-[9px] font-mono leading-relaxed text-slate-400 select-text selection:bg-rose-500/30">
+              {selfHealingLogs.map((log, index) => {
+                let colorClass = "text-slate-400";
+                if (log.startsWith("[OK]")) colorClass = "text-emerald-400 font-bold";
+                if (log.startsWith("[WARN]")) colorClass = "text-amber-400 font-bold animate-pulse";
+                if (log.startsWith("[SYS]")) colorClass = "text-rose-400 font-bold";
+                return (
+                  <div key={index} className={`${colorClass} whitespace-pre-wrap`}>
+                    {log}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-between items-center text-[8px] text-slate-600 font-bold uppercase tracking-widest px-1">
+              <span>Kernel: v4.2.0-GPKOS</span>
+              <span className="animate-pulse">Checking files integrity...</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Self-Healing Success Dialogue Modal */}
+      {showSelfHealingSuccess && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-emerald-500/20 p-8 rounded-3xl max-w-sm w-full text-center shadow-[0_0_50px_rgba(16,185,129,0.15)] animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-950/20">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950">
+                ✓
+              </div>
+            </div>
+            <h4 className="text-white text-base font-black uppercase tracking-wider mb-2">系统自修复完成</h4>
+            <p className="text-xs text-slate-400 leading-relaxed mb-6">
+              极客系统一键自修复引擎执行成功！<br />
+              所有系统文件完整性校验 100% 通过，磨砂毛玻璃硬件加速与内置壁纸已重置回超高可用稳定参数。
+            </p>
+            <button 
+              onClick={() => setShowSelfHealingSuccess(false)}
+              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-widest rounded-xl transition active:scale-95 shadow-lg shadow-emerald-950/30"
+            >
+              回到系统 (Back to OS)
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
