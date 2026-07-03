@@ -33,6 +33,41 @@ import {
 // Pre-populated items
 const PRESET_MARKET_ITEMS = [
   {
+    id: "preset-vpn-1",
+    title: "GPKOS Global Dedicated Tunnel - VIP Enterprise Pass",
+    description: "Ensure 10Gbps unlimited secure bandwidth across Tokyo, Hong Kong, SG, Silicon Valley nodes. Supports multi-device access (PCs, Phones, Tablets, Servers) with absolute zero packet loss and low latency guarantees. Purchase activates an instantaneous custom profile configuration download.",
+    price: 49.00,
+    condition: "Digital License",
+    seller: "GPKOS_Network_Team",
+    imageUrl: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80",
+    paymentMethods: ["card", "alipay", "wechat", "paypal"],
+    stock: 999,
+    options: {
+      "Subscription Term": ["1 Month ($49)", "1 Year (Save 20% +$390)"],
+      "Assigned Tunnel IP": ["Shared Dynamic IP", "Dedicated Static Tunnel IP (+$20)"]
+    },
+    isDigital: true,
+    downloadContent: "=== GPKOS VIP SECURE TUNNEL CONFIG ===\nhost: hk-vip.gpkos.net\nport: 5400\nauth-type: enterprise-mfa\nencryption: CHACHA20-POLY1305\nmtu: 1420\nmultihop-nodes: jp2, sg1\nbypass-lan: true\ndevice-slots: 10",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "preset-vpn-2",
+    title: "Secure Assist Desktop Controller License",
+    description: "Activates ultra high-fidelity remote screen control sessions with active mouse and keyboard coordination, hardware-accelerated color depth compression, and smart resolution scaling (up to 4K UHD). Lifetime license for all enterprise and personal clients.",
+    price: 129.00,
+    condition: "Digital License",
+    seller: "Gpkos_Assist_Labs",
+    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
+    paymentMethods: ["card", "alipay", "wechat", "paypal"],
+    stock: 999,
+    options: {
+      "License Scope": ["Personal (3 Devices)", "Enterprise (Unlimited Devices +$200)"]
+    },
+    isDigital: true,
+    downloadContent: "=== GPKOS SECURE ASSIST LICENSE KEY ===\nLICENSE_HOLDER: zhou_marvis_gpkos\nSERIAL: GPK-REMOTE-9A1F-3B2C-7E4D\nACTIVATION_DATE: 2026-07-03\nREMOTE_DESKTOP_SUPPORT: ACTIVE\nSCREEN_FPS: 60",
+    createdAt: new Date().toISOString()
+  },
+  {
     id: "preset-1",
     title: "IBM ThinkPad 760ED (Vintage Retro Laptop)",
     description: "Classic IBM ThinkPad from 1996. Features Intel Pentium 133MHz, 16MB RAM, and beautiful active matrix screen. Perfect for retro collectors.",
@@ -998,9 +1033,32 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
                               </button>
                             )}
                             {order.escrowStatus === 'completed' && (
-                              <span className="text-xs text-green-600 font-bold flex items-center gap-1">
-                                <CheckCircle className="w-4 h-4" /> 托管已划拨
-                              </span>
+                              <div className="flex flex-col items-end gap-1.5">
+                                <span className="text-xs text-green-600 font-bold flex items-center gap-1">
+                                  <CheckCircle className="w-4 h-4" /> 托管已划拨
+                                </span>
+                                {order.items?.some((it: any) => it.isDigital) && (
+                                  <button
+                                    onClick={() => {
+                                      const digitalItem = order.items.find((it: any) => it.isDigital);
+                                      if (digitalItem) {
+                                        const element = document.createElement("a");
+                                        const file = new Blob([digitalItem.downloadContent || "GPKOS SECURE PROFILE"], { type: 'text/plain' });
+                                        element.href = URL.createObjectURL(file);
+                                        const filename = digitalItem.id.includes("vpn") ? "gpkos_vpn_client_config.conf" : "gpkos_assist_license.key";
+                                        element.download = filename;
+                                        document.body.appendChild(element);
+                                        element.click();
+                                        document.body.removeChild(element);
+                                        alert(`📥 「${digitalItem.title}」专属密钥配置文件已成功触发下载！`);
+                                      }
+                                    }}
+                                    className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-2.5 py-1 rounded-lg transition duration-150 border-none active:scale-95 cursor-pointer flex items-center gap-1"
+                                  >
+                                    📥 触发客户端配置下载
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>

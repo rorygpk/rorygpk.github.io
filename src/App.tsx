@@ -105,6 +105,7 @@ import { SecureBridge } from "./components/SecureBridge";
 import { GlobalBrowser } from "./components/GlobalBrowser";
 import { UserProfileApp } from "./components/UserProfileApp";
 import { MarketplaceApp } from "./components/MarketplaceApp";
+import { PenpalApp } from "./components/PenpalApp";
 import { encryptData, decryptData } from './lib/encryption';
 import { RichTextEditor } from "./components/RichTextEditor";
 import { motion, AnimatePresence, useDragControls } from "motion/react";
@@ -2067,13 +2068,94 @@ export default function App() {
 
   // --- Secure VPN States ---
   const [vpnConnected, setVpnConnected] = useState(false);
-  const [vpnNode, setVpnNode] = useState<"hk" | "jp" | "sg" | "us">("jp");
+  const [vpnNode, setVpnNode] = useState<string>("jp");
   const [vpnConnecting, setVpnConnecting] = useState(false);
   const [vpnBytesTransferred, setVpnBytesTransferred] = useState(1420580);
   const [vpnSpeed, setVpnSpeed] = useState(0);
   const [vpnIP, setVpnIP] = useState("103.45.210.88");
   const [vpnBrowserUrl, setVpnBrowserUrl] = useState("https://www.google.com");
   const [vpnBrowserActiveUrl, setVpnBrowserActiveUrl] = useState("https://www.google.com");
+
+  const [vpnNodesList, setVpnNodesList] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("gpkos_vpn_nodes");
+      return saved ? JSON.parse(saved) : [
+        { id: "hk", name: "Hong Kong Node-01", ip: "103.45.210.88", flag: "🇭🇰", rtt: "12ms", provider: "HK Core" },
+        { id: "jp", name: "Tokyo Node-02", ip: "210.140.8.215", flag: "🇯🇵", rtt: "24ms", provider: "Tokyo Core" },
+        { id: "sg", name: "Singapore Node-03", ip: "188.166.195.12", flag: "🇸🇬", rtt: "29ms", provider: "SG Core" },
+        { id: "us", name: "US Silicon Valley-04", ip: "45.79.121.34", flag: "🇺🇸", rtt: "115ms", provider: "US West Core" }
+      ];
+    } catch {
+      return [
+        { id: "hk", name: "Hong Kong Node-01", ip: "103.45.210.88", flag: "🇭🇰", rtt: "12ms", provider: "HK Core" },
+        { id: "jp", name: "Tokyo Node-02", ip: "210.140.8.215", flag: "🇯🇵", rtt: "24ms", provider: "Tokyo Core" },
+        { id: "sg", name: "Singapore Node-03", ip: "188.166.195.12", flag: "🇸🇬", rtt: "29ms", provider: "SG Core" },
+        { id: "us", name: "US Silicon Valley-04", ip: "45.79.121.34", flag: "🇺🇸", rtt: "115ms", provider: "US West Core" }
+      ];
+    }
+  });
+
+  const [customVpnNodeName, setCustomVpnNodeName] = useState("");
+  const [customVpnNodeIp, setCustomVpnNodeIp] = useState("");
+  const [customVpnNodeLatency, setCustomVpnNodeLatency] = useState("18ms");
+  const [customVpnNodeProvider, setCustomVpnNodeProvider] = useState("Dedicated Core");
+  const [showVpnAddNodeForm, setShowVpnAddNodeForm] = useState(false);
+
+  const handleAddVpnNode = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customVpnNodeName.trim()) return;
+    const newId = `node-${Date.now()}`;
+    const newNode = {
+      id: newId,
+      name: customVpnNodeName.trim(),
+      ip: customVpnNodeIp.trim() || "103.45.210.99",
+      flag: "🌐",
+      rtt: customVpnNodeLatency.trim() || "15ms",
+      provider: customVpnNodeProvider.trim() || "Custom Relay"
+    };
+    const updated = [...vpnNodesList, newNode];
+    setVpnNodesList(updated);
+    localStorage.setItem("gpkos_vpn_nodes", JSON.stringify(updated));
+    setCustomVpnNodeName("");
+    setCustomVpnNodeIp("");
+    setCustomVpnNodeLatency("18ms");
+    setCustomVpnNodeProvider("Dedicated Core");
+    setShowVpnAddNodeForm(false);
+  };
+
+  const [downloadQueue, setDownloadQueue] = useState<any[]>([
+    { id: "dl-1", name: "gpkos_desktop_client_macOS.dmg", size: "48.2 MB", progress: 100, speed: "0 KB/s", status: "completed" },
+    { id: "dl-2", name: "gpkos_mobile_client_v4.2.apk", size: "24.6 MB", progress: 100, speed: "0 KB/s", status: "completed" }
+  ]);
+
+  const triggerPlatformDownload = (fileName: string, sizeStr: string, fileContent: string) => {
+    const id = `dl-${Date.now()}`;
+    const newDl = { id, name: fileName, size: sizeStr, progress: 0, speed: "3.2 MB/s", status: "downloading" };
+    setDownloadQueue(prev => [newDl, ...prev]);
+
+    let progressVal = 0;
+    const interval = setInterval(() => {
+      progressVal += Math.floor(Math.random() * 15) + 10;
+      if (progressVal >= 100) {
+        progressVal = 100;
+        clearInterval(interval);
+        setDownloadQueue(prev => prev.map(dl => dl.id === id ? { ...dl, progress: 100, speed: "0 KB/s", status: "completed" } : dl));
+        
+        // Actually trigger browser download
+        const blob = new Blob([fileContent], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        setDownloadQueue(prev => prev.map(dl => dl.id === id ? { ...dl, progress: progressVal, speed: `${(Math.random() * 4 + 2).toFixed(1)} MB/s` } : dl));
+      }
+    }, 400);
+  };
 
   // --- GPKOS Tube / Video Player States ---
   const [selectedVideoUrl, setSelectedVideoUrl] = useState("https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-city-street-with-neon-lights-and-rain-40141-large.mp4");
@@ -5347,6 +5429,17 @@ export default function App() {
                          <span>ECO SAVER</span>
                       </div>
                     )}
+                    {/* Penpal Free Chat Hub Topbar integration */}
+                    <button 
+                      onClick={() => launchApp('penpal', 'Penpal Free Chat Hub')}
+                      className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white font-bold px-2.5 py-1 rounded-lg border border-violet-500/30 transition shadow-lg shadow-violet-950/40 relative group cursor-pointer text-[9px] uppercase tracking-wide shrink-0"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-white" />
+                      <span>交笔友 PENPAL</span>
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-slate-950 animate-ping" />
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-slate-950" />
+                    </button>
+
                     <span className="hidden sm:inline">Admin: {currentUser.emailUsername}</span>
                     <div className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -5499,16 +5592,16 @@ export default function App() {
                                  >
                                    <div className="flex items-center justify-between mb-1 w-full">
                                       <div className="flex items-center gap-1.5 font-sans">
-                                         <span className="text-xs">${node.region.split(' ')[node.region.split(' ').length - 1]}</span>
-                                         <span className="font-bold text-[11px] text-white truncate max-w-[120px]">${node.name}</span>
+                                         <span className="text-xs">{node.region.split(' ')[node.region.split(' ').length - 1]}</span>
+                                         <span className="font-bold text-[11px] text-white truncate max-w-[120px]">{node.name}</span>
                                       </div>
                                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                    </div>
-                                   <p className="text-[9px] text-slate-400 font-mono">IP: ${node.ip}</p>
-                                   <p className="text-[9px] text-slate-400">${node.os} • ${node.spec}</p>
+                                   <p className="text-[9px] text-slate-400 font-mono">IP: {node.ip}</p>
+                                   <p className="text-[9px] text-slate-400">{node.os} • {node.spec}</p>
                                    <div className="mt-1 flex items-center justify-between w-full font-sans">
                                       <span className="text-[8px] bg-slate-950 px-1 py-0.5 rounded font-mono text-slate-400">SSH Tunnel</span>
-                                      <span className="text-[8px] font-mono text-emerald-400 font-bold">Ping: ${node.rtt}</span>
+                                      <span className="text-[8px] font-mono text-emerald-400 font-bold">Ping: {node.rtt}</span>
                                    </div>
                                  </button>
                                ))}
@@ -7973,6 +8066,95 @@ export default function App() {
                             input.click();
                           }
                       }} />}
+                      {win.appId === 'penpal' && <PenpalApp />}
+                      {win.appId === 'multi-manage' && (
+                        <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden font-sans p-6 overflow-y-auto">
+                          {/* Inner Multi Manage View */}
+                          <div className="flex-1 flex flex-col gap-6">
+                            <div className="border-b border-white/10 pb-4 flex items-center justify-between flex-wrap gap-4 text-left">
+                              <div>
+                                <h2 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                                  <Sliders className="h-5 w-5 text-amber-500 animate-pulse" />
+                                  多功能管理与核心分发中心 (Multi-Function Console)
+                                </h2>
+                                <p className="text-[10px] text-slate-400">
+                                  下发终端VPN配置、监控全平台(PC, Mobile, Tablet, Server)接入状态与保障传输质量。
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                              {[
+                                { 
+                                  name: "用户电脑 PC Client (macOS/Win)", 
+                                  desc: "GPKOS全通道加密电脑客户端，确保多核加速与极低丢包率。内置Stealth Obfuscation。", 
+                                  file: "gpkos_desktop_client.ovpn", 
+                                  size: "48.2 MB",
+                                  content: "client\ndev tun\nproto udp\nremote hk.gpkos.net 5400\ncipher AES-256-GCM\nauth SHA256"
+                                },
+                                { 
+                                  name: "用户手机 Mobile Client (iOS/Android)", 
+                                  desc: "极速验证专线，针对手机移动基站信号自动重连与抗延迟抖动优化技术。", 
+                                  file: "gpkos_mobile_client.ovpn", 
+                                  size: "24.6 MB",
+                                  content: "client\ndev tun\nproto udp\nremote sg.gpkos.net 5400\ncipher AES-128-GCM"
+                                },
+                                { 
+                                  name: "用户平板 Tablet Client (iPad/Tablet)", 
+                                  desc: "针对平板大屏高码率媒体传输(GPKOS Tube)专门调优的独立专网通道配置包。", 
+                                  file: "gpkos_tablet_client.ovpn", 
+                                  size: "32.1 MB",
+                                  content: "client\ndev tun\nproto udp\nremote jp.gpkos.net 5400"
+                                },
+                                { 
+                                  name: "接入服务器 Server Daemon (CentOS/Ubuntu)", 
+                                  desc: "Linux服务端高效守护进程，提供多路复用信道均衡及吞吐量SSL-SSH隧道支持。", 
+                                  file: "gpkos_server_daemon.sh", 
+                                  size: "4.8 KB",
+                                  content: "#!/bin/bash\necho 'Installing GPKOS Tunnel Server...'"
+                                }
+                              ].map((plat, idx) => (
+                                <div key={idx} className="bg-white/5 border border-white/5 p-4 rounded-xl flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex justify-between items-start mb-1">
+                                      <h4 className="font-bold text-white text-xs">{plat.name}</h4>
+                                      <span className="text-[8px] text-amber-400 font-mono bg-amber-950/40 px-1.5 py-0.5 rounded">{plat.size}</span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 leading-relaxed mb-3">{plat.desc}</p>
+                                  </div>
+                                  <button 
+                                    onClick={() => triggerPlatformDownload(plat.file, plat.size, plat.content)}
+                                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-1.5 rounded-lg text-xs font-black transition uppercase cursor-pointer"
+                                  >
+                                    立即触发下载
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* QoS display */}
+                            <div className="bg-slate-900 border border-white/5 p-4 rounded-xl text-left">
+                              <h4 className="font-bold text-white text-xs mb-2">📈 多端接入数据链路与传输质量保障 (QoS Assurance)</h4>
+                              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                                {[
+                                  { name: "电脑 PC Client", status: "优 (A+)", rate: "148.5 M", jitter: "0.12ms", loss: "0.0%" },
+                                  { name: "手机 Mobile", status: "优 (A)", rate: "62.4 M", jitter: "0.95ms", loss: "0.02%" },
+                                  { name: "平板 Tablet", status: "优 (A+)", rate: "92.0 M", jitter: "0.41ms", loss: "0.0%" },
+                                  { name: "服务器 Server", status: "极佳 (S)", rate: "940.0 M", jitter: "0.03ms", loss: "0.0%" }
+                                ].map((m, idx) => (
+                                  <div key={idx} className="bg-black/40 border border-white/5 p-2 rounded-lg text-left text-[9px] font-mono flex justify-between items-center">
+                                    <div>
+                                      <div className="text-slate-400 font-bold">{m.name}</div>
+                                      <div className="text-white font-extrabold">{m.rate}</div>
+                                    </div>
+                                    <span className="text-emerald-400 font-bold">{m.status}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {win.appId === 'marketplace' && <MarketplaceApp />}
                       {win.appId === 'vpn' && (
                         <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden select-none font-sans">
@@ -8000,83 +8182,88 @@ export default function App() {
                               <>
                                 {/* Node selection column (2/5) */}
                                 <div className="col-span-2 border-r border-white/5 bg-slate-900/40 p-3 overflow-y-auto flex flex-col gap-2">
-                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Tunnel Endpoint</span>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Tunnel Endpoint</span>
+                                    <button 
+                                      onClick={() => setShowVpnAddNodeForm(!showVpnAddNodeForm)}
+                                      className="text-[9px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 transition cursor-pointer"
+                                    >
+                                      <Plus className="w-3 h-3" /> Add Node
+                                    </button>
+                                  </div>
+
+                                  {showVpnAddNodeForm && (
+                                    <form onSubmit={handleAddVpnNode} className="bg-slate-950 border border-blue-500/30 p-2.5 rounded-xl space-y-2 text-left mb-2">
+                                      <div className="text-[8px] font-bold text-blue-400 uppercase">New VPN Node Endpoint</div>
+                                      <input 
+                                        type="text" 
+                                        placeholder="Node Name" 
+                                        value={customVpnNodeName}
+                                        onChange={e => setCustomVpnNodeName(e.target.value)}
+                                        className="w-full bg-slate-900 border border-white/10 p-1.5 rounded text-[10px] text-white focus:outline-none focus:border-blue-500"
+                                        required
+                                      />
+                                      <input 
+                                        type="text" 
+                                        placeholder="IP Address (e.g. 103.4.2.1)" 
+                                        value={customVpnNodeIp}
+                                        onChange={e => setCustomVpnNodeIp(e.target.value)}
+                                        className="w-full bg-slate-900 border border-white/10 p-1.5 rounded text-[10px] text-white focus:outline-none focus:border-blue-500"
+                                      />
+                                      <div className="grid grid-cols-2 gap-1">
+                                        <input 
+                                          type="text" 
+                                          placeholder="Latency (e.g. 15ms)" 
+                                          value={customVpnNodeLatency}
+                                          onChange={e => setCustomVpnNodeLatency(e.target.value)}
+                                          className="w-full bg-slate-900 border border-white/10 p-1.5 rounded text-[8px] text-white focus:outline-none focus:border-blue-500"
+                                        />
+                                        <input 
+                                          type="text" 
+                                          placeholder="Provider" 
+                                          value={customVpnNodeProvider}
+                                          onChange={e => setCustomVpnNodeProvider(e.target.value)}
+                                          className="w-full bg-slate-900 border border-white/10 p-1.5 rounded text-[8px] text-white focus:outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+                                      <div className="flex gap-1">
+                                        <button 
+                                          type="button" 
+                                          onClick={() => setShowVpnAddNodeForm(false)} 
+                                          className="w-1/2 bg-slate-800 hover:bg-slate-700 text-white text-[9px] py-1 rounded transition"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button 
+                                          type="submit" 
+                                          className="w-1/2 bg-blue-600 hover:bg-blue-500 text-white text-[9px] py-1 rounded transition font-bold"
+                                        >
+                                          Save Node
+                                        </button>
+                                      </div>
+                                    </form>
+                                  )}
                                   
-                                  {/* Node 1 */}
-                                  <button 
-                                    onClick={() => {
-                                      setVpnNode("hk");
-                                      setVpnIP("103.45.210.88");
-                                    }}
-                                    disabled={vpnConnecting}
-                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'hk' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm">🇭🇰</span>
-                                      <div>
-                                        <p className="font-bold text-[11px] text-white">Hong Kong Node-01</p>
-                                        <p className="text-[9px] text-slate-400 font-mono">103.45.210.88</p>
+                                  {vpnNodesList.map(node => (
+                                    <button 
+                                      key={node.id}
+                                      onClick={() => {
+                                        setVpnNode(node.id);
+                                        setVpnIP(node.ip);
+                                      }}
+                                      disabled={vpnConnecting}
+                                      className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === node.id ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm">{node.flag}</span>
+                                        <div>
+                                          <p className="font-bold text-[11px] text-white">{node.name}</p>
+                                          <p className="text-[9px] text-slate-400 font-mono">{node.ip}</p>
+                                        </div>
                                       </div>
-                                    </div>
-                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">12ms</span>
-                                  </button>
-
-                                  {/* Node 2 */}
-                                  <button 
-                                    onClick={() => {
-                                      setVpnNode("jp");
-                                      setVpnIP("210.140.8.215");
-                                    }}
-                                    disabled={vpnConnecting}
-                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'jp' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm">🇯🇵</span>
-                                      <div>
-                                        <p className="font-bold text-[11px] text-white">Tokyo Node-02</p>
-                                        <p className="text-[9px] text-slate-400 font-mono">210.140.8.215</p>
-                                      </div>
-                                    </div>
-                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">24ms</span>
-                                  </button>
-
-                                  {/* Node 3 */}
-                                  <button 
-                                    onClick={() => {
-                                      setVpnNode("sg");
-                                      setVpnIP("188.166.195.12");
-                                    }}
-                                    disabled={vpnConnecting}
-                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'sg' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm">🇸🇬</span>
-                                      <div>
-                                        <p className="font-bold text-[11px] text-white">Singapore Node-03</p>
-                                        <p className="text-[9px] text-slate-400 font-mono">188.166.195.12</p>
-                                      </div>
-                                    </div>
-                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">29ms</span>
-                                  </button>
-
-                                  {/* Node 4 */}
-                                  <button 
-                                    onClick={() => {
-                                      setVpnNode("us");
-                                      setVpnIP("45.79.121.34");
-                                    }}
-                                    disabled={vpnConnecting}
-                                    className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === 'us' ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm">🇺🇸</span>
-                                      <div>
-                                        <p className="font-bold text-[11px] text-white">US Silicon Valley-04</p>
-                                        <p className="text-[9px] text-slate-400 font-mono">45.79.121.34</p>
-                                      </div>
-                                    </div>
-                                    <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">115ms</span>
-                                  </button>
+                                      <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">{node.rtt}</span>
+                                    </button>
+                                  ))}
 
                                   <div className="mt-auto bg-blue-950/30 border border-blue-500/20 p-2.5 rounded-xl">
                                     <p className="text-[10px] text-blue-300 font-bold">💡 Multi-Hop Secure Routing</p>
@@ -8708,6 +8895,14 @@ export default function App() {
                     <button onClick={() => launchApp('video-player', 'GPKOS Tube Video Stream')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
                        <div className="bg-rose-950/50 p-2.5 rounded-xl shadow border border-rose-500/30 hover:border-rose-400/50 transition-colors"><Video className="h-6 w-6 text-rose-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">GPKOS Tube</span>
+                    </button>
+                    <button onClick={() => launchApp('penpal', 'Penpal Free Chat Hub')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                       <div className="bg-violet-950/50 p-2.5 rounded-xl shadow border border-violet-500/30 hover:border-violet-400/50 transition-colors"><MessageSquare className="h-6 w-6 text-violet-400 animate-pulse" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">交笔友 Chat</span>
+                    </button>
+                    <button onClick={() => launchApp('multi-manage', '多功能管理与终端下载')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
+                       <div className="bg-amber-950/50 p-2.5 rounded-xl shadow border border-amber-500/30 hover:border-amber-400/50 transition-colors"><Sliders className="h-6 w-6 text-amber-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">多功能管理</span>
                     </button>
                     <div className="w-px h-8 bg-white/20 mx-1"></div>
                     <button onClick={() => launchApp('settings', 'System Preferences')} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2">

@@ -40,6 +40,7 @@ export const GpkosSettings: React.FC<SettingsProps> = ({
     { id: "display", label: "Display", icon: Monitor },
     { id: "energy", label: "Energy", icon: Zap },
     { id: "privacy", label: "Privacy", icon: ShieldCheck },
+    { id: "multifunction", label: "Multi-function", icon: HardDrive },
     { id: "about", label: "About", icon: Info },
   ];
 
@@ -328,6 +329,79 @@ export const GpkosSettings: React.FC<SettingsProps> = ({
              </div>
           </div>
         )}
+
+        {activeTab === 'multifunction' && (() => {
+          const triggerDownload = (device: string, ext: string, content: string) => {
+            const element = document.createElement("a");
+            const file = new Blob([content], { type: 'text/plain' });
+            element.href = URL.createObjectURL(file);
+            element.download = `gpkos_secure_bridge_${device.toLowerCase()}_client.${ext}`;
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+          };
+
+          const devices = [
+            { name: "Personal Laptop (PC)", type: "computer", ip: "192.168.1.104", ping: "8ms", jitter: "0.2ms", packetLoss: "0.0%", status: "CONNECTED", speed: "125.4 Mbps", config: "client-id: pc_user_zhou\nauth-type: cert-mutual-tls\nencryption: AES-256-GCM\nmultihop: true\nremote-port: 4500\nkeepalive: 10\nroute-all: true" },
+            { name: "iPhone / Android (Mobile)", type: "smartphone", ip: "192.168.1.182", ping: "14ms", jitter: "1.1ms", packetLoss: "0.01%", status: "CONNECTED", speed: "42.1 Mbps", config: "client-id: mobile_user_zhou\nauth-type: cert-mutual-tls\nencryption: AES-256-GCM\nlow-battery-optimization: active\nkeepalive: 30" },
+            { name: "iPad Pro (Tablet)", type: "tablet", ip: "192.168.1.190", ping: "11ms", jitter: "0.4ms", packetLoss: "0.0%", status: "CONNECTED", speed: "84.9 Mbps", config: "client-id: tablet_user_zhou\nauth-type: cert-mutual-tls\nencryption: AES-256-GCM\nmultihop: false\nkeepalive: 15" },
+            { name: "Enterprise Server (Cloud Server)", type: "server", ip: "45.79.121.34", ping: "2ms", jitter: "0.05ms", packetLoss: "0.0%", status: "STABLE RELAY", speed: "940.1 Mbps", config: "#!/bin/bash\n# GPKOS Server Relay Setup\necho 'Configuring secure relay...'\nsudo systemctl start gpkos-tunnel\nsudo gpkos-cli enable --port=4500 --tls-cert=/etc/gpkos/server.pem" }
+          ];
+
+          return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+              <div>
+                <h3 className="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-50">多功能管理控制台 (Multi-function Management)</h3>
+                <p className="text-slate-400 text-[10px] leading-relaxed">接入并调度您的专属设备（电脑、手机、平板、服务器等），一键触发下载安全证书或配置文件以保证多端高带宽、低抖动和最佳传输质量。</p>
+              </div>
+
+              <section className="bg-slate-950/40 border border-white/5 p-5 rounded-2xl">
+                <h4 className="text-white text-xs font-bold mb-3 flex items-center gap-1.5">💻 接入设备状态与质量监控 (Quality Control Center)</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {devices.map(dev => (
+                    <div key={dev.name} className="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex flex-col justify-between hover:border-cyan-500/30 transition-all">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white text-xs font-bold">{dev.name}</span>
+                          <span className="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono font-bold">{dev.status}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-400 font-mono mb-3">
+                          <div>IP: <span className="text-slate-200">{dev.ip}</span></div>
+                          <div>Ping: <span className="text-emerald-400 font-bold">{dev.ping}</span></div>
+                          <div>Jitter: <span className="text-cyan-400">{dev.jitter}</span></div>
+                          <div>Loss: <span className="text-slate-300">{dev.packetLoss}</span></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-white/5 pt-2 mt-1">
+                        <span className="text-[9px] text-slate-500 font-mono">Speed: <span className="text-white font-bold">{dev.speed}</span></span>
+                        <button
+                          onClick={() => triggerDownload(dev.name.split(" ")[0], dev.type === "server" ? "sh" : "ovpn", dev.config)}
+                          className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded transition duration-150 flex items-center gap-1 cursor-pointer border-none active:scale-95"
+                        >
+                          📥 触发下载
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="bg-slate-950/40 border border-white/5 p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-white text-xs font-bold mb-1">Export Global Diagnostic Certificate Package</h4>
+                  <p className="text-[10px] text-slate-400 leading-relaxed max-w-md">生成并打包当前主机的全部网络安全对账密钥 (Pem) 以及集群监控日志。一键触发下载本地，用于快速对齐所有多端物理节点的安全通道。</p>
+                </div>
+                <button 
+                  onClick={() => triggerDownload("global_bundle", "pem", "=== BEGIN RORYGPKOS MULTIDEVICE CERTIFICATE ===\nCERT_HASH: 0x9f381c818a7d2b\nVERSION: 4.2-STABLE\nENCRYPTION: AES-256-GCM\n=== END CERTIFICATE ===")}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition duration-150 shadow-lg border-none active:scale-95 shrink-0"
+                >
+                  📥 触发下载证书包
+                </button>
+              </section>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

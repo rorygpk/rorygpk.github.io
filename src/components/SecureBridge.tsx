@@ -19,6 +19,29 @@ export const SecureBridge: React.FC = () => {
     { name: 'HF Space Relay Frankfurt-09', status: 'active', latency: '61ms', provider: 'Hugging Face' },
   ]);
 
+  // States for adding custom nodes
+  const [showAddNodeForm, setShowAddNodeForm] = useState(false);
+  const [customNodeName, setCustomNodeName] = useState("");
+  const [customNodeLatency, setCustomNodeLatency] = useState("18ms");
+  const [customNodeProvider, setCustomNodeProvider] = useState("Dedicated Core");
+
+  const handleAddNodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customNodeName.trim()) return;
+    setNodes(prev => [
+      ...prev,
+      {
+        name: customNodeName.trim(),
+        status: 'active',
+        latency: customNodeLatency.trim() || '20ms',
+        provider: customNodeProvider.trim() || 'Custom Relay'
+      }
+    ]);
+    addLog(`[SYSTEM] Added custom endpoint node: ${customNodeName}`);
+    setCustomNodeName("");
+    setShowAddNodeForm(false);
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setStatus('secure');
@@ -309,16 +332,80 @@ export const SecureBridge: React.FC = () => {
                        </div>
                      </div>
                    ))}
-                   <div className="flex items-center justify-center p-5 bg-slate-900/10 rounded-2xl border-2 border-dashed border-slate-800/50 hover:border-slate-700 transition">
-                      <button className="flex flex-col items-center gap-2 group">
-                         <div className="p-3 bg-slate-900 rounded-xl text-slate-600 group-hover:text-white transition">
-                            <Server className="w-6 h-6" />
-                         </div>
-                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic group-hover:text-slate-300 transition">PRO Node Assignment Required</span>
-                      </button>
-                   </div>
-                </div>
-              )}
+                   {showAddNodeForm ? (
+                      <form onSubmit={handleAddNodeSubmit} className="p-5 bg-slate-900/80 border border-cyan-500/30 rounded-2xl space-y-3 text-left">
+                        <h4 className="text-white text-xs font-black uppercase tracking-wide">添加专属加速节点 (Add Node)</h4>
+                        <div>
+                          <label className="block text-[8px] uppercase text-slate-500 font-bold mb-1">节点名称 (Node Name)</label>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. Hong Kong VIP Tunnel" 
+                            value={customNodeName}
+                            onChange={e => setCustomNodeName(e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[8px] uppercase text-slate-500 font-bold mb-1">延迟时间 (Latency)</label>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. 15ms" 
+                              value={customNodeLatency}
+                              onChange={e => setCustomNodeLatency(e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[8px] uppercase text-slate-500 font-bold mb-1">服务商 (Provider)</label>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. Dedicated Fiber" 
+                              value={customNodeProvider}
+                              onChange={e => setCustomNodeProvider(e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-1.5">
+                          <button type="button" onClick={() => setShowAddNodeForm(false)} className="flex-grow py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold rounded-lg text-xs transition border-none cursor-pointer">取消</button>
+                          <button type="submit" className="flex-grow py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-lg text-xs transition border-none cursor-pointer uppercase">确定添加</button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="flex items-center justify-center p-5 bg-slate-900/10 rounded-2xl border-2 border-dashed border-slate-800/50 hover:border-cyan-500/30 transition">
+                        <button onClick={() => setShowAddNodeForm(true)} className="flex flex-col items-center gap-2 group border-none bg-transparent cursor-pointer">
+                           <div className="p-3 bg-slate-900 rounded-xl text-slate-600 group-hover:text-cyan-400 border border-slate-800 transition-colors">
+                              <Server className="w-6 h-6" />
+                           </div>
+                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic group-hover:text-cyan-300 transition">+ 增加专属网络节点 (Add Custom Node)</span>
+                        </button>
+                      </div>
+                    )}
+                 </div>
+               )}
+            </div>
+
+            {/* Multi-Device Active Access Ports with Transmission Quality Assurance */}
+            <div className="mt-8 border-t border-slate-800 pt-6 shrink-0">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 text-left">💻 电脑、手机、平板、服务器多端质量监控 (Multi-Device Tunnel QoS)</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-left">
+                {[
+                  { name: "用户电脑 PC Client", device: "macOS/Windows OS", bandwidth: "148.5 Mbps", jitter: "0.12ms", loss: "0.0%" },
+                  { name: "用户手机 Mobile Client", device: "iOS/Android Client", bandwidth: "62.4 Mbps", jitter: "0.95ms", loss: "0.02%" },
+                  { name: "用户平板 Tablet Client", device: "iPadOS/Android Tablet", bandwidth: "92.0 Mbps", jitter: "0.41ms", loss: "0.0%" },
+                  { name: "接入服务器 Server Node", device: "CentOS/Ubuntu Server", bandwidth: "940.0 Mbps", jitter: "0.03ms", loss: "0.0%" }
+                ].map(dev => (
+                  <div key={dev.name} className="p-3 bg-slate-900/40 border border-slate-800 rounded-xl">
+                    <div className="font-extrabold text-[10px] text-white truncate">{dev.name}</div>
+                    <div className="text-[8px] text-slate-500 font-mono mt-0.5">{dev.device}</div>
+                    <div className="grid grid-cols-2 gap-1 text-[8px] font-mono text-slate-400 mt-2 border-t border-white/5 pt-1.5">
+                      <div>Rate: <span className="text-emerald-400">{dev.bandwidth}</span></div>
+                      <div>Loss: <span className="text-rose-400">{dev.loss}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="mt-8 p-4 bg-slate-900/20 border border-slate-800/50 rounded-xl flex items-center justify-between shrink-0">
