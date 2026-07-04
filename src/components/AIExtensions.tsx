@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Zap, MessageSquare, FileText, Terminal, Settings, Plus, FilePlus, ChevronRight, Check, Trash2, ArrowRight, UserPlus, Users, Sparkles, MonitorSmartphone, Maximize, ShieldAlert, RefreshCw, Save, Send } from "lucide-react";
+import { Zap, MessageSquare, FileText, Terminal, Settings, Plus, FilePlus, ChevronRight, Check, Trash2, ArrowRight, UserPlus, Users, Sparkles, MonitorSmartphone, Maximize, ShieldAlert, RefreshCw, Save, Send, Search } from "lucide-react";
 import { t, Language } from "../i18n";
 import { SubPage, SystemState, User, PageBrowserCheck } from "../types";
 
@@ -500,17 +500,34 @@ export function DynamicSubPage({ page, lang }: { page: SubPage, lang: Language }
   if (page.isExternal) return null; // shouldn't render here
 
   return (
-    <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col gap-6 w-full animate-fade-in">
-      <div className="flex items-center gap-3 border-b border-white/10 pb-6">
-        <h1 className="text-3xl font-black text-white tracking-tight">
+    <div className="bg-slate-900/40 border border-white/10 rounded-3xl p-4 sm:p-8 shadow-2xl flex flex-col gap-6 w-full animate-fade-in">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
           {lang === 'en' ? page.titleEn : page.titleZh}
         </h1>
+        {/* Branch Page AI Agent / Search Component */}
+        <div className="relative w-full sm:w-72 mt-2 sm:mt-0">
+           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Sparkles className="h-4 w-4 text-fuchsia-400" />
+           </div>
+           <input 
+             type="text" 
+             placeholder={lang === 'en' ? "Ask Page AI / Search..." : "提问专属AI或搜索..."}
+             className="block w-full pl-9 pr-3 py-2 border border-white/10 rounded-xl leading-5 bg-black/40 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-fuchsia-500 focus:border-fuchsia-500 sm:text-sm transition-all"
+             onKeyDown={(e) => {
+               if (e.key === 'Enter') {
+                 alert(lang === 'en' ? "AI Agent searching context for: " + e.currentTarget.value : "AI 正在限定库内为您解答/搜索：" + e.currentTarget.value);
+                 e.currentTarget.value = "";
+               }
+             }}
+           />
+        </div>
       </div>
       
       {page.htmlContent ? (
-        <div className="w-full" dangerouslySetInnerHTML={{ __html: page.htmlContent }} />
+        <div className="w-full overflow-x-auto" dangerouslySetInnerHTML={{ __html: page.htmlContent }} />
       ) : (
-        <div className="prose prose-invert max-w-none text-slate-300 leading-loose" dangerouslySetInnerHTML={{ __html: lang === 'en' ? page.contentEn : page.contentZh }}>
+        <div className="prose prose-sm sm:prose-base prose-invert max-w-none text-slate-300 leading-loose overflow-x-auto" dangerouslySetInnerHTML={{ __html: lang === 'en' ? page.contentEn : page.contentZh }}>
         </div>
       )}
     </div>

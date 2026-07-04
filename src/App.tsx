@@ -105,7 +105,6 @@ import { SecureBridge } from "./components/SecureBridge";
 import { GlobalBrowser } from "./components/GlobalBrowser";
 import { UserProfileApp } from "./components/UserProfileApp";
 import { MarketplaceApp } from "./components/MarketplaceApp";
-import { PenpalApp } from "./components/PenpalApp";
 import { encryptData, decryptData } from './lib/encryption';
 import { RichTextEditor } from "./components/RichTextEditor";
 import { motion, AnimatePresence, useDragControls } from "motion/react";
@@ -3157,6 +3156,26 @@ export default function App() {
               <p className="text-xs text-slate-400 hidden sm:block">{t("Owner Terminal Desk • Administrator: 周锦淇 (marvis_zhou2014)")}</p>
             </div>
           </div>
+          
+          {/* Main Website Global Search */}
+          <div className="hidden lg:flex items-center flex-grow max-w-xl mx-4">
+             <div className="relative w-full">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                   <Search className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                   type="text"
+                   placeholder={lang === 'en' ? "Global Site Search..." : "全站大搜索..."}
+                   className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-full leading-5 bg-white/5 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm transition-all shadow-inner"
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter') {
+                       alert(lang === 'en' ? "Global search for: " + e.currentTarget.value : "全站搜索：" + e.currentTarget.value);
+                       e.currentTarget.value = "";
+                     }
+                   }}
+                />
+             </div>
+          </div>
 
           <div className="flex md:hidden items-center gap-2">
             <button
@@ -3202,7 +3221,6 @@ export default function App() {
                  <div className="flex flex-col gap-2">
                    <a href="#home" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#home" ? "text-cyan-400" : "text-slate-300 hover:text-cyan-300"}`}>{t("#home")}</a>
                    <a href="#work" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#work" ? "text-blue-400" : "text-slate-300 hover:text-blue-300"}`}>{t("#work")}</a>
-                   <a href="#public-mail" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#public-mail" ? "text-violet-400" : "text-slate-300 hover:text-violet-300"}`}>🌐 {lang === 'en' ? 'Global Mail' : '全球极速发信'}</a>
                    {(currentUser?.role === 'admin' || (currentUser && systemState.outerWebAuthorizedUsers?.includes(currentUser.emailUsername))) && (
                      <a href="#rory-gpkos" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#rory-gpkos" ? "text-emerald-400" : "text-slate-300 hover:text-emerald-300"}`}>{t("#rory-gpkos IDE")}</a>
                    )}
@@ -3347,17 +3365,6 @@ export default function App() {
                   }`}
                 >
                   {t("#work")}
-                </a>
-                <a
-                  href="#public-mail"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    currentHash === "#public-mail"
-                      ? "bg-violet-500 text-white shadow-md"
-                      : "text-violet-300 hover:bg-violet-500/15 border border-violet-500/20"
-                  }`}
-                >
-                  🌐 {lang === 'en' ? 'Global Mail' : '全球极速发信'}
                 </a>
                 {(currentUser?.role === 'admin' || (currentUser && systemState.outerWebAuthorizedUsers?.includes(currentUser.emailUsername))) && (
                 <a
@@ -5463,17 +5470,6 @@ export default function App() {
                          <span>ECO SAVER</span>
                       </div>
                     )}
-                    {/* Penpal Free Chat Hub Topbar integration */}
-                    <button 
-                      onClick={() => launchApp('penpal', 'Penpal Free Chat Hub')}
-                      className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white font-bold px-2.5 py-1 rounded-lg border border-violet-500/30 transition shadow-lg shadow-violet-950/40 relative group cursor-pointer text-[9px] uppercase tracking-wide shrink-0"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5 text-white" />
-                      <span>交笔友 PENPAL</span>
-                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-slate-950 animate-ping" />
-                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-slate-950" />
-                    </button>
-
                     <span className="hidden sm:inline">Admin: {currentUser.emailUsername}</span>
                     <div className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -8100,7 +8096,6 @@ export default function App() {
                             input.click();
                           }
                       }} />}
-                      {win.appId === 'penpal' && <PenpalApp />}
                       {win.appId === 'multi-manage' && (
                         <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden font-sans p-6 overflow-y-auto">
                           {/* Inner Multi Manage View */}
@@ -8789,6 +8784,31 @@ export default function App() {
 
                                   {/* Subtitles & Speed Settings */}
                                   <div className="flex items-center gap-1.5">
+                                    {/* Local File Input (hidden) */}
+                                    <input 
+                                      type="file" 
+                                      accept="video/*" 
+                                      id="gpkos-local-video-upload"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const localUrl = URL.createObjectURL(file);
+                                          setSelectedVideoUrl(localUrl);
+                                          setVideoIsPlaying(true);
+                                        }
+                                      }}
+                                    />
+                                    {/* Local File Upload Button */}
+                                    <button 
+                                      onClick={() => document.getElementById("gpkos-local-video-upload")?.click()}
+                                      className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold transition flex items-center gap-1 border border-white/5"
+                                      title="Load Local Video File"
+                                    >
+                                      <Upload className="w-3 h-3" />
+                                      Local
+                                    </button>
+
                                     {/* Speed select */}
                                     <select 
                                       value={videoPlayerSpeed}
@@ -9073,89 +9093,120 @@ export default function App() {
                        <div className="bg-rose-950/50 p-2.5 rounded-xl shadow border border-rose-500/30 hover:border-rose-400/50 transition-colors"><Video className="h-6 w-6 text-rose-400" /></div>
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">GPKOS Tube</span>
                     </button>
-                    <button onClick={() => launchApp('penpal', 'Penpal Free Chat Hub')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
-                       <div className="bg-violet-950/50 p-2.5 rounded-xl shadow border border-violet-500/30 hover:border-violet-400/50 transition-colors"><MessageSquare className="h-6 w-6 text-violet-400 animate-pulse" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">交笔友 Chat</span>
-                    </button>
                     <button onClick={() => launchApp('multi-manage', '多功能管理与终端下载')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
-                       <div className="bg-amber-950/50 p-2.5 rounded-xl shadow border border-amber-500/30 hover:border-amber-400/50 transition-colors"><Sliders className="h-6 w-6 text-amber-400" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">多功能管理</span>
+               {/* Media Player Replica */}
+              <div className="lg:col-span-2 bg-black border border-white/10 rounded-2xl overflow-hidden aspect-video relative flex flex-col justify-between group">
+                  
+                {/* Simulated frame overlay */}
+                <div className="p-4 bg-gradient-to-b from-black/80 to-transparent text-xs text-white flex justify-between items-center select-none absolute top-0 left-0 right-0 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="font-bold flex items-center gap-1">
+                    <Zap className="h-4.5 w-4.5 text-rose-500 animate-pulse" />
+                    GPKOS Air Flight Simulation Tutorial
+                  </span>
+                  <span className="bg-rose-500 text-slate-905 px-2 py-0.5 rounded font-bold uppercase text-[9px]">
+                    Speed: {videoSpeed}x
+                  </span>
+                </div>
+
+                <div className="flex-grow flex items-center justify-center relative select-none overflow-hidden bg-slate-950">
+                   <video 
+                      id="gpkos-tube-html5-video-page-main"
+                      key={selectedVideoUrl}
+                      src={selectedVideoUrl}
+                      autoPlay={videoPlaying}
+                      controls={true}
+                      className="w-full h-full object-contain"
+                    />
+                    {!selectedVideoUrl && (
+                        <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none z-10 select-none">
+                            <Tv className="h-12 w-12 text-rose-500 mx-auto animate-bounce mb-2" />
+                            <p className="text-xs text-slate-400">Waiting for video stream...</p>
+                            <p className="text-[10px] text-slate-500 mt-1">Please select a local file to play.</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Simulated Subtitles */}
+                <div className="absolute bottom-16 left-0 right-0 p-3 text-center text-xs text-zinc-200 pointer-events-none select-none font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">
+                  {videoSubtitle && `"${videoSubtitle}"`}
+                </div>
+
+                {/* Simulated Playhead timeline bar */}
+                <div className="bg-slate-900 px-4 py-3 flex items-center justify-between gap-4 select-none shrink-0 text-xs relative z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        setVideoPlaying(!videoPlaying);
+                        const v = document.getElementById("gpkos-tube-html5-video-page-main") as HTMLVideoElement;
+                        if (v) {
+                           if (!videoPlaying) v.play();
+                           else v.pause();
+                        }
+                      }}
+                      className="bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold px-3 py-1.5 rounded transition text-[10px]"
+                    >
+                      {videoPlaying ? "PAUSE" : "PLAY"}
                     </button>
-                    <div className="w-px h-8 bg-white/20 mx-1"></div>
-                    <button onClick={() => launchApp('settings', 'System Preferences')} className="group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2">
-                       <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 hover:border-cyan-500/50 transition-colors"><Settings className="h-6 w-6 text-white" /></div>
-                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">Settings</span>
-                    </button>
+                    <span className="text-zinc-400">03:45 / 15:00</span>
+                  </div>
+
+                  {/* Speed switch */}
+                  <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
+                    {[1.0, 1.25, 1.5, 2.0].map((spd) => (
+                      <button
+                        key={spd}
+                        onClick={() => {
+                          setVideoSpeed(spd);
+                          const v = document.getElementById("gpkos-tube-html5-video-page-main") as HTMLVideoElement;
+                          if (v) v.playbackRate = spd;
+                          if (spd === 1.0) setVideoSubtitle("rorygpkos virtual: Commencing final flight trim coordination.");
+                          if (spd === 1.25) setVideoSubtitle("rorygpkos virtual: Commencing speed adjustments... Fuel values mapped.");
+                          if (spd === 1.5) setVideoSubtitle("rorygpkos virtual: Deploying checklist models... All terminals responsive.");
+                          if (spd === 2.0) setVideoSubtitle("rorygpkos virtual: Compiler sandboxes fully operational inside Docker runtime.");
+                        }}
+                        className={`px-2 py-1 rounded text-[10px] font-bold ${
+                          videoSpeed === spd ? "bg-rose-500 text-slate-950" : "hover:text-white text-zinc-400"
+                        }`}
+                      >
+                        {spd}x
+                      </button>
+                    ))}
                   </div>
                 </div>
 
               </div>
-            )}
-          </div>
-        )}
 
-        {/* SECTION 4: MSFS FLIGHT SIMULATOR CHECKLIST CONFIGURATION screen */}
-        {currentHash === "#msfs" && (
-          <div className="bg-slate-950/90 rounded-3xl p-6 border border-white/10 text-left space-y-6 animate-fade-in" id="msfs-dashboard">
-            
-            <div className="border-b border-white/10 pb-4">
-              <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                <Compass className="h-5 w-5 text-amber-500" />
-                Microsoft Flight Simulator Desk Space
-              </h2>
-              <p className="text-xs text-slate-400">
-                Federal Aviation Coordination Console • Validation token checklist logic.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
-              {/* Flight metrics controller panel */}
-              <div className="md:col-span-1 bg-white/5 p-5 rounded-2xl space-y-4 border border-white/5 text-xs">
-                <h3 className="font-bold text-amber-300 text-sm">Aero Flight Variables</h3>
+              {/* Side video information checklists */}
+              <div className="bg-white/5 p-5 rounded-2xl border border-white/5 space-y-4 text-xs">
+                <h3 className="font-bold text-slate-200 text-sm">Media Properties</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Fuel Reserve ({msfsFuel}%)</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={msfsFuel}
-                      onChange={(e) => setMsfsFuel(parseInt(e.target.value))}
-                      className="w-full accent-amber-500"
+                    <span className="text-slate-400 block mb-1">Local Media Source</span>
+                     <input 
+                      type="file" 
+                      accept="video/*" 
+                      id="gpkos-local-video-upload-main"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const localUrl = URL.createObjectURL(file);
+                          setSelectedVideoUrl(localUrl);
+                          setVideoPlaying(true);
+                        }
+                      }}
                     />
+                    <button 
+                      onClick={() => document.getElementById("gpkos-local-video-upload-main")?.click()}
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl transition flex justify-center items-center gap-2 shadow-lg shadow-black/20 border border-white/5"
+                    >
+                      <Upload className="w-4 h-4 text-rose-400" /> Select Local File
+                    </button>
                   </div>
+
                   <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Cruising Altitude ({msfsAltitude} ft)</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="40000"
-                      step="500"
-                      value={msfsAltitude}
-                      onChange={(e) => setMsfsAltitude(parseInt(e.target.value))}
-                      className="w-full accent-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Ground Speed Indicator ({msfsSpeed} knots)</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="600"
-                      value={msfsSpeed}
-                      onChange={(e) => setMsfsSpeed(parseInt(e.target.value))}
-                      className="w-full accent-amber-500"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="font-bold">Auto-Pilot Mode Switch</span>
-                    <button
-                      onClick={() => setMsfsAutoPilot(!msfsAutoPilot)}
-                      className={`px-3 py-1 rounded font-bold text-[10px] uppercase ${
-                        msfsAutoPilot ? "bg-emerald-500 text-slate-950" : "bg-white/10 text-slate-400"
-                      }`}
+                    <span className="text-slate-400 block mb-1">Interactive Quality Selectors</span> }`}
                     >
                       {msfsAutoPilot ? "ONLINE" : "OFFLINE"}
                     </button>
@@ -9694,11 +9745,6 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {currentHash === "#public-mail" && (
-           <PublicMail currentActiveDomain={systemState.activeDomain || "rorygpkos virtualpost.com"} />
-        )}
-
         {currentHash === "#drive" && (
            <CloudDrive currentUser={currentUser} />
         )}
