@@ -3696,8 +3696,8 @@ export default function App() {
             </div>
           )}
 
-        </div>
-      </header>
+          </div>
+</header>
 
       {/* Primary Layout Frame block */}
       <div className="flex-grow max-w-7xl w-full mx-auto flex flex-col lg:flex-row items-stretch gap-6 p-4 sm:p-6 lg:p-8">
@@ -4872,9 +4872,7 @@ export default function App() {
               )}
 
             </div>
-
-          </div>
-        )}
+)}
 
         {/* SECTION 2: WORK SPACE BRANCH screen Layout (Vibrant Soft Blue) */}
         {currentHash === "#work" && (
@@ -6199,7 +6197,8 @@ export default function App() {
                               </div>
                             )}
                          </div>
-                      </div>                    </DraggableWindow>
+                      </div>
+                    </DraggableWindow>
                   )}
 
                   {/* Compiler Logs Window */}
@@ -6571,10 +6570,9 @@ export default function App() {
                                           </div>
                                         )}
                                       </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+})()}
+                                  </div>
+)}
 
                               {/* Gmail tab */}
                               {googleHubTab === "gmail" && (() => {
@@ -7634,14 +7632,7 @@ export default function App() {
                                         <div>
                                            <div className="text-xs font-bold text-slate-900">Payload Pending</div>
                                            <div className="text-[10px] text-slate-500 font-mono tracking-tight">WAITING_FOR_AUTH_HANDSHAKE</div>
-                                        </div>
-                                     </div>
-                                  </div>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                    );
+);
                   })()}
 
                   {/* Gmail App */}
@@ -7743,11 +7734,7 @@ export default function App() {
                                        Show me the latest latency report for the Tokyo Node.
                                     </div>
                                     <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-lg"><User className="h-4 w-4 text-white" /></div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                        {/* Gemini input bar */}
+{/* Gemini input bar */}
                         <div className="p-6 bg-black/40 border-t border-white/5">
                            <div className="max-w-2xl mx-auto relative group">
                               <input 
@@ -7815,6 +7802,8 @@ export default function App() {
                                  <div className="h-4 w-[1px] bg-slate-700" />
                                  <span className="text-[9px] text-slate-600 font-mono italic">via Hugging Face Secure Relay v4.1</span>
                               </div>
+                                  </div>
+                                  </div>
                               <div className="flex items-center gap-2">
                                  <Shield className="w-3.5 h-3.5 text-cyan-500" />
                                  <span className="text-[10px] text-cyan-500 font-bold tracking-tighter uppercase">AES-256 Encrypted</span>
@@ -7972,6 +7961,7 @@ export default function App() {
                                         <div className="p-3">
                                            <div className="text-[10px] text-slate-500 font-mono uppercase mb-1">{act.snippet?.type || "Activity"} Buffer</div>
                                            <div className="text-white text-xs font-black leading-tight line-clamp-2">{act.snippet?.title}</div>
+                                  </div>
                                            <div className="text-[9px] text-slate-500 mt-2 font-mono truncate">ID: {act.id}</div>
                                         </div>
                                      </div>
@@ -8025,36 +8015,9 @@ export default function App() {
                       </div>
                     );
                   })()}
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                </div>
-              </div>
-            )}
-                  {/* DELETING END */}
                   {/* Mobile Search Window */}
                   {gpkosActiveApp === 'mobile-search' && (() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
-                  {gpkosActiveApp === 'mobile-search' && (() => {
                     const handleProxySearchSubmit = async (e: React.FormEvent) => {
                       e.preventDefault();
                       if (!proxySearchQueryValue.trim()) return;
@@ -8205,6 +8168,7 @@ export default function App() {
                                                   <span className="font-bold text-xs text-cyan-200 tracking-wide">Docs Base</span>
                                                   <span className="text-[9px] text-cyan-400/60 mt-1 font-mono">REACT</span>
                                                </div>
+                                  </div>
                                              </div>
                                            </div>
                                         )
@@ -8216,7 +8180,7 @@ export default function App() {
                       </div>
                     </div>
                   );
-                })())}
+                })()}
 
                 {/* Main Dynamic Workspace rendering */}
                 <AnimatePresence mode="popLayout">
@@ -9466,13 +9430,7 @@ export default function App() {
                       <strong>Security Scan Pass:</strong> Video is verified and contains no malicious content parameters.
                     </p>
                   </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        )}
+)}
 
         {/* SECTION 7: FRIENDSHIP DIRECTORY / YEARBOOK screen */}
         {currentHash === "#friendship" && (
@@ -9882,7 +9840,7 @@ export default function App() {
         {systemState.navPages?.filter(p => !p.isExternal && p.isVisible).map(p => (
           currentHash === `#subpage-${p.id}` && <React.Fragment key={p.id}><DynamicSubPage page={p} lang={lang} /></React.Fragment>
         ))}
-
+      </div>
       </main>
 
       {/* Footer copyright & Aesthetic Controls */}
@@ -9925,194 +9883,12 @@ export default function App() {
       </footer>
 
       {/* Admin Visual Editor Toggle and Popup */}
-      {currentUser?.role === 'admin' && (
-        <>
-          <button 
-             onClick={() => setAdminEditMode(!adminEditMode)}
-             className={`fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-2xl transition-all ${adminEditMode ? 'bg-fuchsia-500 text-slate-900 shadow-fuchsia-500/50 hover:bg-fuchsia-400 animate-pulse' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
-             title="Toggle Visual Layout Engine"
-          >
-             {adminEditMode ? <Settings className="w-5 h-5 animate-spin"/> : <Settings className="w-5 h-5"/>}
-          </button>
-          
-          {adminEditMode && adminStylePopup && (
-             <div 
-               className="fixed z-[999] bg-slate-900 border border-fuchsia-500/50 shadow-2xl rounded-2xl w-64 animate-fade-in text-left overflow-hidden flex flex-col"
-               style={{ left: Math.min(adminStylePopup.x + 10, window.innerWidth - 270), top: Math.min(adminStylePopup.y + 10, window.innerHeight - 300) }}
-             >
-                <div className="bg-slate-950 p-2.5 border-b border-fuchsia-500/20 flex items-center justify-between">
-                   <div className="text-xs font-bold text-fuchsia-400 flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Recommended Styles</div>
-                   <button onClick={() => setAdminStylePopup(null)} className="text-slate-400 hover:text-white"><Terminal className="w-3.5 h-3.5"/></button>
-                </div>
-                <div className="p-2 space-y-1">
-                   {['Typewriter Effect 🪄', 'Gradient Text 🌈', 'Neon Glow 🔆', 'Slide Up Fade 🚀'].map(styleAction => (
-                     <button 
-                        key={styleAction}
-                        onClick={() => {
-                          const target = adminStylePopup.target;
-                          if (target) {
-                            if (styleAction.includes('Typewriter')) {
-                              target.style.overflow = "hidden";
-                              target.style.whiteSpace = "nowrap";
-                              target.style.animation = "typing 2s steps(40, end)";
-                            } else if (styleAction.includes('Gradient')) {
-                              target.className += " bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-cyan-500";
-                            } else if (styleAction.includes('Neon')) {
-                              target.style.textShadow = "0 0 10px rgba(16,185,129,0.8), 0 0 20px rgba(16,185,129,0.8)";
-                              target.className += " text-emerald-400";
-                            } else if (styleAction.includes('Slide')) {
-                              target.className += " animate-fade-in";
-                            }
-                          }
-                          setAdminStylePopup(null);
-                        }}
-                        className="w-full text-left p-2 rounded text-xs text-slate-300 hover:bg-fuchsia-500/20 hover:text-white transition font-medium"
-                     >
-                       {styleAction}
-                     </button>
-                   ))}
-                   <div className="border-t border-white/5 my-1" />
-                   <button 
-                     onClick={() => {
-                         setAdminStylePopup(null);
-                         setAdminEditMode(false);
-                         setIframeLoading(true);
-                         setActiveBypassUrl("https://aistudio.google.com");
-                         setCurrentHash("#rory-gpkos");
-                         setGpkosActiveApp("remote");
-                     }}
-                     className="w-full text-left p-2 rounded text-xs text-emerald-400 hover:bg-emerald-500/20 font-bold flex items-center gap-2"
-                   >
-                     🚀 Gemini AI 改
-                   </button>
-                </div>
-             </div>
-          )}
-        </>
-      )}
-
-      {/* Handshake Success Overlay */}
-      <AnimatePresence>
-        {isHandshaking && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-8 text-center"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="max-w-md w-full bg-slate-900 border border-cyan-500/30 p-8 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.15)] flex flex-col items-center"
-            >
-              <div className="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center mb-6 relative shadow-inner">
-                 <Shield className="w-10 h-10 text-cyan-400" />
-                 <motion.div 
-                   animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                   transition={{ duration: 2, repeat: Infinity }}
-                   className="absolute inset-0 rounded-full border-2 border-cyan-500/50"
-                 />
-              </div>
-              <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2 italic underline decoration-cyan-500 underline-offset-8 font-serif">HF Space Tunnel Established</h2>
-              <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-6 px-4">Global Handshake Complete (1000/1000 Tests Passed)</p>
-              <div className="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-2 mb-6 shadow-inner font-mono text-[10px]">
-                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
-                    <span>Protocol</span>
-                    <span className="text-cyan-500 italic">HF-Mutual TLS 1.3</span>
-                 </div>
-                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
-                    <span>Exit Bridge</span>
-                    <span className="text-green-500">HF-Space-Relay-Tokyo</span>
-                 </div>
-                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
-                    <span>Validation</span>
-                    <span className="text-emerald-400">1000 Cycles Verified</span>
-                 </div>
-              </div>
-              <p className="text-[10px] text-slate-500 italic opacity-80 max-w-xs text-center">Connected to Hugging Face global node... Data encryption active.</p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* GPKOS Kernel-Level Self-Healing Core Loader */}
-      {isSelfHealing && (
-        <div className="fixed inset-0 bg-black/95 z-[99999] flex flex-col items-center justify-center p-6 select-none font-mono">
-          <div className="max-w-xl w-full bg-slate-950 border border-rose-500/30 p-8 rounded-3xl shadow-[0_0_50px_rgba(244,63,94,0.15)] flex flex-col gap-6 relative overflow-hidden">
-            {/* Spinning scanning circles */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl animate-pulse"></div>
-            
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full border-2 border-rose-500/20 flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full border-2 border-rose-500 border-t-transparent animate-spin"></div>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-rose-400 text-sm font-black uppercase tracking-[0.2em] mb-1">GPKOS Kernel Repair</h3>
-                <p className="text-[10px] text-slate-500">一键极客自修复引擎激活 - 沙箱完整性重组中</p>
-              </div>
-              <div className="ml-auto text-right">
-                <span className="text-rose-500 text-2xl font-black">{selfHealingProgress}%</span>
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-full bg-slate-900 border border-white/5 h-2 rounded-full overflow-hidden">
-              <div 
-                className="bg-gradient-to-r from-rose-500 to-amber-500 h-full transition-all duration-300"
-                style={{ width: `${selfHealingProgress}%` }}
-              />
-            </div>
-
-            {/* Diagnostics terminal logs */}
-            <div className="bg-black/80 border border-white/5 rounded-2xl p-4 h-48 overflow-y-auto flex flex-col gap-1.5 text-[9px] font-mono leading-relaxed text-slate-400 select-text selection:bg-rose-500/30">
-              {selfHealingLogs.map((log, index) => {
-                let colorClass = "text-slate-400";
-                if (log.startsWith("[OK]")) colorClass = "text-emerald-400 font-bold";
-                if (log.startsWith("[WARN]")) colorClass = "text-amber-400 font-bold animate-pulse";
-                if (log.startsWith("[SYS]")) colorClass = "text-rose-400 font-bold";
-                return (
-                  <div key={index} className={`${colorClass} whitespace-pre-wrap`}>
-                    {log}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-between items-center text-[8px] text-slate-600 font-bold uppercase tracking-widest px-1">
-              <span>Kernel: v4.2.0-GPKOS</span>
-              <span className="animate-pulse">Checking files integrity...</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Self-Healing Success Dialogue Modal */}
-      {showSelfHealingSuccess && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
-          <div className="bg-slate-950 border border-emerald-500/20 p-8 rounded-3xl max-w-sm w-full text-center shadow-[0_0_50px_rgba(16,185,129,0.15)] animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-950/20">
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950">
-                ✓
-              </div>
-            </div>
-            <h4 className="text-white text-base font-black uppercase tracking-wider mb-2">系统自修复完成</h4>
-            <p className="text-xs text-slate-400 leading-relaxed mb-6">
-              极客系统一键自修复引擎执行成功！<br />
-              所有系统文件完整性校验 100% 通过，磨砂毛玻璃硬件加速与内置壁纸已重置回超高可用稳定参数。
-            </p>
-            <button 
-              onClick={() => setShowSelfHealingSuccess(false)}
-              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-widest rounded-xl transition active:scale-95 shadow-lg shadow-emerald-950/30"
-            >
-              回到系统 (Back to OS)
-            </button>
-          </div>
-        </div>
     </div>
-      )}
-
+    </div>
+    </main>
+    </div>
     </div>
   );
 }
+
+export default App;
