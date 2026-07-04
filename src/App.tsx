@@ -93,11 +93,15 @@ import {
   Folder,
   File
 } from "lucide-react";
-import { GpkosAppWindow, GpkosPowerMode, User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact } from "./types";
+import { GpkosAppWindow, GpkosPowerMode, User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact, GpkosFile } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
 import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks, AdminDatabaseEditor, DeploymentHub } from "./components/AIExtensions";
 
-import { CloudDrive } from "./components/CloudDrive";
+import { GpkosVirtualKernel } from './components/GpkosVirtualKernel';
+import { GpkosFileSystem } from './components/GpkosFileSystem';
+import { IndependentAI } from './components/IndependentAI';
+import { VPNManager } from './components/VPNManager';
+import { UserProfile } from './components/UserProfile';
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
 import { GoogleMapsWidget } from "./components/GoogleMapsWidget";
@@ -105,7 +109,27 @@ import { SecureBridge } from "./components/SecureBridge";
 import { GlobalBrowser } from "./components/GlobalBrowser";
 import { UserProfileApp } from "./components/UserProfileApp";
 import { MarketplaceApp } from "./components/MarketplaceApp";
-import { encryptData, decryptData } from './lib/encryption';
+import { db, auth } from "./lib/firebase";
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut 
+} from "firebase/auth";
+import { 
+  doc, 
+  setDoc, 
+  getDoc, 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  addDoc, 
+  onSnapshot, 
+  orderBy,
+  serverTimestamp,
+  updateDoc
+} from "firebase/firestore";
 import { RichTextEditor } from "./components/RichTextEditor";
 import { motion, AnimatePresence, useDragControls } from "motion/react";
 
@@ -1308,10 +1332,45 @@ export default function App() {
     return localStorage.getItem("gpkos_bgmode") || "static"; // static, video, slideshow
   });
 
-  // Database synchronizer
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as UserType;
+          setCurrentUser({ ...userData, id: user.uid });
+          localStorage.setItem("gpkos_curr_user", JSON.stringify({ ...userData, id: user.uid }));
+        } else {
+          // If user exists in Auth but not in Firestore, create it
+          const newUser: UserType = {
+            id: user.uid,
+            emailUsername: user.email?.split("@")[0] || "guest",
+            emailDomain: systemState.activeDomain,
+            fullName: user.displayName || "Anonymous User",
+            contact: user.email || "",
+            role: "user",
+            storageQuota: "5GB",
+            storageUsed: "0B",
+            verified: true,
+            verificationType: "identity",
+            banned: false,
+            medals: [],
+            activeBackground: "default"
+          };
+          await setDoc(doc(db, "users", user.uid), newUser);
+          setCurrentUser(newUser);
+        }
+      } else {
+        setCurrentUser(null);
+        localStorage.removeItem("gpkos_curr_user");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [systemState.activeDomain]);
   const [systemState, setSystemState] = useState<SystemState>({
-    activeDomain: "rorygpkos virtualpost.com",
-    oldDomain: "rorygpkos virtual.onmicrosoft.com",
+    activeDomain: "rorygpkos.virtual",
+    oldDomain: "rorygpkos.cloud",
     dualDomainOverlap: true,
     dualDomainDays: 14,
     customButtons: [],
@@ -1320,17 +1379,42 @@ export default function App() {
     blogs: [],
     friendshipRecords: [],
     chatMessages: [],
+    vpnSettings: {
+      enabled: false,
+      node: "Japan-Tokyo",
+      scope: "global",
+      automationLevel: "full",
+      connected: false,
+      status: "idle",
+      accessibleServices: ["google", "huggingface", "microsoft"]
+    },
+    independentAIs: [
+      { id: "core-ai", name: "RoryHelper", personality: "Intelligent and proactive", capabilities: ["database", "web_search"], probeIntegration: true, authorizedLibraries: [] }
+    ],
+    searchLibraries: [],
+    gpkosFileSystem: [
+      { id: "root", name: "root", path: "/", type: "directory", size: 0, mimeType: "inode/directory", owner: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+      { id: "apps", name: "apps", path: "/apps", type: "directory", size: 0, mimeType: "inode/directory", owner: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+    ],
     settings: { knowledgeBase: [] }
   });
 
   // UI Local Loading States
-  const [emails, setEmails] = useState<Email[]>([]);
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [regFullName, setRegFullName] = useState("");
-  const [regContact, setRegContact] = useState("");
+  const [regContact, setRegContact] = useState(""); // Support +XX phone
+  const [regGithub, setRegGithub] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regVerifyType, setRegVerifyType] = useState<"identity" | "payment">("identity");
+  
+  // Global Search
+  const [globalSearchQuery, setGlobalSearchQuery] = useState("");
+  const [isGlobalSearching, setIsGlobalSearching] = useState(false);
+  const [globalSearchResults, setGlobalSearchResults] = useState<any[]>([]);
+
+  // User Profile Screen
+  const [targetUser, setTargetUser] = useState<UserType | null>(null);
   
   // Feedback
   const [feedbackEmail, setFeedbackEmail] = useState("");
@@ -1429,9 +1513,9 @@ export default function App() {
 
 
   // Rory GPKOS state
-  const [ideLanguage, setIdeLanguage] = useState<string>("typescript");
+  const [ideLanguage, setIdeLanguage] = useState<string>("cpp");
   const [ideCode, setIdeCode] = useState<string>(
-    `// Rory GPKOS IDE sandboxed compiler entrypoint\nexport function main() {\n  console.log("Validation Token: rorygpkos virtual");\n  console.log("Workspace connected to standard Docker hub");\n}`
+    `#include <iostream>\n#include <vector>\n\nint main() {\n    std::cout << "RoryGpkOS Virtual Kernel Initialized." << std::endl;\n    std::cout << "C++ Compiler active. Accessing cloud files..." << std::endl;\n    return 0;\n}`
   );
   const [ideTerminalInput, setIdeTerminalInput] = useState("");
   const [ideLogs, setIdeLogs] = useState<string>(
@@ -1462,6 +1546,79 @@ export default function App() {
   const [guestbookName, setGuestbookName] = useState("");
   const [guestbookContent, setGuestbookContent] = useState("");
   const [guestbookPhoto, setGuestbookPhoto] = useState("");
+
+  const [penpalSearchQuery, setPenpalSearchQuery] = useState("");
+  const [penpalSearchResults, setPenpalSearchResults] = useState<UserType[]>([]);
+  const [isSearchingPenpal, setIsSearchingPenpal] = useState(false);
+  const [selectedPenpal, setSelectedPenpal] = useState<UserType | null>(null);
+  const [penpalLetters, setPenpalLetters] = useState<any[]>([]);
+  const [newLetterContent, setNewLetterContent] = useState("");
+
+  const handleSearchPenpal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!penpalSearchQuery.trim()) return;
+    setIsSearchingPenpal(true);
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("fullName", ">=", penpalSearchQuery),
+        where("fullName", "<=", penpalSearchQuery + "\uf8ff")
+      );
+      const querySnapshot = await getDocs(q);
+      const results: UserType[] = [];
+      querySnapshot.forEach((doc) => {
+        if (doc.id !== currentUser?.id) {
+          results.push({ ...doc.data(), id: doc.id } as UserType);
+        }
+      });
+      setPenpalSearchResults(results);
+    } catch (error) {
+      console.error("Error searching users:", error);
+    } finally {
+      setIsSearchingPenpal(false);
+    }
+  };
+
+  const handleSendLetter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || !selectedPenpal || !newLetterContent.trim()) return;
+
+    try {
+      await addDoc(collection(db, "letters"), {
+        senderId: currentUser.id,
+        senderName: currentUser.fullName,
+        receiverId: selectedPenpal.id,
+        content: newLetterContent,
+        timestamp: serverTimestamp(),
+        isRead: false
+      });
+      setNewLetterContent("");
+      alert("Letter sent successfully!");
+    } catch (error) {
+      console.error("Error sending letter:", error);
+      alert("Failed to send letter.");
+    }
+  };
+
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const q = query(
+      collection(db, "letters"),
+      where("receiverId", "==", currentUser.id),
+      orderBy("timestamp", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const letters = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setPenpalLetters(letters);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
 
   // Blog CMS state
   const [blogTitle, setBlogTitle] = useState("");
@@ -1541,6 +1698,17 @@ export default function App() {
     const onHashChange = () => {
       const h = window.location.hash || "#home";
       setCurrentHash(h);
+
+      // User profile routing logic: #user/username
+      if (h.startsWith("#user/")) {
+        const username = h.replace("#user/", "");
+        const found = systemState.users.find(u => u.emailUsername === username);
+        if (found) {
+          setTargetUser(found);
+        } else {
+          setTargetUser(null);
+        }
+      }
     };
     window.addEventListener("hashchange", onHashChange);
     onHashChange();
@@ -1674,44 +1842,29 @@ export default function App() {
     if (!authEmail || !authPassword) return;
 
     try {
-      const res = await fetch(getApiBase() + "/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contact: authEmail, password: authPassword })
-      });
-      const contentType = res.headers.get("content-type");
-      if (!contentType || contentType.indexOf("application/json") === -1) {
-        throw new Error("前端部署成功！\n\n请注意：由于当前的 Cloudflare 为纯前端托管环境，未检测到动态后端。\n\n解决办法：请按照侧边栏『极速部署指南』中的第4步操作，将您在 Render/Zeabur 获取的女武神网关链接粘贴到主页面【绑定远端接口】中即可正常登录！");
-      }
-      const data = await res.json();
-      if (data.error) {
-        alert("Authentication failed: " + data.error);
-        return;
-      }
+      // Ensure the email is a real email for Firebase
+      const emailToAuth = authEmail.includes("@") ? authEmail : `${authEmail}@${systemState.activeDomain}`;
+      await signInWithEmailAndPassword(auth, emailToAuth, authPassword);
       
-      setCurrentUser(data.user);
-      localStorage.setItem("gpkos_curr_user", JSON.stringify(data.user));
       setAuthEmail("");
       setAuthPassword("");
-
-      // Redirect workflow default based on user status
-      if (data.user.role === "admin") {
-        window.location.hash = "#work";
-      } else {
-        window.location.hash = "#home";
-      }
-      refreshSystemData();
+      window.location.hash = "#home";
     } catch (e: any) {
-      alert("Verification system status:\n\n" + e.message);
+      alert("Authentication failed: " + e.message);
     }
   };
 
   // Log Out Sequence
-  const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem("gpkos_curr_user");
-    setEmails([]);
-    window.location.hash = "#home";
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setCurrentUser(null);
+      localStorage.removeItem("gpkos_curr_user");
+      setEmails([]);
+      window.location.hash = "#home";
+    } catch (e: any) {
+      alert("Logout failed: " + e.message);
+    }
   };
 
   // Self Registration Sequence
@@ -1721,37 +1874,38 @@ export default function App() {
       alert("Please provide valid information inside registration slots");
       return;
     }
-    try {
-      const res = await fetch(getApiBase() + "/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: regFullName,
-          contact: regContact,
-          password: regPassword,
-          verificationType: regVerifyType
-        })
-      });
-      const contentType = res.headers.get("content-type");
-      if (!contentType || contentType.indexOf("application/json") === -1) {
-        throw new Error("检测到当前为纯前端站点。\n\n如需启用真实的后台注册校验功能，请至下方绑定您专属的 Render 等含动态 Node 引擎的服务端接口链接。");
-      }
-      const data = await res.json();
-      if (data.error) {
-        alert("Automation engine intercept: " + data.error);
-        return;
-      }
 
-      alert("🎉 User verification registered! Primary mailbox has been created under: " + data.user.emailUsername + "@" + systemState.activeDomain);
-      setCurrentUser(data.user);
-      localStorage.setItem("gpkos_curr_user", JSON.stringify(data.user));
+    try {
+      const emailToAuth = regContact.includes("@") ? regContact : `${regContact}@${systemState.activeDomain}`;
+      const userCredential = await createUserWithEmailAndPassword(auth, emailToAuth, regPassword);
+      const user = userCredential.user;
+
+      const newUser: UserType = {
+        id: user.uid,
+        emailUsername: regContact.split("@")[0],
+        emailDomain: systemState.activeDomain,
+        fullName: regFullName,
+        contact: regContact,
+        role: "user",
+        storageQuota: "5GB",
+        storageUsed: "0B",
+        verified: true,
+        verificationType: "identity",
+        banned: false,
+        medals: [],
+        activeBackground: "default"
+      };
+
+      await setDoc(doc(db, "users", user.uid), newUser);
+      setCurrentUser(newUser);
+      
       setRegFullName("");
       setRegContact("");
       setRegPassword("");
       window.location.hash = "#home";
-      refreshSystemData();
-    } catch (err: any) {
-      alert("Registration gateway alert:\n\n" + err.message);
+      alert("Registration successful! Welcome to the secure workspace.");
+    } catch (e: any) {
+      alert("Registration failed: " + e.message);
     }
   };
 
@@ -3256,7 +3410,29 @@ export default function App() {
           </div>
 
           {/* Right Corner Identity Info & Mini session widget */}
+          {/* Global Search Bar */}
+          <div className="flex-grow max-w-md mx-4 relative hidden lg:block">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder={lang === 'en' ? 'Global Search...' : '全站搜索...'}
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-all"
+              />
+            </div>
+          </div>
+
           <div className="hidden md:flex items-center gap-3">
+            <a 
+              href="#friendship" 
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all border ${currentHash === "#friendship" ? "bg-purple-600 border-purple-500 text-white" : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"}`}
+            >
+              <Heart className={`w-4 h-4 ${currentHash === "#friendship" ? "fill-white" : ""}`} />
+              {lang === 'en' ? 'Penpals' : '笔友'}
+            </a>
+
             <button
                onClick={() => {
                    const el = document.documentElement;
@@ -7849,11 +8025,36 @@ export default function App() {
                       </div>
                     );
                   })()}
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+              </div>
+            )}
                   {/* DELETING END */}
                   {/* Mobile Search Window */}
                   {gpkosActiveApp === 'mobile-search' && (() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
-
+                  {gpkosActiveApp === 'mobile-search' && (() => {
                     const handleProxySearchSubmit = async (e: React.FormEvent) => {
                       e.preventDefault();
                       if (!proxySearchQueryValue.trim()) return;
@@ -8015,7 +8216,7 @@ export default function App() {
                       </div>
                     </div>
                   );
-                })()}
+                })())}
 
                 {/* Main Dynamic Workspace rendering */}
                 <AnimatePresence mode="popLayout">
@@ -9015,7 +9216,6 @@ export default function App() {
                   ))}
                 </AnimatePresence>
 
-                </div>
 
                 {/* Global Desktop Search Bar */}
                 <div className="absolute bottom-28 inset-x-0 flex justify-center z-[1500] pointer-events-none">
@@ -9094,166 +9294,12 @@ export default function App() {
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">GPKOS Tube</span>
                     </button>
                     <button onClick={() => launchApp('multi-manage', '多功能管理与终端下载')} className={`group flex flex-col items-center gap-1 transition-transform hover:-translate-y-2`}>
-               {/* Media Player Replica */}
-              <div className="lg:col-span-2 bg-black border border-white/10 rounded-2xl overflow-hidden aspect-video relative flex flex-col justify-between group">
-                  
-                {/* Simulated frame overlay */}
-                <div className="p-4 bg-gradient-to-b from-black/80 to-transparent text-xs text-white flex justify-between items-center select-none absolute top-0 left-0 right-0 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="font-bold flex items-center gap-1">
-                    <Zap className="h-4.5 w-4.5 text-rose-500 animate-pulse" />
-                    GPKOS Air Flight Simulation Tutorial
-                  </span>
-                  <span className="bg-rose-500 text-slate-905 px-2 py-0.5 rounded font-bold uppercase text-[9px]">
-                    Speed: {videoSpeed}x
-                  </span>
-                </div>
-
-                <div className="flex-grow flex items-center justify-center relative select-none overflow-hidden bg-slate-950">
-                   <video 
-                      id="gpkos-tube-html5-video-page-main"
-                      key={selectedVideoUrl}
-                      src={selectedVideoUrl}
-                      autoPlay={videoPlaying}
-                      controls={true}
-                      className="w-full h-full object-contain"
-                    />
-                    {!selectedVideoUrl && (
-                        <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none z-10 select-none">
-                            <Tv className="h-12 w-12 text-rose-500 mx-auto animate-bounce mb-2" />
-                            <p className="text-xs text-slate-400">Waiting for video stream...</p>
-                            <p className="text-[10px] text-slate-500 mt-1">Please select a local file to play.</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Simulated Subtitles */}
-                <div className="absolute bottom-16 left-0 right-0 p-3 text-center text-xs text-zinc-200 pointer-events-none select-none font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">
-                  {videoSubtitle && `"${videoSubtitle}"`}
-                </div>
-
-                {/* Simulated Playhead timeline bar */}
-                <div className="bg-slate-900 px-4 py-3 flex items-center justify-between gap-4 select-none shrink-0 text-xs relative z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setVideoPlaying(!videoPlaying);
-                        const v = document.getElementById("gpkos-tube-html5-video-page-main") as HTMLVideoElement;
-                        if (v) {
-                           if (!videoPlaying) v.play();
-                           else v.pause();
-                        }
-                      }}
-                      className="bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold px-3 py-1.5 rounded transition text-[10px]"
-                    >
-                      {videoPlaying ? "PAUSE" : "PLAY"}
-                    </button>
-                    <span className="text-zinc-400">03:45 / 15:00</span>
-                  </div>
-
-                  {/* Speed switch */}
-                  <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
-                    {[1.0, 1.25, 1.5, 2.0].map((spd) => (
-                      <button
-                        key={spd}
-                        onClick={() => {
-                          setVideoSpeed(spd);
-                          const v = document.getElementById("gpkos-tube-html5-video-page-main") as HTMLVideoElement;
-                          if (v) v.playbackRate = spd;
-                          if (spd === 1.0) setVideoSubtitle("rorygpkos virtual: Commencing final flight trim coordination.");
-                          if (spd === 1.25) setVideoSubtitle("rorygpkos virtual: Commencing speed adjustments... Fuel values mapped.");
-                          if (spd === 1.5) setVideoSubtitle("rorygpkos virtual: Deploying checklist models... All terminals responsive.");
-                          if (spd === 2.0) setVideoSubtitle("rorygpkos virtual: Compiler sandboxes fully operational inside Docker runtime.");
-                        }}
-                        className={`px-2 py-1 rounded text-[10px] font-bold ${
-                          videoSpeed === spd ? "bg-rose-500 text-slate-950" : "hover:text-white text-zinc-400"
-                        }`}
-                      >
-                        {spd}x
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Side video information checklists */}
-              <div className="bg-white/5 p-5 rounded-2xl border border-white/5 space-y-4 text-xs">
-                <h3 className="font-bold text-slate-200 text-sm">Media Properties</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-slate-400 block mb-1">Local Media Source</span>
-                     <input 
-                      type="file" 
-                      accept="video/*" 
-                      id="gpkos-local-video-upload-main"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const localUrl = URL.createObjectURL(file);
-                          setSelectedVideoUrl(localUrl);
-                          setVideoPlaying(true);
-                        }
-                      }}
-                    />
-                    <button 
-                      onClick={() => document.getElementById("gpkos-local-video-upload-main")?.click()}
-                      className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl transition flex justify-center items-center gap-2 shadow-lg shadow-black/20 border border-white/5"
-                    >
-                      <Upload className="w-4 h-4 text-rose-400" /> Select Local File
-                    </button>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-400 block mb-1">Interactive Quality Selectors</span> }`}
-                    >
-                      {msfsAutoPilot ? "ONLINE" : "OFFLINE"}
+                       <div className="bg-slate-800 p-2.5 rounded-xl shadow border border-white/10 hover:border-blue-500/50 transition-colors"><Download className="h-6 w-6 text-blue-400" /></div>
+                       <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Admin Tools</span>
                     </button>
                   </div>
                 </div>
               </div>
-
-              {/* FAA Pre-flight checklist checks */}
-              <div className="md:col-span-2 bg-white/5 p-5 rounded-2xl border border-white/5 space-y-4 text-xs">
-                <h3 className="font-bold text-slate-200 text-sm">Lock FAA Certification Protocols Checklist</h3>
-
-                <div className="space-y-3.5">
-                  {msfsChecklists.map((chk) => (
-                    <div
-                      key={chk.id}
-                      onClick={() => {
-                        setMsfsChecklists((prev) =>
-                          prev.map((c) => (c.id === chk.id ? { ...c, done: !c.done } : c))
-                        );
-                      }}
-                      className={`p-3 rounded-xl border transition cursor-pointer flex items-center justify-between select-none ${
-                        chk.done
-                          ? "bg-emerald-900/20 border-emerald-500/20 text-emerald-200"
-                          : "bg-slate-900 border-white/10 text-zinc-400 hover:border-white/20"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {chk.done ? <CheckCircle className="h-4 w-4 text-emerald-400" /> : <div className="h-4 w-4 rounded-full border border-slate-500" />}
-                        <span>{chk.name}</span>
-                      </div>
-                      <span className="text-[9px] font-bold font-mono tracking-wider">
-                        {chk.done ? "RESOLVED" : "REQUIRED"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-xl">
-                  <p className="text-[11px] text-amber-200">
-                    <strong>Preflight Directive Instructions:</strong> Checklists must resolve entirely. All user account coordinate logs must bind under constant string token: <strong>rorygpkos virtual</strong>.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
         )}
 
         {/* SECTION 5: REMOTE DESKTOP SCREEN COLLABORATION screen */}
@@ -9434,88 +9480,133 @@ export default function App() {
             <div className="border-b border-white/10 pb-4">
               <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 <Users className="h-5 w-5 text-purple-400" />
-                Friendship Memoirs & Album Directory
+                {lang === 'en' ? 'Global Penpal Network' : '全球笔友社交网络'}
               </h2>
               <p className="text-xs text-slate-400">
-                Emotional yearbook sharing desk • Custom yearbook entries and signatures.
+                {lang === 'en' ? 'Connect with real users across the platform securely.' : '安全地连接平台上的真实用户，发送信件，结交笔友。'}
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
-              {/* Form memoir submit */}
-              <div className="bg-white/5 p-5 rounded-2xl border border-white/5 text-xs text-left">
-                <h3 className="font-bold text-purple-300 mb-3 text-sm">Create Yearbook Profile Card</h3>
-
-                <form onSubmit={handleGuestbookSubmit} className="space-y-3.5">
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Your Full Signature Name</label>
-                    <input
-                      type="text"
-                      placeholder="Marvis Zhou"
-                      value={guestbookName}
-                      onChange={(e) => setGuestbookName(e.target.value)}
-                      required
-                      className="w-full bg-slate-900 border border-white/10 focus:outline-none focus:border-purple-500 rounded-xl px-3 py-1.5 text-white text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Memoirs Narrative Message</label>
-                    <textarea
-                      rows={4}
-                      placeholder="To all pilots and terminal hackers, let's make verification standard checking: rorygpkos virtual..."
-                      value={guestbookContent}
-                      onChange={(e) => setGuestbookContent(e.target.value)}
-                      required
-                      className="w-full bg-slate-900 border border-white/10 focus:outline-none focus:border-purple-500 rounded-xl px-3 py-1.5 text-white text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Optional Memoir Portrait URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://images.unsplash.com/..."
-                      value={guestbookPhoto}
-                      onChange={(e) => setGuestbookPhoto(e.target.value)}
-                      className="w-full bg-slate-900 border border-white/10 focus:outline-none focus:border-purple-500 rounded-xl px-3 py-1.5 text-white text-xs"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-purple-500 hover:bg-purple-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition"
-                  >
-                    Publish Yearbook Signature
+              {/* Search & Directory */}
+              <div className="bg-white/5 p-5 rounded-2xl border border-white/5 text-xs text-left space-y-4">
+                <h3 className="font-bold text-purple-300 text-sm flex items-center gap-2">
+                  <Search className="w-4 h-4" /> {lang === 'en' ? 'Find Penpals' : '寻找笔友'}
+                </h3>
+                
+                <form onSubmit={handleSearchPenpal} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder={lang === 'en' ? 'Search by name...' : '输入姓名搜索...'}
+                    value={penpalSearchQuery}
+                    onChange={(e) => setPenpalSearchQuery(e.target.value)}
+                    className="flex-1 bg-slate-900 border border-white/10 focus:outline-none focus:border-purple-500 rounded-xl px-3 py-1.5 text-white text-xs"
+                  />
+                  <button type="submit" className="bg-purple-600 p-2 rounded-xl text-white">
+                    <Search className="w-4 h-4" />
                   </button>
                 </form>
-              </div>
 
-              {/* Album catalog output */}
-              <div className="lg:col-span-2 space-y-4">
-                <h3 className="font-bold text-slate-200 text-sm">Registered Dynamic Album Memoirs</h3>
-
-                {systemState.friendshipRecords && systemState.friendshipRecords.length === 0 ? (
-                  <p className="text-slate-500 text-xs text-center py-8">No yearbook profile entries yet. Create first signature.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {systemState.friendshipRecords && systemState.friendshipRecords.map((m) => (
-                      <div key={m.id} className="bg-white/5 border border-white/5 p-4 rounded-2xl flex gap-3 text-left">
-                        {m.photoUrl && (
-                          <img
-                            src={m.photoUrl}
-                            alt={m.name}
-                            className="h-14 w-14 rounded-full border-2 border-purple-500 shrink-0 object-cover"
-                          />
-                        )}
-                        <div className="text-xs space-y-1">
-                          <strong className="text-purple-300 block">{m.name}</strong>
-                          <p className="text-slate-300 italic">"{m.content}"</p>
-                          <span className="text-[10px] text-zinc-500 block">
-                            Signed: {new Date(m.timestamp).toLocaleDateString()}
-                          </span>
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {isSearchingPenpal ? (
+                    <p className="text-slate-500 italic">Searching...</p>
+                  ) : penpalSearchResults.length > 0 ? (
+                    penpalSearchResults.map(user => (
+                      <div 
+                        key={user.id} 
+                        onClick={() => setSelectedPenpal(user)}
+                        className={`p-2.5 rounded-xl border cursor-pointer transition ${selectedPenpal?.id === user.id ? 'bg-purple-600/20 border-purple-500' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {user.avatarUrl ? (
+                            <img src={user.avatarUrl} className="w-6 h-6 rounded-full" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-[10px] font-bold">{user.fullName[0]}</div>
+                          )}
+                          <div className="flex-1">
+                            <div className="text-white font-bold">{user.fullName}</div>
+                            <div className="text-[10px] text-slate-400">@{user.emailUsername}</div>
+                          </div>
+                          <ChevronRight className="w-3 h-3 text-slate-500" />
                         </div>
                       </div>
-                    ))}
+                    ))
+                  ) : penpalSearchQuery && (
+                    <p className="text-slate-500 italic">No users found.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Messaging Area */}
+              <div className="lg:col-span-2 space-y-4">
+                {selectedPenpal ? (
+                  <div className="bg-white/5 p-5 rounded-2xl border border-purple-500/30 flex flex-col h-[450px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white text-xs">
+                          {selectedPenpal.fullName[0]}
+                        </div>
+                        <div>
+                          <h4 className="text-white font-bold text-sm">与 {selectedPenpal.fullName} 的通信</h4>
+                          <p className="text-[10px] text-slate-400">Real-time encryption active</p>
+                        </div>
+                      </div>
+                      <button onClick={() => setSelectedPenpal(null)} className="text-slate-400 hover:text-white">✕</button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+                      <p className="text-center text-[10px] text-slate-500 uppercase tracking-widest py-2 border-y border-white/5">
+                        Secure Penpal Link Established
+                      </p>
+                      {/* You'd fetch conversation here, but for now showing sent success feedback */}
+                      <p className="text-slate-400 italic text-xs text-center py-4">
+                        {lang === 'en' ? 'Start writing your first letter...' : '开始写下你的第一封信...'}
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSendLetter} className="space-y-3">
+                      <textarea
+                        value={newLetterContent}
+                        onChange={(e) => setNewLetterContent(e.target.value)}
+                        placeholder={lang === 'en' ? 'Write a letter...' : '写一封信...'}
+                        className="w-full bg-slate-900 border border-white/10 focus:outline-none focus:border-purple-500 rounded-2xl px-4 py-3 text-white text-xs resize-none"
+                        rows={3}
+                      />
+                      <button 
+                        type="submit"
+                        className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2"
+                      >
+                        <Send className="w-4 h-4" /> {lang === 'en' ? 'Send Letter' : '寄出信件'}
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-slate-200 text-sm">{lang === 'en' ? 'Your Mailbox' : '你的收件箱'}</h3>
+                    {penpalLetters.length === 0 ? (
+                      <div className="bg-white/5 border border-dashed border-white/10 rounded-2xl p-12 text-center">
+                        <Mail className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+                        <p className="text-slate-500 text-xs">No letters received yet. Connect with penpals to start writing.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {penpalLetters.map((m) => (
+                          <div key={m.id} className="bg-white/5 border border-white/5 p-4 rounded-2xl flex gap-3 text-left hover:border-purple-500/50 transition">
+                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-purple-400 shrink-0">
+                              {m.senderName?.[0] || "?"}
+                            </div>
+                            <div className="text-xs flex-1 min-w-0">
+                              <div className="flex justify-between">
+                                <strong className="text-purple-300 truncate">{m.senderName}</strong>
+                                <span className="text-[10px] text-zinc-500">{new Date(m.timestamp?.seconds * 1000).toLocaleDateString()}</span>
+                              </div>
+                              <p className="text-slate-300 line-clamp-2 mt-1 italic">"{m.content}"</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -9793,7 +9884,6 @@ export default function App() {
         ))}
 
       </main>
-      </div>
 
       {/* Footer copyright & Aesthetic Controls */}
       <footer id="main-footer" className="mt-auto border-t border-white/10 shrink-0 text-center text-xs text-slate-400 bg-black/60 backdrop-blur-xl relative z-40">
@@ -10020,6 +10110,7 @@ export default function App() {
             </button>
           </div>
         </div>
+    </div>
       )}
 
     </div>

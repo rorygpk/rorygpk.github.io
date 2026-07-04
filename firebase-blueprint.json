@@ -1,0 +1,47 @@
+{
+  "collections": {
+    "users": {
+      "document": {
+        "fullName": "string",
+        "emailUsername": "string",
+        "avatarUrl": "string",
+        "bio": "string",
+        "createdAt": "timestamp"
+      }
+    },
+    "letters": {
+      "document": {
+        "senderId": "string",
+        "receiverId": "string",
+        "senderName": "string",
+        "content": "string",
+        "timestamp": "timestamp",
+        "isRead": "boolean"
+      }
+    },
+    "products": {
+      "document": {
+        "title": "string",
+        "description": "string",
+        "price": "number",
+        "stock": "number",
+        "sellerId": "string",
+        "sellerName": "string",
+        "imageUrl": "string",
+        "category": "string",
+        "createdAt": "timestamp"
+      }
+    },
+    "orders": {
+      "document": {
+        "buyerId": "string",
+        "sellerId": "string",
+        "items": "array",
+        "total": "number",
+        "status": "string",
+        "timestamp": "timestamp",
+        "paymentMethod": "string"
+      }
+    }
+  }
+}

@@ -1,4 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { db } from "../lib/firebase";
+import { 
+  collection, 
+  query, 
+  onSnapshot, 
+  addDoc, 
+  updateDoc, 
+  doc, 
+  serverTimestamp, 
+  getDoc,
+  setDoc,
+  where,
+  getDocs,
+  limit
+} from "firebase/firestore";
 import {
   Search,
   Tag,
@@ -145,120 +160,51 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
   const [items, setItems] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   
-  // File drag-drop for seller
-  const [isDraggingFile, setIsDraggingFile] = useState(false);
-  const [uploadedFileBase64, setUploadedFileBase64] = useState<string>("");
-  const [uploadedFileName, setUploadedFileName] = useState("");
-  
-  // Add product form
-  const [sellForm, setSellForm] = useState({
-    title: "",
-    description: "",
-    price: "",
-    condition: "New with tags",
-    stock: "5",
-    paymentMethods: {
-      alipay: true,
-      wechat: true,
-      paypal: true,
-      card: true
-    },
-    optionsRaw: "Color: Black, White, Silver\nSize: Standard, Professional (+100)"
-  });
-
-  // Payee profiles state
-  const [merchantProfile, setMerchantProfile] = useState<MerchantPaymentProfile>(() => {
-    try {
-      const saved = localStorage.getItem("gpkos_merchant_profile");
-      return saved ? JSON.parse(saved) : {
-        alipayAccount: "gpk_payee_alipay@rorygpk.com",
-        alipayQR: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150",
-        wechatAccount: "gpkos_merchant_wechat",
-        wechatQR: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150",
-        paypalEmail: "paypal-seller@rorygpkos.com",
-        cardDetails: "VISA Merchant ID: #99281-GPK",
-        balance: 1540.00
-      };
-    } catch {
-      return {
-        alipayAccount: "gpk_payee_alipay@rorygpk.com",
-        alipayQR: "",
-        wechatAccount: "gpkos_merchant_wechat",
-        wechatQR: "",
-        paypalEmail: "paypal-seller@rorygpkos.com",
-        cardDetails: "VISA Merchant ID: #99281-GPK",
-        balance: 1540.00
-      };
-    }
-  });
-
-  // Selected Options popup state when buyer clicks Buy Now
-  const [optionPopupItem, setOptionPopupItem] = useState<any | null>(null);
-  const [popupSelectedOptions, setPopupSelectedOptions] = useState<{[key: string]: string}>({});
-  const [popupQuantity, setPopupQuantity] = useState(1);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
-  // Filter criteria
-  const [filterConditions, setFilterConditions] = useState<{ [key: string]: boolean }>({
-    "New with tags": false,
-    "Used - Excellent": false,
-    "Used - Good": false,
-    "For parts or not working": false,
-  });
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-
+  // Real-time items listener
   useEffect(() => {
-    localStorage.setItem("gpkos_market_cart", JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem("gpkos_merchant_profile", JSON.stringify(merchantProfile));
-  }, [merchantProfile]);
-
-  useEffect(() => {
-    fetchItems();
-    fetchOrders();
+    const q = query(collection(db, "products"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const itemsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setItems(itemsData.length > 0 ? itemsData : PRESET_MARKET_ITEMS);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const fetchItems = async () => {
-    try {
-      const res = await fetch("/api/marketplace/items");
-      const data = await res.json();
-      if (data.success && data.items && data.items.length > 0) {
-        const merged = [
-          ...data.items,
-          ...PRESET_MARKET_ITEMS.filter(p => !data.items.some((d: any) => d.title === p.title))
-        ];
-        setItems(merged);
-      } else {
-        setItems(PRESET_MARKET_ITEMS);
-      }
-    } catch {
-      setItems(PRESET_MARKET_ITEMS);
-    }
-  };
+  // Real-time orders listener
+  useEffect(() => {
+    if (!currentUser) return;
+    const q = query(collection(db, "orders"), where("buyerId", "==", currentUser.id));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const ordersData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setOrders(ordersData);
+    });
+    return () => unsubscribe();
+  }, [currentUser]);
 
-  const fetchOrders = async () => {
-    try {
-      const res = await fetch("/api/marketplace/orders");
-      const data = await res.json();
-      if (data.success && data.orders) {
-        setOrders(data.orders);
-      } else {
-        const saved = localStorage.getItem("gpkos_market_orders");
-        setOrders(saved ? JSON.parse(saved) : []);
+  // Merchant Balance Real-time
+  useEffect(() => {
+    if (!currentUser) return;
+    const unsubscribe = onSnapshot(doc(db, "users", currentUser.id), (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data();
+        setMerchantProfile(prev => ({
+          ...prev,
+          balance: userData.balance || 0
+        }));
       }
-    } catch {
-      const saved = localStorage.getItem("gpkos_market_orders");
-      setOrders(saved ? JSON.parse(saved) : []);
-    }
-  };
+    });
+    return () => unsubscribe();
+  }, [currentUser]);
 
-  const saveOrders = (updatedOrders: any[]) => {
-    setOrders(updatedOrders);
-    localStorage.setItem("gpkos_market_orders", JSON.stringify(updatedOrders));
-  };
+  const fetchItems = () => {}; // Replaced by onSnapshot
+  const fetchOrders = () => {}; // Replaced by onSnapshot
+  const saveOrders = () => {}; // Replaced by Firestore addDoc
 
   const handleList = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,34 +235,25 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
     const finalImg = uploadedFileBase64 || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80";
 
     const newItem = {
-      id: Date.now().toString(),
       title: sellForm.title,
       description: sellForm.description || "暂无详细描述。",
       price: parseFloat(sellForm.price),
       condition: sellForm.condition,
-      seller: currentUser.emailUsername || "Zhou_Admin",
+      seller: currentUser.fullName || "Admin",
+      sellerId: currentUser.id,
       imageUrl: finalImg,
       paymentMethods: activeMethods,
       stock: parseInt(sellForm.stock) || 5,
       options: parsedOptions,
-      createdAt: new Date().toISOString()
+      createdAt: serverTimestamp()
     };
 
     try {
-      const res = await fetch("/api/marketplace/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem)
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("🎉 商品发布成功！已同步至全球去中心化数据库节点。");
-      }
-    } catch {
-      alert("发布接口连接错误，正在使用本地模拟存储...");
+      await addDoc(collection(db, "products"), newItem);
+      alert("🎉 商品发布成功！已实时同步至 Firestore 全球节点。");
+    } catch (e: any) {
+      alert("发布失败: " + e.message);
     }
-
-    setItems(prev => [newItem, ...prev]);
     // Reset listing form
     setSellForm({
       title: "",
@@ -357,95 +294,81 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
     
     setIsProcessingPayment(true);
 
-    setTimeout(async () => {
-      const computedTotal = cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15;
+    const computedTotal = cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15;
 
-      // Create a new order with pending system escrow
-      const newOrder = {
-        id: "ORD-" + Date.now().toString(),
-        items: [...cart],
-        buyer: currentUser.emailUsername || "guest_buyer",
-        total: computedTotal,
-        paymentMethod: paymentMethod,
-        escrowStatus: "pending_verification", // 系统收账：等待托管价格及数量校验
-        escrowStatusText: "系统已收账，等待价格验证 & 释放担保",
-        seller: cart[0]?.seller || "Zhou_Admin",
-        createdAt: new Date().toISOString()
-      };
+    // Create a new order in Firestore
+    const newOrder = {
+      items: [...cart],
+      buyerId: currentUser.id,
+      buyerName: currentUser.fullName,
+      total: computedTotal,
+      paymentMethod: paymentMethod,
+      escrowStatus: "pending_verification",
+      escrowStatusText: "系统已收账，等待价格验证 & 释放担保",
+      sellerId: cart[0]?.sellerId || "admin",
+      sellerName: cart[0]?.seller || "Zhou_Admin",
+      createdAt: serverTimestamp()
+    };
 
-      try {
-        await fetch("/api/marketplace/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newOrder)
-        });
-      } catch {
-        console.log("Mocking checkout route locally");
-      }
-
-      saveOrders([newOrder, ...orders]);
+    try {
+      await addDoc(collection(db, "orders"), newOrder);
       setCart([]);
       setIsProcessingPayment(false);
       setView("success");
-    }, 2000);
+    } catch (e: any) {
+      alert("Payment recording failed: " + e.message);
+      setIsProcessingPayment(false);
+    }
   };
 
   // Escrow Audit System Actions
-  const handleVerifyPrice = (orderId: string) => {
+  const handleVerifyPrice = async (orderId: string) => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    // Verify calculated amount vs items prices
     let calculatedSum = 0;
     order.items.forEach((it: any) => {
       calculatedSum += it.price * (it.quantity || 1);
     });
-    calculatedSum += 15; // ship fee
+    calculatedSum += 15; 
 
     const isMatch = Math.abs(calculatedSum - order.total) < 0.05;
 
     if (isMatch) {
-      const updated = orders.map(o => {
-        if (o.id === orderId) {
-          return {
-            ...o,
-            escrowStatus: "price_verified",
-            escrowStatusText: "系统已确认价格无误，保障金锁仓托管中"
-          };
-        }
-        return o;
+      await updateDoc(doc(db, "orders", orderId), {
+        escrowStatus: "price_verified",
+        escrowStatusText: "系统已确认价格无误，保障金锁仓托管中"
       });
-      saveOrders(updated);
       alert("✅ 系统确定价格无误！资金已锁定进入多签托管智能账户，等待转交商家。");
     } else {
       alert("⚠️ 校验失败！订单支付总额与系统商品价格明细不匹配，拒绝托管。");
     }
   };
 
-  const handleReleaseFunds = (orderId: string) => {
+  const handleReleaseFunds = async (orderId: string) => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    // Release to merchant
-    const updated = orders.map(o => {
-      if (o.id === orderId) {
-        return {
-          ...o,
-          escrowStatus: "completed",
-          escrowStatusText: "已转交商家，资金已到账"
-        };
-      }
-      return o;
-    });
-    saveOrders(updated);
+    try {
+      // Release to merchant
+      await updateDoc(doc(db, "orders", orderId), {
+        escrowStatus: "completed",
+        escrowStatusText: "已转交商家，资金已到账"
+      });
 
-    // Update merchant profile wallet
-    setMerchantProfile(prev => ({
-      ...prev,
-      balance: prev.balance + order.total
-    }));
+      // Update merchant balance in Firestore
+      const merchantRef = doc(db, "users", order.sellerId);
+      const merchantDoc = await getDoc(merchantRef);
+      const currentBalance = merchantDoc.exists() ? (merchantDoc.data().balance || 0) : 0;
+      
+      await updateDoc(merchantRef, {
+        balance: currentBalance + order.total
+      });
 
-    alert(`💸 托管款 $${order.total.toFixed(2)} 已成功拨付给商家 [${order.seller}] 的账户余额中！`);
+      alert(`💸 托管款 $${order.total.toFixed(2)} 已成功拨付给商家 [${order.sellerName}] 的账户余额中！`);
+    } catch (e: any) {
+      alert("Release failed: " + e.message);
+    }
   };
 
   const handleUpdateProfile = (e: React.FormEvent) => {
