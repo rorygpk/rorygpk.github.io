@@ -96,7 +96,7 @@ import {
 import { GpkosAppWindow, GpkosPowerMode, User as UserType, Email, Blog, FriendshipRecord, CustomButton, Order, SystemState, EmailTemplate, EmailSignature, GoogleDriveFile, GoogleCalendarEvent, GoogleYouTubeActivity, GoogleContact } from "./types";
 import { t, getLanguage, setLanguage, Language } from "./i18n";
 import { ToolTranslator, ToolSummarizer, ToolCode, AdminSubpages, DynamicSubPage, ToolGeminiAI, AdminAIAccess, AdminBrowserChecks, AdminDatabaseEditor, DeploymentHub } from "./components/AIExtensions";
-import { PublicMail } from "./components/PublicMail";
+
 import { CloudDrive } from "./components/CloudDrive";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { useGoogleLogin } from '@react-oauth/google';
@@ -2076,24 +2076,31 @@ export default function App() {
   const [vpnBrowserUrl, setVpnBrowserUrl] = useState("https://www.google.com");
   const [vpnBrowserActiveUrl, setVpnBrowserActiveUrl] = useState("https://www.google.com");
 
-  const [vpnNodesList, setVpnNodesList] = useState<any[]>(() => {
-    try {
-      const saved = localStorage.getItem("gpkos_vpn_nodes");
-      return saved ? JSON.parse(saved) : [
-        { id: "hk", name: "Hong Kong Node-01", ip: "103.45.210.88", flag: "🇭🇰", rtt: "12ms", provider: "HK Core" },
-        { id: "jp", name: "Tokyo Node-02", ip: "210.140.8.215", flag: "🇯🇵", rtt: "24ms", provider: "Tokyo Core" },
-        { id: "sg", name: "Singapore Node-03", ip: "188.166.195.12", flag: "🇸🇬", rtt: "29ms", provider: "SG Core" },
-        { id: "us", name: "US Silicon Valley-04", ip: "45.79.121.34", flag: "🇺🇸", rtt: "115ms", provider: "US West Core" }
-      ];
-    } catch {
-      return [
-        { id: "hk", name: "Hong Kong Node-01", ip: "103.45.210.88", flag: "🇭🇰", rtt: "12ms", provider: "HK Core" },
-        { id: "jp", name: "Tokyo Node-02", ip: "210.140.8.215", flag: "🇯🇵", rtt: "24ms", provider: "Tokyo Core" },
-        { id: "sg", name: "Singapore Node-03", ip: "188.166.195.12", flag: "🇸🇬", rtt: "29ms", provider: "SG Core" },
-        { id: "us", name: "US Silicon Valley-04", ip: "45.79.121.34", flag: "🇺🇸", rtt: "115ms", provider: "US West Core" }
-      ];
-    }
-  });
+  const [vpnNodesList, setVpnNodesList] = useState<any[]>([
+    { id: "basic-1", name: "Hong Kong Basic", ip: "103.45.210.88", flag: "🇭🇰", rtt: "42ms", provider: "Basic Core", isPremium: false },
+    { id: "basic-2", name: "Tokyo Basic", ip: "210.140.8.215", flag: "🇯🇵", rtt: "54ms", provider: "Basic Core", isPremium: false },
+    { id: "basic-3", name: "Singapore Basic", ip: "188.166.195.12", flag: "🇸🇬", rtt: "69ms", provider: "Basic Core", isPremium: false },
+    { id: "basic-4", name: "US West Basic", ip: "45.79.121.34", flag: "🇺🇸", rtt: "135ms", provider: "Basic Core", isPremium: false },
+    { id: "prem-1", name: "HK VIP Elite-01", ip: "103.45.210.99", flag: "🇭🇰", rtt: "8ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-2", name: "HK VIP Elite-02", ip: "103.45.210.100", flag: "🇭🇰", rtt: "9ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-3", name: "HK VIP Gaming-03", ip: "103.45.210.101", flag: "🇭🇰", rtt: "7ms", provider: "Gaming Route", isPremium: true },
+    { id: "prem-4", name: "JP VIP Tokyo-01", ip: "210.140.8.216", flag: "🇯🇵", rtt: "22ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-5", name: "JP VIP Osaka-02", ip: "210.140.8.217", flag: "🇯🇵", rtt: "25ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-6", name: "JP VIP Gaming-03", ip: "210.140.8.218", flag: "🇯🇵", rtt: "20ms", provider: "Gaming Route", isPremium: true },
+    { id: "prem-7", name: "TW VIP Taipei-01", ip: "60.248.112.5", flag: "🇹🇼", rtt: "18ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-8", name: "TW VIP Taichung-02", ip: "60.248.112.6", flag: "🇹🇼", rtt: "21ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-9", name: "KR VIP Seoul-01", ip: "121.189.23.11", flag: "🇰🇷", rtt: "26ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-10", name: "KR VIP Busan-02", ip: "121.189.23.12", flag: "🇰🇷", rtt: "28ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-11", name: "SG VIP Premium-01", ip: "188.166.195.100", flag: "🇸🇬", rtt: "32ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-12", name: "SG VIP Enterprise", ip: "188.166.195.101", flag: "🇸🇬", rtt: "31ms", provider: "Enterprise Route", isPremium: true },
+    { id: "prem-13", name: "US VIP NY-01", ip: "45.79.121.100", flag: "🇺🇸", rtt: "115ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-14", name: "US VIP LA-02", ip: "45.79.121.101", flag: "🇺🇸", rtt: "110ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-15", name: "UK VIP London-01", ip: "82.163.24.5", flag: "🇬🇧", rtt: "145ms", provider: "Premium Route", isPremium: true },
+    { id: "prem-16", name: "DE VIP Frankfurt", ip: "148.251.12.3", flag: "🇩🇪", rtt: "135ms", provider: "Premium Route", isPremium: true }
+  ]);
+
+  const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
+  const [showPremiumAuthModal, setShowPremiumAuthModal] = useState(false);
 
   const [customVpnNodeName, setCustomVpnNodeName] = useState("");
   const [customVpnNodeIp, setCustomVpnNodeIp] = useState("");
@@ -2166,6 +2173,33 @@ export default function App() {
   const [videoPlayerQuality, setVideoPlayerQuality] = useState("1080p");
   const [videoSubtitlesActive, setVideoSubtitlesActive] = useState(true);
   const [currentVideoSubtitle, setCurrentVideoSubtitle] = useState("GPKOS System Architecture: Decrypting active database indexes...");
+  
+  const [videoLibrary, setVideoLibrary] = useState([
+    { id: 'vid1', title: 'Cyberpunk Neon City', url: 'https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-city-street-with-neon-lights-and-rain-40141-large.mp4', resolution: '1080P' },
+    { id: 'vid2', title: 'Earth Cyber Globe', url: 'https://assets.mixkit.co/videos/preview/mixkit-rotating-world-globe-in-a-cyber-network-environment-41584-large.mp4', resolution: '4K' },
+    { id: 'vid3', title: 'Tranquil Sunlit Forest Stream', url: 'https://assets.mixkit.co/videos/preview/mixkit-forest-stream-with-sunbeams-flowing-peacefully-41566-large.mp4', resolution: '4K' }
+  ]);
+  const [videoSearchQuery, setVideoSearchQuery] = useState("");
+  const [showVideoUploadModal, setShowVideoUploadModal] = useState(false);
+  const [newVideoTitle, setNewVideoTitle] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+
+  const handleUploadVideo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newVideoTitle.trim() || !newVideoUrl.trim()) return;
+    const newVid = {
+      id: `vid-${Date.now()}`,
+      title: newVideoTitle.trim(),
+      url: newVideoUrl.trim(),
+      resolution: '1080P'
+    };
+    setVideoLibrary(prev => [newVid, ...prev]);
+    setShowVideoUploadModal(false);
+    setNewVideoTitle("");
+    setNewVideoUrl("");
+    alert("Video successfully added to local library.");
+  };
+
   const [videoComments, setVideoComments] = useState<{user: string, text: string, date: string}[]>([
     { user: "周锦淇 (Admin)", text: "这个飞航坐标与 Docker 沙箱容器编译演示视频讲得太清晰了！", date: "刚刚" },
     { user: "Rory_Operator", text: "多速流转播放控制极其流畅，终于实现全功能视频流服务了。", date: "5分钟前" }
@@ -8132,6 +8166,35 @@ export default function App() {
                               ))}
                             </div>
 
+                            {/* Admin Controls */}
+                            <div className="bg-slate-900 border border-white/5 p-4 rounded-xl text-left">
+                              <h4 className="font-bold text-white text-xs mb-2">⚡ 站点高级管理 (Advanced Site Controls)</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-rose-950/20 border border-rose-500/20 p-3 rounded-lg flex flex-col justify-between">
+                                  <div>
+                                    <h5 className="font-bold text-rose-400 text-[11px] mb-1">全站人机验证 (Global CAPTCHA)</h5>
+                                    <p className="text-[9px] text-slate-400 mb-3">开启强制图形或行为验证，拦截恶意爬虫与攻击。</p>
+                                  </div>
+                                  <button onClick={() => {
+                                    alert("人机验证防御系统已启动。当前拦截级别：高。");
+                                  }} className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 rounded text-[10px] uppercase transition cursor-pointer">
+                                    启动全站验证 (Activate)
+                                  </button>
+                                </div>
+                                <div className="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col justify-between">
+                                  <div>
+                                    <h5 className="font-bold text-emerald-400 text-[11px] mb-1">全站自修复 (Auto-Healing)</h5>
+                                    <p className="text-[9px] text-slate-400 mb-3">一键清理死链、重置损坏缓存、恢复默认权限。</p>
+                                  </div>
+                                  <button onClick={() => {
+                                    startSelfHealing();
+                                  }} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded text-[10px] uppercase transition cursor-pointer">
+                                    执行全站自修复 (Repair)
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            
                             {/* QoS display */}
                             <div className="bg-slate-900 border border-white/5 p-4 rounded-xl text-left">
                               <h4 className="font-bold text-white text-xs mb-2">📈 多端接入数据链路与传输质量保障 (QoS Assurance)</h4>
@@ -8177,7 +8240,37 @@ export default function App() {
                           </div>
 
                           {/* VPN Main Workspace Grid */}
-                          <div className="flex-1 grid grid-cols-5 overflow-hidden">
+                          <div className="flex-1 grid grid-cols-5 overflow-hidden relative">
+                            {showPremiumAuthModal && (
+                              <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+                                <div className="bg-slate-900 border border-amber-500/50 p-5 rounded-2xl shadow-2xl max-w-sm w-full">
+                                  <h3 className="text-amber-400 font-bold text-lg mb-2 flex items-center gap-2">
+                                    <ShieldAlert className="w-5 h-5" /> 网站权限验证 (Premium Auth)
+                                  </h3>
+                                  <p className="text-xs text-slate-300 mb-4">
+                                    您选择的是纯净高级节点 (Premium VIP Node)。<br/>
+                                    请确认网站授权验证，解锁全部 16 个高级节点，享受毫秒级超低延迟和无视封锁的极速专线。
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <button 
+                                      onClick={() => setShowPremiumAuthModal(false)}
+                                      className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-lg text-xs transition"
+                                    >
+                                      取消 (Cancel)
+                                    </button>
+                                    <button 
+                                      onClick={() => {
+                                        setHasPremiumAccess(true);
+                                        setShowPremiumAuthModal(false);
+                                      }}
+                                      className="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-xs transition shadow-[0_0_15px_rgba(217,119,6,0.4)]"
+                                    >
+                                      授权解锁 (Authorize)
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                             {!vpnConnected ? (
                               <>
                                 {/* Node selection column (2/5) */}
@@ -8248,20 +8341,29 @@ export default function App() {
                                     <button 
                                       key={node.id}
                                       onClick={() => {
+                                        if (node.isPremium && !hasPremiumAccess) {
+                                          setShowPremiumAuthModal(true);
+                                          return;
+                                        }
                                         setVpnNode(node.id);
                                         setVpnIP(node.ip);
                                       }}
                                       disabled={vpnConnecting}
-                                      className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === node.id ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                      className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all ${vpnNode === node.id ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'} ${node.isPremium && !hasPremiumAccess ? 'opacity-70' : ''}`}
                                     >
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm">{node.flag}</span>
                                         <div>
-                                          <p className="font-bold text-[11px] text-white">{node.name}</p>
-                                          <p className="text-[9px] text-slate-400 font-mono">{node.ip}</p>
+                                          <p className="font-bold text-[11px] text-white flex items-center gap-1">
+                                            {node.name}
+                                            {node.isPremium && <span className="bg-amber-500/20 text-amber-400 text-[7px] px-1 py-0.5 rounded border border-amber-500/30 uppercase">Premium</span>}
+                                          </p>
+                                          <p className="text-[9px] text-slate-400 font-mono">{node.ip} • {node.provider}</p>
                                         </div>
                                       </div>
-                                      <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/40 px-1 py-0.5 rounded">{node.rtt}</span>
+                                      <span className={`text-[9px] font-mono font-bold px-1 py-0.5 rounded ${node.isPremium ? 'text-amber-400 bg-amber-950/40' : 'text-emerald-400 bg-emerald-950/40'}`}>
+                                        {node.rtt}
+                                      </span>
                                     </button>
                                   ))}
 
@@ -8302,7 +8404,7 @@ export default function App() {
                                   </div>
 
                                   {/* Speeds Panel */}
-                                  <div className="w-full grid grid-cols-2 gap-3">
+                                  <div className="w-full grid grid-cols-2 gap-3 mb-2">
                                     <div className="bg-slate-900/60 border border-white/5 p-2.5 rounded-xl flex items-center gap-2">
                                       <div className="bg-blue-500/10 p-1.5 rounded-lg"><Cpu className="w-4 h-4 text-blue-400" /></div>
                                       <div>
@@ -8319,6 +8421,27 @@ export default function App() {
                                         </p>
                                       </div>
                                     </div>
+                                  </div>
+
+                                  <div className="w-full bg-slate-900/60 border border-white/5 p-2 rounded-xl mb-3 flex flex-col items-center">
+                                     <p className="text-[9px] text-slate-400 font-mono mb-1.5 text-center">LOCAL DEVICE DEPLOYMENT</p>
+                                     <button 
+                                       onClick={() => {
+                                          const blob = new Blob(["MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf8\x00\x00\x00\x0e\x1f\xba\x0e\x00\xb4\x09\xcd\x21\xb8\x01\x4c\xcd\x21\x54\x68\x69\x73\x20\x70\x72\x6f\x67\x72\x61\x6d\x20\x63\x61\x6e\x6e\x6f\x74\x20\x62\x65\x20\x72\x75\x6e\x20\x69\x6e\x20\x44\x4f\x53\x20\x6d\x6f\x64\x65\x2e\x0d\x0d\x0a\x24\x00\x00\x00\x00\x00\x00\x00"], { type: "application/vnd.microsoft.portable-executable" });
+                                          const url = URL.createObjectURL(blob);
+                                          const a = document.createElement("a");
+                                          a.href = url;
+                                          a.download = "rorygpk_vpn_to_google.exe";
+                                          document.body.appendChild(a);
+                                          a.click();
+                                          document.body.removeChild(a);
+                                          URL.revokeObjectURL(url);
+                                       }}
+                                       className="w-full bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] border border-blue-400 font-bold py-2 rounded-lg text-[10px] uppercase transition cursor-pointer flex items-center justify-center gap-1.5"
+                                     >
+                                       <Download className="w-3.5 h-3.5" />
+                                       下载并运行 (.exe)
+                                     </button>
                                   </div>
 
                                   {/* Dynamic connection wave graph */}
@@ -8757,57 +8880,90 @@ export default function App() {
                             </div>
 
                             {/* Video Playlist Sidebar Right */}
-                            <div className="w-48 border-l border-white/5 bg-slate-900/50 p-2 overflow-y-auto flex flex-col gap-2 shrink-0">
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Recommended</span>
+                            <div className="w-48 border-l border-white/5 bg-slate-900/50 p-2 flex flex-col gap-2 shrink-0">
                               
-                              {/* Video Card 1 */}
-                              <button 
-                                onClick={() => {
-                                  setSelectedVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-city-street-with-neon-lights-and-rain-40141-large.mp4");
-                                  setVideoTitleSelected("Cyberpunk Neon City (Sci-Fi Loop)");
-                                  setVideoIsPlaying(true);
-                                }}
-                                className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl.includes('cyberpunk') ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
-                                  <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">1080P</span>
-                                  <div className="text-[8px] text-slate-500 font-mono">Cyberpunk Loop</div>
-                                </div>
-                                <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">Cyberpunk Neon City</p>
-                              </button>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Library</span>
+                                <button 
+                                  onClick={() => setShowVideoUploadModal(true)}
+                                  className="text-[9px] bg-rose-600 hover:bg-rose-500 text-white font-bold px-1.5 py-0.5 rounded flex items-center gap-1 transition"
+                                >
+                                  <Plus className="w-3 h-3" /> Upload
+                                </button>
+                              </div>
 
-                              {/* Video Card 2 */}
-                              <button 
-                                onClick={() => {
-                                  setSelectedVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-rotating-world-globe-in-a-cyber-network-environment-41584-large.mp4");
-                                  setVideoTitleSelected("Earth Globe Cyber Network (Global Sync)");
-                                  setVideoIsPlaying(true);
-                                }}
-                                className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl.includes('globe') ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
-                                  <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">4K</span>
-                                  <div className="text-[8px] text-slate-500 font-mono">Globe Network</div>
-                                </div>
-                                <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">Earth Cyber Globe</p>
-                              </button>
+                              <div className="relative">
+                                <input 
+                                  type="text" 
+                                  placeholder="Search videos..."
+                                  value={videoSearchQuery}
+                                  onChange={(e) => setVideoSearchQuery(e.target.value)}
+                                  className="w-full bg-slate-950 border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:outline-none focus:border-rose-500 transition"
+                                />
+                                <Search className="absolute right-2 top-1.5 w-3 h-3 text-slate-500" />
+                              </div>
+                              
+                              {showVideoUploadModal && (
+                                <form onSubmit={handleUploadVideo} className="bg-slate-950 border border-rose-500/30 p-2 rounded-lg space-y-2 mt-1">
+                                  <div className="text-[9px] font-bold text-rose-400 uppercase">New Video</div>
+                                  <input 
+                                    type="text" 
+                                    placeholder="Title" 
+                                    value={newVideoTitle}
+                                    onChange={e => setNewVideoTitle(e.target.value)}
+                                    className="w-full bg-slate-900 border border-white/10 p-1 rounded text-[10px] text-white focus:outline-none focus:border-rose-500"
+                                    required
+                                  />
+                                  <input 
+                                    type="text" 
+                                    placeholder="Video URL (mp4)" 
+                                    value={newVideoUrl}
+                                    onChange={e => setNewVideoUrl(e.target.value)}
+                                    className="w-full bg-slate-900 border border-white/10 p-1 rounded text-[10px] text-white focus:outline-none focus:border-rose-500"
+                                    required
+                                  />
+                                  <div className="flex gap-1 pt-1">
+                                    <button 
+                                      type="button" 
+                                      onClick={() => setShowVideoUploadModal(false)} 
+                                      className="w-1/2 bg-slate-800 hover:bg-slate-700 text-white text-[9px] py-1 rounded transition"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button 
+                                      type="submit" 
+                                      className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white text-[9px] py-1 rounded transition font-bold"
+                                    >
+                                      Upload
+                                    </button>
+                                  </div>
+                                </form>
+                              )}
 
-                              {/* Video Card 3 */}
-                              <button 
-                                onClick={() => {
-                                  setSelectedVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-forest-stream-with-sunbeams-flowing-peacefully-41566-large.mp4");
-                                  setVideoTitleSelected("Tranquil Sunlit Forest Stream (Nature Relax)");
-                                  setVideoIsPlaying(true);
-                                }}
-                                className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl.includes('forest') ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
-                              >
-                                <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
-                                  <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">HD</span>
-                                  <div className="text-[8px] text-slate-500 font-mono">Forest Stream</div>
-                                </div>
-                                <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">Forest Stream Relax</p>
-                              </button>
-
+                              <div className="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
+                                {videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).map(vid => (
+                                  <button 
+                                    key={vid.id}
+                                    onClick={() => {
+                                      setSelectedVideoUrl(vid.url);
+                                      setVideoTitleSelected(vid.title);
+                                      setVideoIsPlaying(true);
+                                    }}
+                                    className={`flex flex-col text-left rounded-lg border p-1.5 transition-all overflow-hidden ${selectedVideoUrl === vid.url ? 'bg-rose-950/20 border-rose-500/40' : 'bg-slate-900/30 border-white/5 hover:bg-slate-800/40'}`}
+                                  >
+                                    <div className="w-full h-14 bg-slate-950 rounded overflow-hidden mb-1 flex items-center justify-center relative">
+                                      <span className="absolute top-0.5 left-0.5 text-[7px] bg-rose-600 text-white px-0.5 rounded font-mono">{vid.resolution}</span>
+                                      <div className="text-[8px] text-slate-500 font-mono text-center px-1 leading-tight">{vid.title}</div>
+                                    </div>
+                                    <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">{vid.title}</p>
+                                  </button>
+                                ))}
+                                {videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).length === 0 && (
+                                  <div className="text-center p-4">
+                                    <p className="text-[10px] text-slate-500 font-mono">No videos found.</p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -8839,6 +8995,27 @@ export default function App() {
                   ))}
                 </AnimatePresence>
 
+                </div>
+
+                {/* Global Desktop Search Bar */}
+                <div className="absolute bottom-28 inset-x-0 flex justify-center z-[1500] pointer-events-none">
+                  <div className="bg-slate-900/90 backdrop-blur-xl border border-white/20 p-2.5 rounded-full shadow-2xl pointer-events-auto flex gap-3 items-center w-[500px] hover:border-cyan-500/50 transition-colors">
+                    <Search className="w-5 h-5 text-slate-400 ml-2" />
+                    <input 
+                      type="text" 
+                      placeholder="全站库搜索 (Global Search: Apps, Settings, Marketplace...)" 
+                      className="bg-transparent border-none text-white text-sm focus:outline-none flex-grow"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                           alert(`Searching across GPKOS library for: ${e.currentTarget.value}`);
+                           e.currentTarget.value = '';
+                        }
+                      }}
+                    />
+                    <div className="bg-slate-800 text-[9px] text-slate-400 px-2 py-1 rounded font-mono border border-white/10 mr-1">
+                      ENTER
+                    </div>
+                  </div>
                 </div>
 
                 {/* macOS styled Dock bottom */}

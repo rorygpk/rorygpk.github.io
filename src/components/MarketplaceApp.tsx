@@ -196,6 +196,7 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
   const [optionPopupItem, setOptionPopupItem] = useState<any | null>(null);
   const [popupSelectedOptions, setPopupSelectedOptions] = useState<{[key: string]: string}>({});
   const [popupQuantity, setPopupQuantity] = useState(1);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Filter criteria
   const [filterConditions, setFilterConditions] = useState<{ [key: string]: boolean }>({
@@ -353,35 +354,40 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
       return;
     }
     if (cart.length === 0) return;
+    
+    setIsProcessingPayment(true);
 
-    const computedTotal = cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15;
+    setTimeout(async () => {
+      const computedTotal = cart.reduce((a, b) => a + (b.price * (b.quantity || 1)), 0) + 15;
 
-    // Create a new order with pending system escrow
-    const newOrder = {
-      id: "ORD-" + Date.now().toString(),
-      items: [...cart],
-      buyer: currentUser.emailUsername || "guest_buyer",
-      total: computedTotal,
-      paymentMethod: paymentMethod,
-      escrowStatus: "pending_verification", // 系统收账：等待托管价格及数量校验
-      escrowStatusText: "系统已收账，等待价格验证 & 释放担保",
-      seller: cart[0]?.seller || "Zhou_Admin",
-      createdAt: new Date().toISOString()
-    };
+      // Create a new order with pending system escrow
+      const newOrder = {
+        id: "ORD-" + Date.now().toString(),
+        items: [...cart],
+        buyer: currentUser.emailUsername || "guest_buyer",
+        total: computedTotal,
+        paymentMethod: paymentMethod,
+        escrowStatus: "pending_verification", // 系统收账：等待托管价格及数量校验
+        escrowStatusText: "系统已收账，等待价格验证 & 释放担保",
+        seller: cart[0]?.seller || "Zhou_Admin",
+        createdAt: new Date().toISOString()
+      };
 
-    try {
-      await fetch("/api/marketplace/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newOrder)
-      });
-    } catch {
-      console.log("Mocking checkout route locally");
-    }
+      try {
+        await fetch("/api/marketplace/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newOrder)
+        });
+      } catch {
+        console.log("Mocking checkout route locally");
+      }
 
-    saveOrders([newOrder, ...orders]);
-    setCart([]);
-    setView("success");
+      saveOrders([newOrder, ...orders]);
+      setCart([]);
+      setIsProcessingPayment(false);
+      setView("success");
+    }, 2000);
   };
 
   // Escrow Audit System Actions
@@ -1151,7 +1157,14 @@ export const MarketplaceApp = ({ currentUser }: { currentUser?: any }) => {
 
         {/* VIEW: Safe checkout */}
         {view === "checkout" && (
-          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left">
+          <div className="flex-grow bg-slate-50 p-6 overflow-y-auto text-left relative">
+            {isProcessingPayment && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <div className="font-bold text-slate-800 text-sm">Processing Payment...</div>
+                <div className="text-[10px] text-slate-500 font-mono mt-1">Connecting to secure gateway</div>
+              </div>
+            )}
             <div className="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 shadow-md space-y-4">
               <div>
                 <h3 className="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
