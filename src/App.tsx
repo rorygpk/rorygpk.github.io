@@ -4872,7 +4872,8 @@ export default function App() {
               )}
 
             </div>
-)}
+          </div>
+        )}
 
         {/* SECTION 2: WORK SPACE BRANCH screen Layout (Vibrant Soft Blue) */}
         {currentHash === "#work" && (
@@ -6570,9 +6571,10 @@ export default function App() {
                                           </div>
                                         )}
                                       </div>
-})()}
-                                  </div>
-)}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
 
                               {/* Gmail tab */}
                               {googleHubTab === "gmail" && (() => {
@@ -7632,7 +7634,14 @@ export default function App() {
                                         <div>
                                            <div className="text-xs font-bold text-slate-900">Payload Pending</div>
                                            <div className="text-[10px] text-slate-500 font-mono tracking-tight">WAITING_FOR_AUTH_HANDSHAKE</div>
-);
+                                        </div>
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                    );
                   })()}
 
                   {/* Gmail App */}
@@ -7734,6 +7743,10 @@ export default function App() {
                                        Show me the latest latency report for the Tokyo Node.
                                     </div>
                                     <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-lg"><User className="h-4 w-4 text-white" /></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
 {/* Gemini input bar */}
                         <div className="p-6 bg-black/40 border-t border-white/5">
                            <div className="max-w-2xl mx-auto relative group">
@@ -7802,8 +7815,6 @@ export default function App() {
                                  <div className="h-4 w-[1px] bg-slate-700" />
                                  <span className="text-[9px] text-slate-600 font-mono italic">via Hugging Face Secure Relay v4.1</span>
                               </div>
-                                  </div>
-                                  </div>
                               <div className="flex items-center gap-2">
                                  <Shield className="w-3.5 h-3.5 text-cyan-500" />
                                  <span className="text-[10px] text-cyan-500 font-bold tracking-tighter uppercase">AES-256 Encrypted</span>
@@ -7961,7 +7972,6 @@ export default function App() {
                                         <div className="p-3">
                                            <div className="text-[10px] text-slate-500 font-mono uppercase mb-1">{act.snippet?.type || "Activity"} Buffer</div>
                                            <div className="text-white text-xs font-black leading-tight line-clamp-2">{act.snippet?.title}</div>
-                                  </div>
                                            <div className="text-[9px] text-slate-500 mt-2 font-mono truncate">ID: {act.id}</div>
                                         </div>
                                      </div>
@@ -8168,19 +8178,18 @@ export default function App() {
                                                   <span className="font-bold text-xs text-cyan-200 tracking-wide">Docs Base</span>
                                                   <span className="text-[9px] text-cyan-400/60 mt-1 font-mono">REACT</span>
                                                </div>
-                                  </div>
-                                             </div>
+                                              </div>
                                            </div>
                                         )
                                      )}
                                   </div>
                                )}
                             </div>
-                        )}
+                         )}
                       </div>
-                    </div>
-                  );
-                })()}
+                   </div>
+                );
+             })()}
 
                 {/* Main Dynamic Workspace rendering */}
                 <AnimatePresence mode="popLayout">
@@ -9262,9 +9271,10 @@ export default function App() {
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Admin Tools</span>
                     </button>
                   </div>
-                </div>
-              </div>
-        )}
+               </div>
+            </div>
+         </div>
+      )}
 
         {/* SECTION 5: REMOTE DESKTOP SCREEN COLLABORATION screen */}
         {currentHash === "#remote" && (
@@ -9430,7 +9440,11 @@ export default function App() {
                       <strong>Security Scan Pass:</strong> Video is verified and contains no malicious content parameters.
                     </p>
                   </div>
-)}
+               </div>
+            </div>
+         </div>
+      </div>
+   )}
 
         {/* SECTION 7: FRIENDSHIP DIRECTORY / YEARBOOK screen */}
         {currentHash === "#friendship" && (
