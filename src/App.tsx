@@ -934,7 +934,7 @@ function GoogleMapsWrapper() {
 
   return (
     <div className="flex flex-col lg:flex-row h-full w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 text-xs">
-      /* Search and Navigation GUI Sidebar panel (Polished Slate Look) */
+      {/* Search and Navigation GUI Sidebar panel (Polished Slate Look) */}
       <div className="w-full lg:w-80 bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col shrink-0 overflow-y-auto">
         
         {/* Layer switching selection headings */}
@@ -3305,7 +3305,7 @@ export default function App() {
         </div>
       )}
 
-      /* Main App Navigation Bar (IBM/Intel Full Width Style) */
+      {/* Main App Navigation Bar (IBM/Intel Full Width Style) */}
       <header id="main-header" className="shrink-0 sticky top-0 z-40 bg-black/80 backdrop-blur-2xl border-b border-white/5 w-full">
         <div className="w-full px-6 py-3">
           <div className="flex items-center justify-between gap-4">
@@ -3513,7 +3513,7 @@ export default function App() {
 
           </div>
 
-          /* Mobile menu fold-out (Fixed Screen Drawer) */
+          {/* Mobile menu fold-out (Fixed Screen Drawer) */}
           {mobileMenuOpen && (
             <div className="md:hidden fixed inset-0 z-50 flex">
               {/* Overlay Backdrop */}
@@ -4158,10 +4158,10 @@ export default function App() {
                       </div>
                     </aside>
 
-                    /* OWA Email list Pane (Middle) */
+                    {/* OWA Email list Pane (Middle) */}
                     {outlookFolder === "templates_signatures" ? (
-                      /* CUSTOM TEMPLATES & SIGNATURES DASHBOARD VIEW */
                       <div className="flex-grow p-6 overflow-y-auto space-y-6 text-left select-text bg-slate-900/10">
+                                 {/* CUSTOM TEMPLATES & SIGNATURES DASHBOARD VIEW */}
                         <div className="border-b border-white/10 pb-4 mb-4">
                           <h2 className="text-lg font-bold text-cyan-300">Templates & Personalized Signatures Vault</h2>
                           <p className="text-xs text-slate-400">Design custom rich text email templates and quick-insert email signatures with real-time browser preview.</p>
@@ -4449,7 +4449,7 @@ export default function App() {
                           )}
                         </div>
 
-                        /* OWA Email Read Window Pane (Right) */
+                        {/* OWA Email Read Window Pane (Right) */}
                         <div className={`${mailboxUIStyle === 'outlook' || selectedEmail ? 'flex-grow' : 'hidden'} p-4 overflow-y-auto flex flex-col justify-between`}>
                           {selectedEmail ? (
                             <div className="space-y-4 text-left">
@@ -4887,7 +4887,7 @@ export default function App() {
           </div>
         )}
 
-        /* SECTION 2: WORK SPACE BRANCH screen Layout (Vibrant Soft Blue) */
+        {/* SECTION 2: WORK SPACE BRANCH screen Layout (Vibrant Soft Blue) */}
         {currentHash === "#work" && (
           <div className="space-y-6 animate-fade-in" id="work-workspace">
             
@@ -4993,7 +4993,7 @@ export default function App() {
                     </form>
                   </div>
 
-                  /* Operational Database User profile viewer (Admin Action Console) */
+                  {/* Operational Database User profile viewer (Admin Action Console) */}
                   <div className="bg-slate-950 p-6 rounded-3xl border border-white/10 text-left">
                     <h3 className="text-md font-bold text-white flex items-center gap-2 mb-4">
                       <Users className="h-5 w-5 text-blue-400" />
@@ -5345,7 +5345,7 @@ export default function App() {
                               btn.innerHTML = '资源打包中... 稍等<span class="animate-pulse">...</span>';
                               btn.disabled = true;
                               try {
-                                const res = await fetch(`$getApiBase(}}/api/download-source`);
+                                 const res = await fetch(`${getApiBase()}/api/download-source`);
                                 if (!res.ok) throw new Error('Download Failed');
                                 const blob = await res.blob();
                                 const url = window.URL.createObjectURL(blob);
@@ -5520,7 +5520,7 @@ export default function App() {
           </div>
         )}
 
-        /* SECTION 3: RORY GPKOS IDE PLAYGROUND screen (macOS theme styling) */
+        {/* SECTION 3: RORY GPKOS IDE PLAYGROUND screen (macOS theme styling) */}
         {currentHash === "#rory-gpkos" && (
           <div className="animate-fade-in flex flex-col w-full h-[calc(100vh-140px)] min-h-[520px] md:min-h-[700px] rounded-3xl overflow-hidden border border-white/10 relative" id="gpkos-ide-workspace">
             {!currentUser ? (
@@ -5842,8 +5842,8 @@ export default function App() {
                          {/* Right Panel: Content Area */}
                          <div className="flex-1 bg-slate-950 flex flex-col overflow-hidden relative font-sans">
                             {vpsWizardOpen ? (
-                              /* Case 1: Deploy New VPS Wizard */
                               <div className="flex-1 p-5 overflow-y-auto flex flex-col justify-between">
+                                 {/* Case 1: Deploy New VPS Wizard */}
                                  <div>
                                     <h3 className="font-bold text-sm text-white tracking-wide mb-1 uppercase">Deploy Automated Virtual Host Machine</h3>
                                     <p className="text-[10px] text-slate-400 mb-4">Provision a full-fidelity sandbox container in seconds with a high-bandwidth terminal connection.</p>
@@ -5991,11 +5991,11 @@ export default function App() {
                                  </div>
                               </div>
                             ) : (
-                              /* Case 2: Machine Details / Interactive Active Remote Desktop Screen */
                               <div className="flex-1 flex flex-col overflow-hidden">
+                                 {/* Case 2: Machine Details / Interactive Active Remote Desktop Screen */}
                                  {!remoteSessionActive ? (
-                                    /* Connection Prompt Screen */
                                     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center font-sans">
+                                       {/* Connection Prompt Screen */}
                                        <MonitorUp className="w-12 h-12 text-blue-500 mb-3 animate-pulse opacity-60" />
                                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">
                                           {selectedNodeId === 'loopback' ? 'Connect Local Screen Share' : 'Connection Standby: ' + remoteNodes.find(n => n.id === selectedNodeId)?.name}
@@ -6026,8 +6026,9 @@ export default function App() {
                                        </button>
                                     </div>
                                  ) : (
-                                    /* Active Session Desktop Screen */
                                     <div className="flex-1 flex flex-col overflow-hidden relative">
+                                    <div className="flex-1 flex flex-col overflow-hidden relative">
+                                       {/* Active Session Desktop Screen */}
                                        {/* Interactive Topbar of Active machine */}
                                        <div className="bg-slate-900 border-b border-white/5 px-3 py-1.5 flex items-center justify-between shrink-0">
                                           <div className="flex items-center gap-2">
@@ -6070,7 +6071,6 @@ export default function App() {
                                              </div>
                                           </div>
                                        ) : (
-                                          /* Virtual Linux Interactive Desktop Container */
                                           <div 
                                             className="flex-grow bg-[#0c0f17] relative flex flex-col p-3 overflow-hidden cursor-crosshair"
                                             onClick={(e) => {
@@ -6110,7 +6110,7 @@ export default function App() {
                                                      if (!cmd) return;
                                                      
                                                      // Echo Command
-                                                     setRemoteTerminalHistory(prev => [...prev, `[root@gpkos-host ~]# $remoteTerminalCommand)` ]);
+                                                      setRemoteTerminalHistory(prev => [...prev, `[root@gpkos-host ~]# ${remoteTerminalCommand}` ]);
                                                      
                                                      // Command Logic
                                                      if (cmd === 'help') {
@@ -6180,13 +6180,13 @@ export default function App() {
                                                         setRemoteTerminalHistory(prev => [
                                                            ...prev,
                                                            "--- GPKOS Node Proxy Tunnel Audit ---",
-                                                           `Local Interface Bindings: 127.0.0.1:4500 <-> $remoteNodes.find(n => n.id === selectedNodeId}?.ip}:4500`,
+                                                            `Local Interface Bindings: 127.0.0.1:4500 <-> ${remoteNodes.find(n => n.id === selectedNodeId)?.ip}:4500`,
                                                            "Protocol: GPKOS WireGuard AES-256-GCM Handshake Secured",
                                                            "Bypass State: bypass_all_firewalls=true",
                                                            "Uptime: 2 hours, 14 minutes, 5 seconds"
                                                         ]);
                                                      } else {
-                                                        setRemoteTerminalHistory(prev => [...prev, `-bash: ${cmd}): command not found. Type 'help' to see valid commands.` ]);
+                                                         setRemoteTerminalHistory(prev => [...prev, `-bash: ${cmd}: command not found. Type 'help' to see valid commands.` ]);
                                                      }
                                                      
                                                      setRemoteTerminalCommand("");
@@ -6204,15 +6204,15 @@ export default function App() {
                                                 </form>
                                              </div>
                                           </div>
-                                       )}
-                                    </div>
-                                 )}
-                              </div>
-                            )}
+                                           )}
+                                        </div>
+                                     </div>
+                                  )
+                               )}
+                            </div>
                          </div>
-                      </div>
-                    </DraggableWindow>
-                  )}
+                      </DraggableWindow>
+                   )}
 
                   {/* Compiler Logs Window */}
                    {openedWindows.some(w => w.appId === 'ide-logs' && !w.isMinimized) && (
@@ -6288,43 +6288,41 @@ export default function App() {
                   {gpkosActiveApp === 'maps-legacy-to-delete' && ((() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
 
-                    // Proxy Search Function
-                    const handleProxySearchSubmit = async (e: React.FormEvent) => {
-                      e.preventDefault();
-                      if (!proxySearchQueryValue.trim()) return;
-                      setLoadingProxySearch(true);
-                      setActiveBypassUrl(null);
-                      try {
-                        const res = await fetch(`$getApiBase(}}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
-                        const data = await res.json();
-                        setProxySearchResultsList(data.results || []);
-                      } catch (err) {
-                        console.error(err);
-                        alert("Secure search failed: firewall handshake error.");
-                      } finally {
-                        setLoadingProxySearch(false);
-                      }
-                    };
-
-                    // Reader Bypass Function
-                    const handleOpenBypassUrl = async (url: string) => {
-                      setLoadingBypass(true);
-                      setActiveBypassUrl(url);
-                      setBypassHtmlContent("");
-                      try {
-                        const res = await fetch(`$getApiBase(}}/api/web/proxy?url=${encodeURIComponent(url)}`);
-                        const data = await res.json();
-                        if (data.success && data.content) {
-                          setBypassHtmlContent(data.content);
-                        } else {
-                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
+                      const handleProxySearchSubmit = async (e: React.FormEvent) => {
+                        e.preventDefault();
+                        if (!proxySearchQueryValue.trim()) return;
+                        setLoadingProxySearch(true);
+                        setActiveBypassUrl(null);
+                        try {
+                          const res = await fetch(`${getApiBase()}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
+                          const data = await res.json();
+                          setProxySearchResultsList(data.results || []);
+                        } catch (err) {
+                          console.error(err);
+                          alert("Secure search failed: firewall handshake error.");
+                        } finally {
+                          setLoadingProxySearch(false);
                         }
-                      } catch (err) {
-                        setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out. Domestic node failed.</div>`);
-                      } finally {
-                        setLoadingBypass(false);
-                      }
-                    };
+                      };
+
+                      const handleOpenBypassUrl = async (url: string) => {
+                        setLoadingBypass(true);
+                        setActiveBypassUrl(url);
+                        setBypassHtmlContent("");
+                        try {
+                          const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
+                          const data = await res.json();
+                          if (data.success && data.content) {
+                            setBypassHtmlContent(data.content);
+                          } else {
+                            setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
+                          }
+                        } catch (err) {
+                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out. Domestic node failed.</div>`);
+                        } finally {
+                          setLoadingBypass(false);
+                        }
+                      };
 
                     // Direct Action for URL Proxy
                     const handleDirectUrlSubmit = (e: React.FormEvent) => {
@@ -6351,7 +6349,7 @@ export default function App() {
                       }
                       setSendingGmailLocalState(true);
                       try {
-                        const res = await fetch(`$getApiBase(}}/api/gmail/send`, {
+                        const res = await fetch(`${getApiBase()}/api/gmail/send`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
@@ -6368,7 +6366,7 @@ export default function App() {
                           setGmailComposeSubjectLine("");
                           setGmailComposeMessageText("");
                         } else {
-                          alert(`Gmail transmit error: $data.error || 'Proxy denied transmission.')`);
+                          alert(`Gmail transmit error: ${data.error || 'Proxy denied transmission.'}`);
                         }
                       } catch (err) {
                         console.error(err);
@@ -6387,7 +6385,7 @@ export default function App() {
                       setGeminiChatHistoryList(prev => [...prev,  { role: "user", text: userMsg } ]);
                       setLoadingGeminiModel(true);
                       try {
-                        const res = await fetch(`$getApiBase(}}/api/ai/chat`, {
+                        const res = await fetch(`${getApiBase()}/api/ai/chat`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
@@ -6425,8 +6423,8 @@ export default function App() {
                         </div>
 
                         {!isGoogleHubAuthorized ? (
-                          /* Lock Screen */
                           <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-slate-950/90 relative overflow-hidden">
+                            {/* Lock Screen */}
                             <div className="absolute inset-0 bg-radial-gradient from-fuchsia-950/20 via-transparent to-transparent opacity-50" />
                             <div className="bg-fuchsia-500/10 p-5 rounded-3xl border border-fuchsia-500/20 mb-6 animate-pulse">
                               <Lock className="w-12 h-12 text-fuchsia-400" />
@@ -6445,8 +6443,8 @@ export default function App() {
                             </button>
                           </div>
                         ) : (
-                          /* Operational Workspace Layout */
                           <div className="flex-grow flex overflow-hidden">
+                                  {/* Operational Workspace Layout */}
                             {/* Left Sidebar */}
                             <div className="w-56 bg-slate-900/50 border-r border-white/5 flex flex-col p-3 gap-1.5 shrink-0">
                               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mb-2">安全业务网关</div>
@@ -6500,8 +6498,8 @@ export default function App() {
                               {googleHubTab === "search" && (
                                 <div className="flex-grow flex flex-col p-5 overflow-hidden">
                                   {activeBypassUrl ? (
-                                    /* GFW Bypass Reader mode */
                                     <div className="flex-grow flex flex-col overflow-hidden animate-fade-in text-left">
+                                      {/* GFW Bypass Reader mode */}
                                       <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4 shrink-0">
                                         <button onClick={() => setActiveBypassUrl(null)} className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300">
                                           <ArrowLeft className="w-4 h-4"/>返回搜索列表
@@ -6523,8 +6521,8 @@ export default function App() {
                                       )}
                                     </div>
                                   ) : (
-                                    /* Standard Search UI */
                                     <div className="flex-grow flex flex-col overflow-hidden text-left">
+                                    {/* Standard Search UI */}
                                       <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">🔍 Google GFW-Secure Search与安全浏览器代理</h3>
                                       <p className="text-[11px] text-slate-400 mb-4">通过安全代理节点无缝请求全球互联网，并支持针对任何敏感目标页面的一键免翻墙极速私密阅读。</p>
                                       
@@ -6885,8 +6883,8 @@ export default function App() {
                                     </div>
 
                                     {!googleToken ? (
-                                      /* Google login overlay featuring tabbed selector: Login or Sign Up account creation */
                                       <div className="flex-grow flex items-center justify-center py-4 overflow-y-auto w-full">
+                                        {/* Google login overlay featuring tabbed selector: Login or Sign Up account creation */}
                                         <div className="bg-slate-900/60 border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative overflow-hidden flex flex-col gap-6">
                                           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-amber-500 to-cyan-500" />
                                           
@@ -6921,9 +6919,9 @@ export default function App() {
                                           </div>
 
                                           {googleLoginMode === "signin" ? (
-                                            /* Sign In view with Preset Auto handshakes */
                                             <form onSubmit={handleGoogleSignInSubmit} className="space-y-4">
                                               <div>
+                                              {/* Sign In view with Preset Auto handshakes */}
                                                 <label className="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1 block">Google 邮箱地址 (Gmail Address)</label>
                                                 <input 
                                                   type="text"
@@ -6975,8 +6973,8 @@ export default function App() {
                                               </button>
                                             </form>
                                           ) : (
-                                            /* Registration Sign Up view */
                                             <form onSubmit={handleGoogleSignUpSubmit} className="space-y-3 max-h-[300px] overflow-y-auto pr-1 text-left">
+                                            {/* Registration Sign Up view */}
                                               <div className="grid grid-cols-2 gap-2">
                                                 <div>
                                                   <label className="text-[9px] uppercase text-slate-400 font-bold block mb-1">姓 (Last Name)</label>
@@ -7065,9 +7063,9 @@ export default function App() {
                                         </div>
                                       </div>
                                     ) : (
-                                      /* Fully Featured State-Driven Gmail Interactive Sandbox Client Suite */
                                       <div className="flex-grow flex flex-col md:flex-row overflow-hidden border border-white/5 rounded-2xl bg-slate-950 shadow-inner">
                                         
+                                        {/* Fully Featured State-Driven Gmail Interactive Sandbox Client Suite */}
                                         {/* Sub-layout: 1. Gmail Left controls & signature hub */}
                                         <div className="w-full md:w-44 bg-slate-900/40 border-b md:border-b-0 md:border-r border-white/5 flex flex-col p-2.5 gap-1.5 shrink-0 select-none">
                                           
@@ -7182,7 +7180,7 @@ export default function App() {
                                                     </p>
                                                     <p className="text-[9px] text-slate-400 line-clamp-1 mt-0.5" dangerouslySetInnerHTML={{ __html: mail.snippet || mail.body || "" }} />
 
-                                                    /* Quick control overlays (star, delete) */
+                                                    {/* Quick control overlays (star, delete) */}
                                                     <div className="absolute right-2 bottom-1.5 opacity-40 group-hover:opacity-100 flex items-center gap-1.5 transition">
                                                       <button 
                                                         onClick={(e) => handleToggleStar(mail.id, e)}
@@ -7340,9 +7338,9 @@ export default function App() {
                                       </div>
                                     )}
 
-                                  </div>
-                                )();
-                              })}
+                                    </div>
+                                  )()}
+                                )}
 
                               {/* Maps tab */}
                               {googleHubTab === "maps" && (
@@ -7445,7 +7443,7 @@ export default function App() {
                                       onClick={async () => {
                                         if(!currentUser) return;
                                         setSendingCrypto(true);
-                                        const res = await fetch(`$getApiBase(}}/api/crypto/messages?user=${currentUser.emailUsername}`);
+                                        const res = await fetch(`${getApiBase()}/api/crypto/messages?user=${currentUser.emailUsername}`);
                                         const d = await res.json();
                                         if(d.success) setCryptoMessages(d.messages || []);
                                         setSendingCrypto(false);
@@ -7495,7 +7493,7 @@ export default function App() {
                                                   const xorData = xorEncryptDecrypt(rawUtf8, cryptoPassword);
                                                   const encryptedBase64 = btoa(xorData);
                                                   
-                                                  const res = await fetch(`$getApiBase(}}/api/crypto/send`, {
+                                                  const res = await fetch(`${getApiBase()}/api/crypto/send`, {
                                                     method: 'POST', headers: {'Content-Type': 'application/json'},
                                                     body: JSON.stringify({
                                                       sender: currentUser.emailUsername,
@@ -7536,7 +7534,7 @@ export default function App() {
                                                       <span className="text-[10px] text-slate-500 font-mono">FROM: <strong className="text-purple-400">{msg.sender}</strong></span>
                                                       <span className="text-[10px] text-slate-500 font-mono">TO: <strong className="text-cyan-400">{msg.receiver}</strong></span>
                                                     </div>
-                                                    <span className="text-[9px] text-slate-600 font-mono">new Date(msg.timestamp).toLocaleString())</span>
+                                                     <span className="text-[9px] text-slate-600 font-mono">{new Date(msg.timestamp).toLocaleString()}</span>
                                                  </div>
                                                  
                                                  {decryptedMessageId === msg.id ? (
@@ -7696,16 +7694,16 @@ export default function App() {
                                      <div key={mail.id} className="p-4 hover:bg-white/5 transition border-l-2 border-transparent hover:border-rose-500 cursor-pointer">
                                        <div className="flex justify-between items-start mb-1">
                                          <span className="text-rose-400 font-black text-xs truncate max-w-[200px]">{mail.senderFullName || mail.senderUsername}</span>
-                                         <span className="text-[10px] text-slate-500 font-mono italic">new Date(mail.timestamp).toLocaleTimeString())</span>
+                                         <span className="text-[10px] text-slate-500 font-mono italic">{new Date(mail.timestamp).toLocaleTimeString()}</span>
                                        </div>
                                        <h4 className="text-white font-bold text-sm mb-1 leading-tight">{mail.subject}</h4>
                                        <p className="text-slate-400 text-xs line-clamp-2 leading-relaxed">{mail.snippet}</p>
                                      </div>
                                    ))
-                                 })
+                                  )}
                                </div>
                              </div>
-                           }}
+                           )}
                         </div>
                       </div>
                     );
@@ -7795,7 +7793,7 @@ export default function App() {
                             <span className="font-bold text-slate-100 text-xl tracking-tighter">Google Maps <span className="text-slate-500 font-normal text-xs ml-2">Integrated Navigation</span></span>
                           </div>
                           <div className="flex items-center gap-3">
-                             !googleToken && <button onClick={() => loginGoogleProvider()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Sync Google Node</button>)
+                             {!googleToken && <button onClick={() => loginGoogleProvider()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] px-4 py-1.5 rounded-full shadow-lg transition">Sync Google Node</button>}
                              <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400 group">
                                <X className="h-5 w-5 group-hover:scale-110 transition" />
                              </button>
@@ -7820,9 +7818,8 @@ export default function App() {
                               </div>
                            </div>
                         </div>
-                      </div>
-                    };
-                  ))()}
+                    );
+                  })()}
 
                   {/* Google Drive App */}
                   {gpkosActiveApp === 'drive' && (() => {
@@ -7835,7 +7832,7 @@ export default function App() {
                             </div>
                             <div className="flex items-center gap-2">
                                <button onClick={() => setGpkosActiveApp('desktop')} className="p-2 hover:bg-white/10 rounded-full transition text-slate-400"><X className="h-5 w-5" /></button>
-                               !googleToken && <button onClick={() => loginGoogleProvider()} className="bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-bold">Login</button>)
+                               {!googleToken && <button onClick={() => loginGoogleProvider()} className="bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-bold">Login</button>}
                             </div>
                          </div>
                          <div className="flex-grow p-6 bg-slate-950 overflow-y-auto">
@@ -7858,16 +7855,16 @@ export default function App() {
                                         </div>
                                         <div className="flex-grow overflow-hidden text-left">
                                            <div className="text-white text-xs font-bold truncate">{file.name}</div>
-                                           <div className="text-[10px] text-slate-500 font-mono uppercase truncate">file.mimeType.split('.').pop()) Node Asset</div>
+                                           <div className="text-[10px] text-slate-500 font-mono uppercase truncate">{file.mimeType.split('.').pop()} Node Asset</div>
                                         </div>
                                         <a href={file.webViewLink} target="_blank" rel="noreferrer" className="p-2 hover:bg-white/10 rounded-full text-slate-500 hover:text-cyan-400 transition">
                                            <Download className="h-4 w-4" />
                                         </a>
                                      </div>
-                                  )})
+                                  ))}
                                   {googleDriveFiles.length === 0 && <div className="col-span-full py-20 text-center text-slate-600 italic">No cloud assets found in standard clusters.</div>}
                                </div>
-                            }}
+                            )}
                          </div>
                       </div>
                     );
@@ -7895,14 +7892,14 @@ export default function App() {
                                      <div key={event.id} className="bg-slate-900/50 border border-white/5 p-4 rounded-2xl flex gap-6 items-start hover:bg-white/5 transition group">
                                         <div className="text-right w-20 shrink-0 font-mono">
                                            <div className="text-xs font-black text-cyan-400">{new Date(event.start?.dateTime || event.start?.date || "").toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                           <div className="text-[9px] text-slate-600 font-bold uppercase">new Date(event.start?.dateTime || event.start?.date || "").toLocaleDateString([],  month: 'short', day: 'numeric' )})</div>
+                                           <div className="text-[9px] text-slate-600 font-bold uppercase">{new Date(event.start?.dateTime || event.start?.date || "").toLocaleDateString([], { month: 'short', day: 'numeric' })}</div>
                                         </div>
                                         <div className="flex-grow">
-                                           <div className="text-sm font-bold text-white group-hover:text-cyan-300 transition">event.summary || "(No Title Event)"}</div>
+                                           <div className="text-sm font-bold text-white group-hover:text-cyan-300 transition">{event.summary || "(No Title Event)"}</div>
                                            <div className="text-[10px] text-slate-500 mt-1 font-mono">{event.location || "Global Coordinates Sync"}</div>
                                         </div>
                                      </div>
-                                  )})
+                                  ))}
                                   {googleCalendarEvents.length === 0 && <div className="py-20 text-center text-slate-600 font-mono text-xs uppercase tracking-widest whitespace-nowrap overflow-hidden">End of transmission. No schedule data.</div>}
                                </div>
                             )}
@@ -8001,22 +7998,22 @@ export default function App() {
                                <div className="h-full flex items-center justify-center"><RefreshCw className="h-8 w-8 text-cyan-500 animate-spin" /></div>
                             ) : (
                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  googleContacts.map((contact, idx) => {
+                                  {googleContacts.map((contact, idx) => {
                                      const name = contact.names?.[0]?.displayName || "Unknown Identity";
                                      const email = contact.emailAddresses?.[0]?.value || "No Email Bridge";
                                      const photo = contact.photos?.[0]?.url;
                                      return (
                                        <div key={idx} className="bg-slate-900/50 border border-white/5 p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition group">
                                           <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-800 border-2 border-white/5 shrink-0">
-                                             {photo ? <img src={photo} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <div className="w-full h-full flex items-center justify-center text-slate-600 font-black">name.charAt(0)}</div>)
+                                             {photo ? <img src={photo} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <div className="w-full h-full flex items-center justify-center text-slate-600 font-black">{name.charAt(0)}</div>}
                                           </div>
                                           <div className="overflow-hidden">
                                              <div className="text-white text-xs font-black truncate">{name}</div>
                                              <div className="text-[10px] text-slate-500 font-mono truncate">{email}</div>
                                           </div>
                                        </div>
-                                     };
-                                  ))}
+                                     );
+                                  })}
                                   {googleContacts.length === 0 && <div className="col-span-full py-20 text-center text-slate-700 font-mono text-xs uppercase tracking-widest">Isolated Environment. Connection List Empty.</div>}
                                </div>
                             )}
@@ -8033,7 +8030,7 @@ export default function App() {
                       setLoadingProxySearch(true);
                       setActiveBypassUrl(null);
                       try {
-                        const res = await fetch(`$getApiBase(}}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
+                        const res = await fetch(`${getApiBase()}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
                         const data = await res.json();
                         setProxySearchResultsList(data.results || []);
                       } catch (err) {
@@ -8049,12 +8046,12 @@ export default function App() {
                       setActiveBypassUrl(url);
                       setBypassHtmlContent("");
                       try {
-                        const res = await fetch(`$getApiBase(}}/api/web/proxy?url=${encodeURIComponent(url)}`);
+                        const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
                         const data = await res.json();
                         if (data.success && data.content) {
                           setBypassHtmlContent(data.content);
                         } else {
-                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: $data.error || 'Server did not respond with decoded payload.')</div>`);
+                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
                         }
                       } catch (err) {
                         setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out.</div>`);
@@ -8081,7 +8078,7 @@ export default function App() {
                              } else {
                                setGpkosActiveApp('desktop'); 
                              }
-                           )} className="bg-slate-900/80 hover:bg-slate-800 p-2.5 rounded-full backdrop-blur-md transition border border-white/10 shadow-lg">
+                           }} className="bg-slate-900/80 hover:bg-slate-800 p-2.5 rounded-full backdrop-blur-md transition border border-white/10 shadow-lg">
                               <ArrowLeft className="w-4 h-4 text-white" />
                            </button>
                            <div className="text-[10px] font-bold text-white/40 tracking-widest bg-slate-900/50 px-3 py-1 rounded-full border border-white/5">RORY_OS</div>
@@ -8154,45 +8151,44 @@ export default function App() {
                                                  <span>Results Index</span>
                                                  <span className="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-white/5">{proxySearchResultsList.length} Found</span>
                                               </div>
-                                              proxySearchResultsList.map((r, idx) => (
+                                              {proxySearchResultsList.map((r, idx) => (
                                                  <div key={idx} className="bg-slate-900/60 border border-white/5 hover:border-white/10 rounded-2xl p-4 active:scale-[0.98] transition-all cursor-pointer shadow-sm relative overflow-hidden group" onClick={() => handleOpenBypassUrl(r.link)}>
                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500/0 group-hover:bg-cyan-500/50 transition-colors"></div>
                                                    <h4 className="text-sm font-bold text-slate-100 mb-1.5 leading-snug group-hover:text-cyan-300 transition-colors">{r.title}</h4>
                                                    <div className="text-[10px] text-cyan-500/80 truncate mb-2 font-mono flex items-center gap-1.5"><Globe className="w-3 h-3 shrink-0"/> {r.link}</div>
                                                    <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">{r.snippet}</p>
                                                  </div>
-                                              )))
+                                              ))}
                                            </div>
                                         ) : (
                                            <div>
                                              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-2">Quick Actions</div>
                                              <div className="grid grid-cols-2 gap-3">
-                                               <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 hover:from-indigo-500/20 hover:to-purple-500/10 border border-indigo-500/20 p-5 rounded-[1.5rem] flex flex-col items-center justify-center aspect-square active:scale-95 transition-all cursor-pointer shadow-inner" onClick={() =>  setProxySearchQueryValue("Github"); handleProxySearchSubmit({preventDefault: () => {)} as any); })>
+                                               <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 hover:from-indigo-500/20 hover:to-purple-500/10 border border-indigo-500/20 p-5 rounded-[1.5rem] flex flex-col items-center justify-center aspect-square active:scale-95 transition-all cursor-pointer shadow-inner" onClick={() => { setProxySearchQueryValue("Github"); handleProxySearchSubmit({preventDefault: () => {}} as any); }}>
                                                   <div className="bg-indigo-500/20 p-3 rounded-full text-indigo-400 mb-3 shadow-[0_0_15px_rgba(99,102,241,0.2)]"><Globe className="w-6 h-6 gap-2" /></div>
                                                   <span className="font-bold text-xs text-indigo-200 tracking-wide">Developer</span>
                                                   <span className="text-[9px] text-indigo-400/60 mt-1 font-mono">GLOBAL</span>
                                                </div>
-                                               <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 hover:from-cyan-500/20 hover:to-teal-500/10 border border-cyan-500/20 p-5 rounded-[1.5rem] flex flex-col items-center justify-center aspect-square active:scale-95 transition-all cursor-pointer shadow-inner" onClick={() =>  setProxySearchQueryValue("react documentation"); handleProxySearchSubmit({preventDefault: () => {)} as any); }}>
+                                               <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 hover:from-cyan-500/20 hover:to-teal-500/10 border border-cyan-500/20 p-5 rounded-[1.5rem] flex flex-col items-center justify-center aspect-square active:scale-95 transition-all cursor-pointer shadow-inner" onClick={() => { setProxySearchQueryValue("react documentation"); handleProxySearchSubmit({preventDefault: () => {}} as any); }}>
                                                   <div className="bg-cyan-500/20 p-3 rounded-full text-cyan-400 mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]"><FileCode2 className="w-6 h-6 gap-2" /></div>
                                                   <span className="font-bold text-xs text-cyan-200 tracking-wide">Docs Base</span>
                                                   <span className="text-[9px] text-cyan-400/60 mt-1 font-mono">REACT</span>
                                                </div>
                                               </div>
                                            </div>
-                                        )
-                                     })
-                                  </div>
-                               })
-                            </div>
-                         })
-                      </div>
-                   </div>
+                                          </div>
+                                       )
+                                   )}
+                                </div>
+                             </div>
+                          </div>
+                       </div>
                 );
              })()}
 
                 {/* Main Dynamic Workspace rendering */}
                 <AnimatePresence mode="popLayout">
-                  openedWindows.filter(w => !['ide', 'remote', 'terminal'].includes(w.appId)).map(win => (
+                  {openedWindows.filter(w => !['ide', 'remote', 'terminal'].includes(w.appId)).map(win => (
                     <DraggableWindow
                       key={win.id}
                       window={win}
@@ -8345,7 +8341,7 @@ export default function App() {
                                   </div>
                                   <button onClick={() => {
                                     alert("人机验证防御系统已启动。当前拦截级别：高。");
-                                  )} className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 rounded text-[10px] uppercase transition cursor-pointer">
+                                  }} className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 rounded text-[10px] uppercase transition cursor-pointer">
                                     启动全站验证 (Activate)
                                   </button>
                                 </div>
@@ -8356,7 +8352,7 @@ export default function App() {
                                   </div>
                                   <button onClick={() => {
                                     startSelfHealing();
-                                  )} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded text-[10px] uppercase transition cursor-pointer">
+                                  }} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded text-[10px] uppercase transition cursor-pointer">
                                     执行全站自修复 (Repair)
                                   </button>
                                 </div>
@@ -8385,7 +8381,7 @@ export default function App() {
                             </div>
                           </div>
                         </div>
-                      }}
+                      )}
                       {win.appId === 'marketplace' && <MarketplaceApp />}
                       {win.appId === 'vpn' && (
                         <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden select-none font-sans">
@@ -8395,7 +8391,7 @@ export default function App() {
                               <Globe className={`w-5 h-5 ${vpnConnected ? 'text-blue-400 animate-spin' : 'text-slate-400'}`} style={{ animationDuration: '6s' }} />
                               <div>
                                 <h3 className="font-bold text-xs tracking-wide text-white">GPKOS Secure Node Tunnel v4.2</h3>
-                                <p className="text-[9px] text-slate-400 font-mono">Status: vpnConnecting ? 'STABILIZING PROTOCOL...' : vpnConnected ? 'CONNECTED (SECURE)' : 'DISCONNECTED')</p>
+                                <p className="text-[9px] text-slate-400 font-mono">Status: {vpnConnecting ? 'STABILIZING PROTOCOL...' : vpnConnected ? 'CONNECTED (SECURE)' : 'DISCONNECTED'}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -8403,7 +8399,7 @@ export default function App() {
                                 <p className="text-[9px] text-slate-400 font-mono">IP: {vpnConnected ? vpnIP : '127.0.0.1'}</p>
                                 <p className="text-[9px] text-slate-400 font-mono">Enc: AES-256-GCM</p>
                               </div>
-                              <span className=`w-2.5 h-2.5 rounded-full $vpnConnecting ? 'bg-amber-500 animate-pulse' : vpnConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500'}`} />
+                              <span className={`w-2.5 h-2.5 rounded-full ${vpnConnecting ? 'bg-amber-500 animate-pulse' : vpnConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500'}`} />
                             </div>
                           </div>
 
@@ -8441,7 +8437,7 @@ export default function App() {
                             )}
                             {!vpnConnected ? (
                               <>
-                                /* Node selection column (2/5) */
+                                {/* Node selection column (2/5) */}
                                 <div className="col-span-2 border-r border-white/5 bg-slate-900/40 p-3 overflow-y-auto flex flex-col gap-2">
                                   <div className="flex items-center justify-between mb-1">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Tunnel Endpoint</span>
@@ -8541,7 +8537,7 @@ export default function App() {
                                   </div>
                                 </div>
 
-                                /* Control Pane & Analytics (3/5) */
+                                {/* Control Pane & Analytics (3/5) */}
                                 <div className="col-span-3 p-4 flex flex-col justify-between items-center bg-gradient-to-b from-slate-950 to-slate-900">
                                   
                                   {/* Connection status circle / button */}
@@ -8585,7 +8581,7 @@ export default function App() {
                                       <div>
                                         <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Transferred</p>
                                         <p className="font-mono text-xs font-bold text-white">
-                                          (vpnBytesTransferred / (1024 * 1024)).toFixed(2)} MB
+                                          {(vpnBytesTransferred / (1024 * 1024)).toFixed(2)} MB
                                         </p>
                                       </div>
                                     </div>
@@ -8595,7 +8591,7 @@ export default function App() {
                                      <p className="text-[9px] text-slate-400 font-mono mb-1.5 text-center">LOCAL DEVICE DEPLOYMENT</p>
                                      <button 
                                        onClick={() => {
-                                          const blob = new Blob(["MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf8\x00\x00\x00\x0e\x1f\xba\x0e\x00\xb4\x09\xcd\x21\xb8\x01\x4c\xcd\x21\x54\x68\x69\x73\x20\x70\x72\x6f\x67\x72\x61\x6d\x20\x63\x61\x6e\x6e\x6f\x74\x20\x62\x65\x20\x72\x75\x6e\x20\x69\x6e\x20\x44\x4f\x53\x20\x6d\x6f\x64\x65\x2e\x0d\x0d\x0a\x24\x00\x00\x00\x00\x00\x00\x00"],  type: "application/vnd.microsoft.portable-executable" )};
+                                          const blob = new Blob(["MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf8\x00\x00\x00\x0e\x1f\xba\x0e\x00\xb4\x09\xcd\x21\xb8\x01\x4c\xcd\x21\x54\x68\x69\x73\x20\x70\x72\x6f\x67\x72\x61\x6d\x20\x63\x61\x6e\x6e\x6f\x74\x20\x62\x65\x20\x72\x75\x6e\x20\x69\x6e\x20\x44\x4f\x53\x20\x6d\x6f\x64\x65\x2e\x0d\x0d\x0a\x24\x00\x00\x00\x00\x00\x00\x00"], { type: "application/vnd.microsoft.portable-executable" });
                                           const url = URL.createObjectURL(blob);
                                           const a = document.createElement("a");
                                           a.href = url;
@@ -8628,7 +8624,7 @@ export default function App() {
                               </>
                             ) : (
                               <>
-                                /* Active Node strip (col-span-1) */
+                                {/* Active Node strip (col-span-1) */}
                                 <div className="col-span-1 border-r border-white/5 bg-slate-950 p-2 flex flex-col gap-3 justify-between">
                                   <div className="flex flex-col gap-3">
                                     <div className="bg-blue-950/40 border border-blue-500/30 p-2 rounded-xl text-center">
@@ -8649,7 +8645,7 @@ export default function App() {
                                       <div className="bg-slate-900/80 border border-white/5 p-1.5 rounded-lg">
                                         <p className="text-[7px] text-slate-400 uppercase tracking-widest font-mono">Transferred</p>
                                         <p className="font-mono text-[10px] font-bold text-cyan-400">
-                                          (vpnBytesTransferred / (1024 * 1024)).toFixed(1)} MB
+                                          {(vpnBytesTransferred / (1024 * 1024)).toFixed(1)} MB
                                         </p>
                                       </div>
                                       <div className="bg-slate-900/80 border border-white/5 p-1.5 rounded-lg">
@@ -8674,7 +8670,7 @@ export default function App() {
                                   </div>
                                 </div>
 
-                                /* Stealth Private Browser Space (col-span-4) */
+                                {/* Stealth Private Browser Space (col-span-4) */}
                                 <div className="col-span-4 flex flex-col bg-slate-900 overflow-hidden">
                                   {/* Browser Header Bar */}
                                   <div className="bg-slate-950 p-2 border-b border-white/10 flex flex-col gap-1.5 shrink-0">
@@ -8684,7 +8680,7 @@ export default function App() {
                                           onClick={() => {
                                             setVpnBrowserUrl("https://www.google.com");
                                             setVpnBrowserActiveUrl("https://www.google.com");
-                                          )} 
+                                          }} 
                                           className="p-1 hover:bg-white/5 rounded text-slate-400 hover:text-white"
                                           title="Back to Google"
                                         >
@@ -8695,7 +8691,7 @@ export default function App() {
                                             const current = vpnBrowserActiveUrl;
                                             setVpnBrowserActiveUrl("");
                                             setTimeout(() => setVpnBrowserActiveUrl(current), 10);
-                                          )} 
+                                          }} 
                                           className="p-1 hover:bg-white/5 rounded text-slate-400 hover:text-white"
                                           title="Reload Page"
                                         >
@@ -8808,7 +8804,7 @@ export default function App() {
                                   <div className="bg-emerald-950/70 border-b border-emerald-500/15 px-3 py-1 flex items-center justify-between text-[8px] text-emerald-400 shrink-0">
                                     <div className="flex items-center gap-1 font-medium">
                                       <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
-                                      <span>SHIELD ACTIVE: Traffic routed over vpnNode.toUpperCase()) Node. Spoofed user-agent headers block AI-crawler alerts. No account records logged.</span>
+                                       <span>SHIELD ACTIVE: Traffic routed over {vpnNode.toUpperCase()} Node. Spoofed user-agent headers block AI-crawler alerts. No account records logged.</span>
                                     </div>
                                     <a 
                                       href={vpnBrowserActiveUrl} 
@@ -8822,16 +8818,16 @@ export default function App() {
 
                                   {/* Webview Iframe Display area */}
                                   <div className="flex-grow bg-white relative">
-                                    {vpnBrowserActiveUrl ? (
-                                      <iframe
-                                        src=`/api/web/proxy-html?url=${encodeURIComponent(vpnBrowserActiveUrl)}`)
-                                        className="w-full h-full border-0 bg-white"
-                                        title="Stealth VPN Private Browser"
-                                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
-                                        referrerPolicy="no-referrer"
-                                        allowFullScreen
-                                      />
-                                    } : (
+                                      {vpnBrowserActiveUrl ? (
+                                        <iframe
+                                          src={`/api/web/proxy-html?url=${encodeURIComponent(vpnBrowserActiveUrl)}`}
+                                          className="w-full h-full border-0 bg-white"
+                                          title="Stealth VPN Private Browser"
+                                          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
+                                          referrerPolicy="no-referrer"
+                                          allowFullScreen
+                                        />
+                                      ) : (
                                       <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center text-center p-4">
                                         <Globe className="w-8 h-8 text-slate-600 animate-spin mb-2" />
                                         <p className="text-slate-400 text-[10px] font-mono">Bypassing local node gateways...</p>
@@ -8957,7 +8953,7 @@ export default function App() {
 
                                   {/* Subtitles & Speed Settings */}
                                   <div className="flex items-center gap-1.5">
-                                    /* Local File Input (hidden) */
+                                    {/* Local File Input (hidden) */}
                                     <input 
                                       type="file" 
                                       accept="video/*" 
@@ -9022,7 +9018,7 @@ export default function App() {
                                 </div>
                               </div>
 
-                              /* Bottom Metadata & User Comments (Scrollable) */
+                              {/* Bottom Metadata & User Comments (Scrollable) */}
                               <div className="p-3 bg-slate-950 border-t border-white/5 overflow-y-auto max-h-40 shrink-0">
                                 <h4 className="font-bold text-xs text-white mb-1">{videoTitleSelected}</h4>
                                 <div className="flex items-center gap-2 mb-2">
@@ -9039,7 +9035,7 @@ export default function App() {
                                       e.preventDefault();
                                       if (!videoCommentInput.trim()) return;
                                       setVideoComments(prev => [
-                                         user: "周锦淇 (Admin)", text: videoCommentInput.trim(), date: "刚刚" ),
+                                          { user: "周锦淇 (Admin)", text: videoCommentInput.trim(), date: "刚刚" },
                                         ...prev
  ]);
                                       setVideoCommentInput("");
@@ -9057,7 +9053,7 @@ export default function App() {
                                   </form>
 
                                   <div className="flex flex-col gap-1.5">
-                                    videoComments.map((com, idx) => (
+                                    {videoComments.map((com, idx) => (
                                       <div key={idx} className="bg-slate-900/40 p-1.5 rounded-lg border border-white/5">
                                         <div className="flex items-center justify-between mb-0.5">
                                           <span className="text-[9px] font-black text-rose-400">{com.user}</span>
@@ -9134,7 +9130,7 @@ export default function App() {
                               )}
 
                               <div className="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
-                                videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).map(vid => (
+                               {videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).map(vid => (
                                   <button 
                                     key={vid.id}
                                     onClick={() => {
@@ -9151,35 +9147,36 @@ export default function App() {
                                     <p className="font-bold text-[10px] text-white leading-tight line-clamp-1">{vid.title}</p>
                                   </button>
                                 ))}
-                                videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).length === 0 && (
+                                {videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).length === 0 && (
                                   <div className="text-center p-4">
                                     <p className="text-[10px] text-slate-500 font-mono">No videos found.</p>
                                   </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                               )}
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                     )}
                       {win.appId === 'gmail' && (
                          <GmailApp 
                             currentUser={currentUser}
                             mockEmailsList={emails}
                             setMockEmailsList={setEmails}
                             installedApps={[]}
-                            setInstalledApps=() => {})
-                            kernelStats={{}}
-                            desktopWallpaper=""
-                            setDesktopWallpaper=() => {}}
-                            dockAutohide={false}
-                            setDockAutohide=() => {}}
+                             setInstalledApps={() => {}}
+                             kernelStats={{}}
+                             desktopWallpaper=""
+                             setDesktopWallpaper={() => {}}
+                             dockAutohide={false}
+                             setDockAutohide={() => {}}
                             openGPKOSApp={(id) => launchApp(id, id === 'outlook' ? 'Outlook Mail' : 'Application')}
                             setGpkosWindows={setOpenedWindows}
                             setEmails={setEmails}
                          />
                       )}
                       {/* Fallback for other apps */}
-                      !['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace', 'vpn', 'video-player'].includes(win.appId) && (
+                       {/* Fallback for other apps */}
+                       {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace', 'vpn', 'video-player'].includes(win.appId) && (
                         <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
                            {win.title} Module Loaded
                         </div>
@@ -9199,7 +9196,7 @@ export default function App() {
                       className="bg-transparent border-none text-white text-sm focus:outline-none flex-grow"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                           alert(`Searching across GPKOS library for: $e.currentTarget.value)`);
+                           alert(`Searching across GPKOS library for: ${e.currentTarget.value}`);
                            e.currentTarget.value = '';
                         }
                       }}
@@ -9384,7 +9381,7 @@ export default function App() {
 
                   {/* Speed switch */}
                   <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
-                    [1.0, 1.25, 1.5, 2.0].map((spd) => (
+                    {[1.0, 1.25, 1.5, 2.0].map((spd) => (
                       <button
                         key={spd}
                         onClick={() => {
@@ -9400,7 +9397,7 @@ export default function App() {
                       >
                         {spd}x
                       </button>
-                    )))
+                    ))}
                   </div>
                 </div>
 
@@ -9414,7 +9411,7 @@ export default function App() {
                   <div>
                     <span className="text-slate-400 block mb-1">Interactive Quality Selectors</span>
                     <div className="grid grid-cols-3 gap-1.5 text-center text-[10px]">
-                      ["720p", "1080p", "4k"].map((q) => (
+                      {["720p", "1080p", "4k"].map((q) => (
                         <button
                           key={q}
                           onClick={() => setVideoQuality(q)}
@@ -9562,7 +9559,7 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        penpalLetters.map((m) => (
+                        {penpalLetters.map((m) => (
                           <div key={m.id} className="bg-white/5 border border-white/5 p-4 rounded-2xl flex gap-3 text-left hover:border-purple-500/50 transition">
                             <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-purple-400 shrink-0">
                               {m.senderName?.[0] || "?"}
@@ -9570,12 +9567,12 @@ export default function App() {
                             <div className="text-xs flex-1 min-w-0">
                               <div className="flex justify-between">
                                 <strong className="text-purple-300 truncate">{m.senderName}</strong>
-                                <span className="text-[10px] text-zinc-500">new Date(m.timestamp?.seconds * 1000).toLocaleDateString())</span>
+                                <span className="text-[10px] text-zinc-500">{new Date(m.timestamp?.seconds * 1000).toLocaleDateString()}</span>
                               </div>
                               <p className="text-slate-300 line-clamp-2 mt-1 italic">"{m.content}"</p>
                             </div>
                           </div>
-                        ))}
+                          ))}
                       </div>
                     )}
                   </div>
@@ -9685,7 +9682,7 @@ export default function App() {
                           <h4 className="text-md font-bold text-white mt-1.5">{art.title}</h4>
                         </div>
                         <span className="text-[10px] text-zinc-500">
-                          new Date(art.timestamp).toLocaleString())
+                           {new Date(art.timestamp).toLocaleString()}
                         </span>
                       </div>
 
@@ -9697,21 +9694,21 @@ export default function App() {
                           className="flex items-center gap-1.5 text-slate-400 hover:text-rose-400 transition"
                         >
                           <ThumbsUp className="h-4 w-4" />
-                          <span>Likes (art.likes || 0))</span>
+                          <span>Likes {art.likes || 0}</span>
                         </button>
-                        <span className="text-zinc-500">Author: {art.author} (art.authorEmail))</span>
+                        <span className="text-zinc-500">Author: {art.author} ({art.authorEmail}))</span>
                       </div>
 
                       {/* Comments feed block info */}
                       <div className="bg-slate-950 p-3 rounded-xl space-y-2 border border-white/5 text-[11px]">
-                        <span className="font-bold text-slate-400 block border-b border-white/5 pb-1">Answers (art.comments?.length || 0)}</span>
+                        <span className="font-bold text-slate-400 block border-b border-white/5 pb-1">Answers {art.comments?.length || 0}</span>
                         
-                        art.comments && art.comments.map((comm) => (
+                        {art.comments && art.comments.map((comm) => (
                           <div key={comm.id} className="pb-1 border-b border-white/5">
                             <strong className="text-cyan-400">{comm.author}:</strong>
                             <span className="text-slate-300 ml-1.5">{comm.content}</span>
                           </div>
-                        )))
+                        ))}
 
                         <div className="flex gap-2 pt-1">
                           <input
@@ -9731,7 +9728,7 @@ export default function App() {
                       </div>
 
                     </div>
-                  })
+                  ))
                 )}
               </div>
 
@@ -9816,15 +9813,15 @@ export default function App() {
         {currentHash === "#tool-code" && <ToolCode lang={lang} />}
         {currentHash === "#tool-geminiai" && <ToolGeminiAI lang={lang} currentUser={currentUser} systemState={systemState} />}
         
-        currentHash.startsWith("#/user/rorygpk/") && (
+        {currentHash.startsWith("#/user/rorygpk/") && (
           <div className="h-[calc(100vh-140px)] min-h-[500px]">
             <UserProfileApp 
               currentUser={
                 systemState.users.find((u: any) => u.emailUsername === currentHash.split("#/user/rorygpk/")[1]) 
                 || (currentUser?.emailUsername === currentHash.split("#/user/rorygpk/")[1] ? currentUser : null)
               } 
-              onUpdatePassword={() => {)} 
-              onUploadAvatar={() => {)} 
+              onUpdatePassword={() => {}} 
+              onUploadAvatar={() => {}} 
             />
           </div>
         )}
@@ -9850,10 +9847,13 @@ export default function App() {
         )}
 
         {/* Dynamic Branch Pages mapping */}
-        systemState.navPages?.filter(p => !p.isExternal && p.isVisible).map(p => (
-          currentHash === '#subpage-' + p.id && <React.Fragment key={p.id}><DynamicSubPage page={p} lang={lang} /></React.Fragment>)
-        )})
+        {systemState.navPages?.filter(p => !p.isExternal && p.isVisible).map(p => (
+          currentHash === '#subpage-' + p.id && <React.Fragment key={p.id}><DynamicSubPage page={p} lang={lang} /></React.Fragment>
+        ))}
         </div>
+      )}
+    </div>
+  </div>
 
 
       <footer className="mt-auto border-t border-white/10 shrink-0 text-center text-xs text-slate-400 bg-black/60 backdrop-blur-xl relative z-40">
