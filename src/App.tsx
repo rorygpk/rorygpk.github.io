@@ -339,10 +339,10 @@ function GoogleMapsWrapper() {
   const [streetViewData, setStreetViewData] = React.useState<{ address: string; lat: number; lng: number; description: string } | null>(null);
 
   const nodes = [
-     { id: "Foshan", name: "rorygpkos virtual Core Hub", lat: 23.0215, lng: 113.1214, desc: "Global Secure Dispatch Terminal (Foshan)" },
-     { id: "Shenzhen", name: "Shenzhen Port Relay", lat: 22.5431, lng: 114.0579, desc: "Coastal Secure Gateway (Shenzhen)" },
-     { id: "Guangzhou", name: "Guangzhou HQ Gateway", lat: 23.1291, lng: 113.2644, desc: "Provincial Transit Node (Guangzhou)" },
-     { id: "HongKong", name: "Hong Kong Global Gate", lat: 22.3193, lng: 114.1694, desc: "International Relay Core (Hong Kong)" },
+    { id: "Foshan", name: "rorygpkos virtual Core Hub", lat: 23.0215, lng: 113.1214, desc: "Global Secure Dispatch Terminal (Foshan)" },
+    { id: "Shenzhen", name: "Shenzhen Port Relay", lat: 22.5431, lng: 114.0579, desc: "Coastal Secure Gateway (Shenzhen)" },
+    { id: "Guangzhou", name: "Guangzhou HQ Gateway", lat: 23.1291, lng: 113.2644, desc: "Provincial Transit Node (Guangzhou)" },
+    { id: "HongKong", name: "Hong Kong Global Gate", lat: 22.3193, lng: 114.1694, desc: "International Relay Core (Hong Kong)" },
     { id: "NewYork", name: "New York Hub", lat: 40.7128, lng: -74.0060, desc: "US Atlantic Secure Terminal" },
     { id: "London", name: "London Node", lat: 51.5074, lng: -0.1278, desc: "Europe Transit Portal" },
     { id: "Tokyo", name: "Tokyo Terminal", lat: 35.6762, lng: 139.6503, desc: "Asia Pacific Secure Gateway" }
@@ -415,7 +415,7 @@ function GoogleMapsWrapper() {
         lng: node.lng,
         name: node.name,
         zoom: 13
-      }, '*')
+      }, '*');
     }
   };
 
@@ -449,7 +449,7 @@ function GoogleMapsWrapper() {
       iframeRef.current.contentWindow.postMessage({
         type: 'searchAddress',
         query: searchQuery.trim()
-      }, '*')
+      }, '*');
     }
   };
 
@@ -463,23 +463,23 @@ function GoogleMapsWrapper() {
         startQuery: routeStart.trim(),
         destQuery: routeDest.trim(),
         mode: travelMode
-      }, '*')
+      }, '*');
     }
   };
 
   const handleToggleSimulation = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       if (simRunning) {
-        iframeRef.current.contentWindow.postMessage({ type:  'stopSimulation' }, '*')
+        iframeRef.current.contentWindow.postMessage({ type: 'stopSimulation' }, '*');
       } else {
-        iframeRef.current.contentWindow.postMessage({ type:  'startSimulation' }, '*')
+        iframeRef.current.contentWindow.postMessage({ type: 'startSimulation' }, '*');
       }
     }
   };
 
   const handleLocateMe = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage({ type:  'locateMe' }, '*')
+      iframeRef.current.contentWindow.postMessage({ type: 'locateMe' }, '*');
     }
   };
 
@@ -516,9 +516,9 @@ function GoogleMapsWrapper() {
           animation: markerPulse 1.5s infinite ease-out;
         }
         @keyframes markerPulse {
-          0%  transform: scale(0.9); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
-          70%  transform: scale(1); box-shadow: 0 0 0 12px rgba(6, 182, 212, 0); }
-          100%  transform: scale(0.9); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+          0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(6, 182, 212, 0); }
+          100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
         }
       </style>
     </head>
@@ -540,7 +540,7 @@ function GoogleMapsWrapper() {
         
         map.on('locationfound', function(e) {
           var radius = e.accuracy / 2;
-          L.marker(e.latlng}.addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
+          L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
           L.circle(e.latlng, radius).addTo(map);
           
           window.parent.postMessage({
@@ -550,15 +550,15 @@ function GoogleMapsWrapper() {
               lng: e.latlng.lng,
               address: "Current System Location [Lat: " + e.latlng.lat.toFixed(4) + ", Lng: " + e.latlng.lng.toFixed(4) + "]"
             }
-          }, '*')
- });
+          }, '*');
+        });
 
         map.on('locationerror', function(e) {
           window.parent.postMessage({
             type: "locationError",
             payload: { message: e.message }
-          }, '*')
- });
+          }, '*');
+        });
         
         // Initial Layer is Road for better clarity if requested
         tileLayers.m.addTo(map);
@@ -592,15 +592,15 @@ function GoogleMapsWrapper() {
             weight: 2,
             opacity: 1,
             fillOpacity: 0.9
-          }}.addTo(map).bindPopup("<b>📍 GPKOS Network Node: " + key + "</b><br/><span style='font-size:11px;color:#94a3b8;'>Lat/Lng: " + relays[key][0] + ", " + relays[key][1] + "</span>");
- });
+          }).addTo(map).bindPopup("<b>📍 GPKOS Network Node: " + key + "</b><br/><span style='font-size:11px;color:#94a3b8;'>Lat/Lng: " + relays[key][0] + ", " + relays[key][1] + "</span>");
+        });
 
         // Click listeners for Street View extraction
         map.on('dblclick', function(e) {
           var lat = e.latlng.lat;
           var lng = e.latlng.lng;
           
-          L.circleMarker([lat, lng],  radius: 6, fillColor: "#ec4899", color: "#fff", weight: 2 )).addTo(map}
+          L.circleMarker([lat, lng], { radius: 6, fillColor: "#ec4899", color: "#fff", weight: 2 }).addTo(map)
             .bindPopup("<strong style='color:#ec4899;'>📍 Selected Survey Node</strong><br/><span style='font-size:10px;'>Extracted coordinates coordinates ready.</span>")
             .openPopup();
             
@@ -612,7 +612,7 @@ function GoogleMapsWrapper() {
             "Coastal Ring Road Sec. 8B",
             "Waterfront Terminal Logistics zone"
           ];
-          var randomAdd = mockAddresses[Math.floor(Math.random(} * mockAddresses.length)] + " [Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4) + "]";
+          var randomAdd = mockAddresses[Math.floor(Math.random() * mockAddresses.length)] + " [Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4) + "]";
           
           window.parent.postMessage({
             type: "mapClickGeo",
@@ -622,8 +622,8 @@ function GoogleMapsWrapper() {
               address: randomAdd,
               description: "High-precision Google Satellite mapping scan completed. Coordinate altitude is roughly " + Math.round(5 + Math.random() * 45) + " meters with 3D terrain shading."
             }
-          }, '*')
- });
+          }, '*');
+        });
 
         // Communication handlers
         window.addEventListener('message', function(event) {
@@ -634,7 +634,7 @@ function GoogleMapsWrapper() {
           if (data.type === 'setLayer') {
             Object.keys(tileLayers).forEach(function(k) {
               map.removeLayer(tileLayers[k]);
- });
+            });
             if (tileLayers[data.layer]) {
               tileLayers[data.layer].addTo(map);
             }
@@ -642,14 +642,14 @@ function GoogleMapsWrapper() {
 
           // Flying to locations
           else if (data.type === 'flyTo') {
-            map.flyTo([data.lat, data.lng], data.zoom || 11,  animate: true, duration: 1.5 });
+            map.flyTo([data.lat, data.lng], data.zoom || 11, { animate: true, duration: 1.5 });
             var m = L.circleMarker([data.lat, data.lng], {
               radius: 12,
               fillColor: '#ef4444',
               color: '#fff',
               weight: 2,
               fillOpacity: 0.5
-            }}.addTo(map);
+            }).addTo(map);
             m.bindPopup("<b>🎯 Current Focus Link</b><br/>" + data.name).openPopup();
             searchMarkers.push(m);
           }
@@ -660,7 +660,7 @@ function GoogleMapsWrapper() {
             var url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(q);
             
             fetch(url)
-              .then(function(res}  return res.json(); )}
+              .then(function(res) { return res.json(); })
               .then(function(results) {
                 if (results && results.length > 0) {
                   var item = results[0];
@@ -670,14 +670,14 @@ function GoogleMapsWrapper() {
                   map.flyTo([lat, lng], 13);
                   
                   // Clear old search markers
-                  searchMarkers.forEach(function(sm}  map.removeLayer(sm); });
+                  searchMarkers.forEach(function(sm) { map.removeLayer(sm); });
                   searchMarkers = [];
                   
                   var smark = L.marker([lat, lng]).addTo(map);
-                  smark.bindPopup("<b style='color:#06b6d4;'>🔎 Found:</b> " + item.display_name + "<br/><span style='font-size:10px;color:#94a3b8;'>Coordinates: " + lat.toFixed(5} + ", " + lng.toFixed(5) + "</span>").openPopup();
+                  smark.bindPopup("<b style='color:#06b6d4;'>🔎 Found:</b> " + item.display_name + "<br/><span style='font-size:10px;color:#94a3b8;'>Coordinates: " + lat.toFixed(5) + ", " + lng.toFixed(5) + "</span>").openPopup();
                   searchMarkers.push(smark);
                   
-                  window.parent.postMessage({ type:  "searchResult", payload: {  success: true, lat: lat, lng: lng ) }, '*')
+                  window.parent.postMessage({ type: "searchResult", payload: { success: true, lat: lat, lng: lng } }, '*');
                 } else {
                   // Fallback for major coordinates if Nominatim search fails or throttles user ip
                   var term = q.toLowerCase();
@@ -686,7 +686,7 @@ function GoogleMapsWrapper() {
                     if (term.includes(relayName.toLowerCase())) {
                       fallbackFound = { name: relayName, lat: relays[relayName][0], lng: relays[relayName][1] };
                     }
- });
+                  });
                   
                   if (!fallbackFound) {
                     // Popular global fallback points
@@ -698,9 +698,9 @@ function GoogleMapsWrapper() {
                     };
                     Object.keys(extraPoints).forEach(function(pt) {
                       if (term.includes(pt)) {
-                        fallbackFound =  name: pt.toUpperCase(), lat: extraPoints[pt][0], lng: extraPoints[pt][1] };
+                        fallbackFound = { name: pt.toUpperCase(), lat: extraPoints[pt][0], lng: extraPoints[pt][1] };
                       }
- });
+                    });
                   }
 
                   if (fallbackFound) {
@@ -708,15 +708,15 @@ function GoogleMapsWrapper() {
                     var smark = L.marker([fallbackFound.lat, fallbackFound.lng]).addTo(map);
                     smark.bindPopup("<b>🔎 Found offline:</b> " + fallbackFound.name + "<br/><span style='font-size:10px;'>Pre-geocoded secure gateway cache.</span>").openPopup();
                     searchMarkers.push(smark);
-                    window.parent.postMessage({ type:  "searchResult", payload: {  success: true ) }, '*')
+                    window.parent.postMessage({ type: "searchResult", payload: { success: true } }, '*');
                   } else {
-                    window.parent.postMessage({ type:  "searchResult", payload: {  error: "No coordinates found." ) }, '*')
+                    window.parent.postMessage({ type: "searchResult", payload: { error: "No coordinates found." } }, '*');
                   }
                 }
-              }}
+              })
               .catch(function(err) {
-                window.parent.postMessage({ type: "searchResult", payload: { error: err.toString(} ) ), '*');
- });
+                window.parent.postMessage({ type: "searchResult", payload: { error: err.toString() } }, '*');
+              });
           }
 
           // Compute Routing (arbitrary departure & destination + chosen travel mode)
@@ -738,22 +738,22 @@ function GoogleMapsWrapper() {
               // query openstreetmap nominatim
               var url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(query);
               return fetch(url)
-                .then(function(res}  return res.json(); )}
+                .then(function(res) { return res.json(); })
                 .then(function(results) {
                   if (results && results.length > 0) {
                     return [parseFloat(results[0].lat), parseFloat(results[0].lon)];
                   }
                   return fallback;
-                }}
+                })
                 .catch(function() {
                   return fallback;
- });
+                });
             }
 
             Promise.all([
               geocodeAddress(startQuery, [23.0215, 113.1214]),
               geocodeAddress(destQuery, [22.5431, 114.0579])
-            ]}.then(function(coords) {
+            ]).then(function(coords) {
               var startCoords = coords[0];
               var destCoords = coords[1];
               
@@ -767,7 +767,7 @@ function GoogleMapsWrapper() {
                 "?overview=full&steps=true&geometries=geojson";
                 
               fetch(url)
-                .then(function(res}  return res.json(); )}
+                .then(function(res) { return res.json(); })
                 .then(function(routeData) {
                   if (routeData.code === "Ok" && routeData.routes && routeData.routes.length > 0) {
                     var route = routeData.routes[0];
@@ -775,24 +775,24 @@ function GoogleMapsWrapper() {
                     
                     if (activeRoutePolyline) map.removeLayer(activeRoutePolyline);
                     
-                    var polylinePoints = geometry.coordinates.map(function(c)  return [c[1], c[0]]; });
+                    var polylinePoints = geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
                     
                     activeRoutePolyline = L.polyline(polylinePoints, {
                       color: mode === "walking" ? "#10b981" : mode === "cycling" ? "#f59e0b" : "#06b6d4",
                       weight: 5,
                       opacity: 0.85,
                       dashArray: simInterval ? "10, 10" : null
-                    }}.addTo(map);
+                    }).addTo(map);
                     
-                    map.fitBounds(activeRoutePolyline.getBounds(),  padding: [40, 40] });
+                    map.fitBounds(activeRoutePolyline.getBounds(), { padding: [40, 40] });
                     
                     var steps = route.legs[0].steps || [];
                     var inst = steps.map(function(st) {
                       var man = st.maneuver || {};
                       var type = man.type || "drive";
                       var modifier = man.modifier ? " " + man.modifier : "";
-                      return (type + modifier}.toUpperCase(} + " onto " + (st.name || "Route segment") + " (for " + Math.round(st.distance) + "m)";
- });
+                      return (type + modifier).toUpperCase() + " onto " + (st.name || "Route segment") + " (for " + Math.round(st.distance) + "m)";
+                    });
                     if (inst.length === 0) {
                       inst = ["DEPART from " + startQuery, "MOVE along designated path via " + mode + " mode", "ARRIVE at " + destQuery];
                     }
@@ -806,15 +806,15 @@ function GoogleMapsWrapper() {
                         distance: route.distance,
                         duration: route.duration
                       }
-                    }, '*')
+                    }, '*');
                   } else {
                     generateSyntheticRoute(startCoords, destCoords, startQuery, destQuery, mode);
                   }
-                }}
+                })
                 .catch(function() {
                   generateSyntheticRoute(startCoords, destCoords, startQuery, destQuery, mode);
- });
- });
+                });
+            });
 
             function generateSyntheticRoute(sc, dc, sn, dn, m) {
               if (activeRoutePolyline) map.removeLayer(activeRoutePolyline);
@@ -826,14 +826,14 @@ function GoogleMapsWrapper() {
                 points.push([
                   sc[0] + (dc[0] - sc[0]) * ratio,
                   sc[1] + (dc[1] - sc[1]) * ratio
- ]);
+                ]);
               }
               
               activeRoutePolyline = L.polyline(points, { 
                 color: m === "walking" ? "#10b981" : m === "cycling" ? "#f59e0b" : "#ec4899", 
                 weight: 5, 
                 opacity: 0.8 
-              }}.addTo(map);
+              }).addTo(map);
               map.fitBounds(activeRoutePolyline.getBounds());
               simCoordinatesList = points;
               
@@ -849,7 +849,7 @@ function GoogleMapsWrapper() {
                   distance: 98000,
                   duration: m === "walking" ? 64000 : m === "cycling" ? 18000 : 4200
                 }
-              }, '*')
+              }, '*');
             }
           }
 
@@ -879,10 +879,10 @@ function GoogleMapsWrapper() {
               className: "custom-pulsing-marker-wrapper",
               html: "<div class='custom-pulsing-marker'></div>",
               iconSize: [20, 20]
- });
+            });
             
-            simVehicleMarker = L.marker(simCoordinatesList[0],  icon: myIcon )).addTo(map};
-            window.parent.postMessage({ type:  'simStarted' ), '*'};
+            simVehicleMarker = L.marker(simCoordinatesList[0], { icon: myIcon }).addTo(map);
+            window.parent.postMessage({ type: 'simStarted' }, '*');
             
             var totalDistance = simCoordinatesList.length;
             
@@ -890,7 +890,7 @@ function GoogleMapsWrapper() {
               if (simCurrentIndex >= simCoordinatesList.length) {
                 clearInterval(simInterval);
                 simVehicleMarker.bindPopup("<b>🎉 Dispatch Arrived!</b>").openPopup();
-                window.parent.postMessage({ type:  'simStopped' ), '*'};
+                window.parent.postMessage({ type: 'simStopped' }, '*');
                 return;
               }
               
@@ -913,10 +913,10 @@ function GoogleMapsWrapper() {
                   timeLeft: remainingSec,
                   status: simCurrentIndex === 0 ? "Dispatch Launching" : simCurrentIndex > totalDistance - 3 ? "Arriving at Portal" : "In-Transit SSL Link"
                 }
-              }, '*')
+              }, '*');
               
               simCurrentIndex++;
-            }, 600};
+            }, 600);
           }
 
           else if (data.type === 'stopSimulation') {
@@ -924,9 +924,9 @@ function GoogleMapsWrapper() {
             if (simVehicleMarker) map.removeLayer(simVehicleMarker);
             simInterval = null;
             simVehicleMarker = null;
-            window.parent.postMessage({ type:  'simStopped' ), '*'};
+            window.parent.postMessage({ type: 'simStopped' }, '*');
           }
- });
+        });
       </script>
     </body>
     </html>
@@ -1032,7 +1032,7 @@ function GoogleMapsWrapper() {
             <div>
               <label className="text-[9px] text-slate-500 uppercase font-bold block mb-1">Travel Mode (出行方式)</label>
               <div className="grid grid-cols-3 gap-1">
-                { (["driving", "walking", "cycling"] as const).map(mode => (
+                {(["driving", "walking", "cycling"] as const).map(mode => (
                   <button
                     key={mode}
                     type="button"
@@ -1061,11 +1061,11 @@ function GoogleMapsWrapper() {
                 <span>Guidance List</span>
                 <span className="text-cyan-400">{routeMetrics?.distance}</span>
               </div>
-              { routeInstructions.map((step, idx) => (
+              {routeInstructions.map((step, idx) => (
                 <div key={idx} className="py-1 font-mono text-[9px] text-slate-400 leading-snug">
                   {idx + 1}. {step}
                 </div>
-              )) }
+              ))}
             </div>
           )}
         </div>
@@ -1191,7 +1191,7 @@ function GoogleMapsWrapper() {
       </div>
     </div>
   );
-};
+}
 
 export default function App() {
   const [isSystemVerified, setIsSystemVerified] = useState(false);
@@ -1219,7 +1219,7 @@ export default function App() {
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<GoogleCalendarEvent[]>([]);
   const [googleYoutubeActivities, setGoogleYoutubeActivities] = useState<GoogleYouTubeActivity[]>([]);
   const [googleContacts, setGoogleContacts] = useState<GoogleContact[]>([]);
-  const [loadingGoogleData, setLoadingGoogleData] = useState<{[key: string]: boolean}>()};
+  const [loadingGoogleData, setLoadingGoogleData] = useState<{[key: string]: boolean}>({});
 
   // Global Google Provider Auth State
   const [googleToken, setGoogleToken] = useState<string | null>(() => {
@@ -1393,8 +1393,8 @@ export default function App() {
     ],
     searchLibraries: [],
     gpkosFileSystem: [
-       { id: "root", name: "root", path: "/", type: "directory", size: 0, mimeType: "inode/directory", owner: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-       { id: "apps", name: "apps", path: "/apps", type: "directory", size: 0, mimeType: "inode/directory", owner: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+      { id: "root", name: "root", path: "/", type: "directory", size: 0, mimeType: "inode/directory", owner: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+      { id: "apps", name: "apps", path: "/apps", type: "directory", size: 0, mimeType: "inode/directory", owner: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
     ],
     settings: { knowledgeBase: [] }
   });
@@ -1424,7 +1424,7 @@ export default function App() {
   // Client Support Conversation
   const [supportMessage, setSupportMessage] = useState("");
   const [supportChat, setSupportChat] = useState<{ sender: "user" | "ai" | "staff"; text: string; id: string }[]>([
-     { sender: "ai", text: "Welcome to rorygpkos virtual helper. How can I assist you with your simulator or terminal credentials today? (System Validation Token: rorygpkos virtual)", id: "init-ch" }
+    { sender: "ai", text: "Welcome to rorygpkos virtual helper. How can I assist you with your simulator or terminal credentials today? (System Validation Token: rorygpkos virtual)", id: "init-ch" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -1515,7 +1515,7 @@ export default function App() {
   // Rory GPKOS state
   const [ideLanguage, setIdeLanguage] = useState<string>("cpp");
   const [ideCode, setIdeCode] = useState<string>(
-    `#include <iostream>\n#include <vector>\n\nint main() \n    std::cout << "RoryGpkOS Virtual Kernel Initialized." << std::endl;\n    std::cout << "C++ Compiler active. Accessing cloud files..." << std::endl;\n    return 0;\n}`
+    `#include <iostream>\n#include <vector>\n\nint main() {\n    std::cout << "RoryGpkOS Virtual Kernel Initialized." << std::endl;\n    std::cout << "C++ Compiler active. Accessing cloud files..." << std::endl;\n    return 0;\n}`
   );
   const [ideTerminalInput, setIdeTerminalInput] = useState("");
   const [ideLogs, setIdeLogs] = useState<string>(
@@ -1807,7 +1807,7 @@ export default function App() {
     if (!currentUser) return;
     try {
       let resp;
-      const targetPath = `/api/emails?username=${encodeURIComponent(currentUser.emailUsername)}}}&domain=${encodeURIComponent(currentUser.emailDomain)}`;
+      const targetPath = `/api/emails?username=${encodeURIComponent(currentUser.emailUsername)}&domain=${encodeURIComponent(currentUser.emailDomain)}`;
       try {
         const url = getApiBase() + targetPath;
         resp = await fetch(url);
@@ -2354,7 +2354,7 @@ export default function App() {
   };
 
   const [videoComments, setVideoComments] = useState<{user: string, text: string, date: string}[]>([
-     { user: "周锦淇 (Admin)", text: "这个飞航坐标与 Docker 沙箱容器编译演示视频讲得太清晰了！", date: "刚刚" },
+    { user: "周锦淇 (Admin)", text: "这个飞航坐标与 Docker 沙箱容器编译演示视频讲得太清晰了！", date: "刚刚" },
     { user: "Rory_Operator", text: "多速流转播放控制极其流畅，终于实现全功能视频流服务了。", date: "5分钟前" }
   ]);
   const [videoCommentInput, setVideoCommentInput] = useState("");
@@ -2391,7 +2391,7 @@ export default function App() {
     region: "Hong Kong 🇭🇰",
     os: "Ubuntu Server 24.04 LTS",
     spec: "2 vCPU / 4GB RAM"
- });
+  });
   const [isVpsDeploying, setIsVpsDeploying] = useState(false);
   const [vpsDeployLogs, setVpsDeployLogs] = useState<string[]>([]);
   const [gpkosEncryptionActive, setGpkosEncryptionActive] = useState(true);
@@ -2598,7 +2598,7 @@ export default function App() {
             document.getElementById('second').style.transform = 'rotate(' + sDeg + 'deg)';
 
             const pad = (v) => String(v).padStart(2, '0');
-            document.getElementById('digital'}.innerText = pad(h) + ':' + pad(m) + ':' + pad(s);
+            document.getElementById('digital').innerText = pad(h) + ':' + pad(m) + ':' + pad(s);
         }
         setInterval(updateClock, 1000);
         updateClock();
@@ -2619,18 +2619,6 @@ export default function App() {
   const [decryptedMessageId, setDecryptedMessageId] = useState<string | null>(null);
   const [decryptedMessageText, setDecryptedMessageText] = useState<string>("");
   const [sendingCrypto, setSendingCrypto] = useState(false);
-  const [starredIds, setStarredIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("gpkos_gmail_starred");
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) { return []; }
-  });
-  const [deletedIds, setDeletedIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("gpkos_gmail_deleted");
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) { return []; }
-  });
   
   const toggleMaximizeW = (winId: string) => {
     setOpenedWindows(prev => prev.map(w => w.id === winId ? { ...w, isMaximized: !w.isMaximized } : w));
@@ -2653,13 +2641,13 @@ export default function App() {
         termId = 'win-' + Math.random().toString(36).substr(2, 9);
         newWindows.push({
           id: termId, appId: 'terminal', title: 'Runtime Output', x: 200, y: 400, width: 700, height: 300, zIndex: 100, isMinimized: false, isMaximized: false
- });
+        });
       }
       if (!logsWin) {
         logsId = 'win-' + Math.random().toString(36).substr(2, 9);
         newWindows.push({
           id: logsId, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false
- });
+        });
       }
 
       setOpenedWindows(newWindows);
@@ -2922,7 +2910,7 @@ export default function App() {
       await fetch(getApiBase() + "/api/admin/save-settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ authorizedUsers: updated })
+        body: JSON.stringify({ aiAuthorizedUsers: updated })
       });
       alert(`Handshake database updated. "${emailUsername}" GFW proxy status swapped successfully.`);
     } catch(e) {
@@ -3182,7 +3170,7 @@ export default function App() {
       setRemoteChatMessages(prev => [...prev, {
          sender: "System",
          text: "🔗 高清多人协作与桌面分享通道已开启 - 等待远端技术人员接入...",
-         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second:'2-digit' })
+         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})
       }]);
 
       stream.getVideoTracks()[0].onended = () => {
@@ -3193,7 +3181,7 @@ export default function App() {
          setRemoteChatMessages(prev => [...prev, {
            sender: "System",
            text: "⭕ 桌面协同会话已结束。",
-           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second:'2-digit' })
+           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})
          }]);
       };
     } catch (err: any) {
@@ -3202,7 +3190,7 @@ export default function App() {
       setRemoteChatMessages(prev => [...prev, {
          sender: "System",
          text: "❌ 桌面分享启动失败: 环境不支持或已被安全拦截",
-         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second:'2-digit' })
+         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})
       }]);
     }
   };
@@ -3213,7 +3201,7 @@ export default function App() {
     setRemoteChatMessages(prev => [...prev, {
       sender: currentUser?.fullName || "Host",
       text: remoteChatInput,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })
+      time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
     }]);
     
     // Simulate remote responder
@@ -3221,7 +3209,7 @@ export default function App() {
       setRemoteChatMessages(prev => [...prev, {
          sender: "技术支持 [远端协作中]",
          text: "系统已识别。请放心，您本机操作者拥有最高鼠标主权优先防线（OS底层拒绝外部真光标拦截），当前屏幕仅做共享与图画标注协同。",
-         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })
+         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
       }]);
     }, 2000);
     setRemoteChatInput("");
@@ -3317,7 +3305,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                RoryGpk&apos;s website <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
+                RoryGpk's website <span className="hidden sm:inline-block text-xs bg-white/20 text-cyan-200 px-2 py-0.5 rounded-full">{t("Mail & compiler Console")}</span>
               </h1>
               <p className="text-xs text-slate-400 hidden sm:block">{t("Owner Terminal Desk • Administrator: 周锦淇 (marvis_zhou2014)")}</p>
             </div>
@@ -3387,7 +3375,7 @@ export default function App() {
                  <div className="flex flex-col gap-2">
                    <a href="#home" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#home" ? "text-cyan-400" : "text-slate-300 hover:text-cyan-300"}`}>{t("#home")}</a>
                    <a href="#work" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#work" ? "text-blue-400" : "text-slate-300 hover:text-blue-300"}`}>{t("#work")}</a>
-{ (currentUser?.role === 'admin' || (currentUser && systemState.outerWebAuthorizedUsers?.includes(currentUser.emailUsername))) && (
+                   {(currentUser?.role === 'admin' || (currentUser && systemState.outerWebAuthorizedUsers?.includes(currentUser.emailUsername))) && (
                      <a href="#rory-gpkos" className={`text-sm font-semibold transition-all duration-200 hover:ml-1 ${currentHash === "#rory-gpkos" ? "text-emerald-400" : "text-slate-300 hover:text-emerald-300"}`}>{t("#rory-gpkos IDE")}</a>
                    )}
                  </div>
@@ -3407,15 +3395,15 @@ export default function App() {
                  <div className="flex flex-col gap-2">
                    <a href="#remote" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#remote" ? "text-indigo-400" : "text-slate-300 hover:text-indigo-300"}`}>{t("Remote Screen")}</a>
                    <a href="#video" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#video" ? "text-rose-400" : "text-slate-300 hover:text-rose-300"}`}>{t("Video Stream")}</a>
-{ (currentUser?.role === "admin" || currentUser?.role === "superadmin") && (
+                   {(currentUser?.role === "admin" || currentUser?.role === "superadmin") && (
                      <a href="#admin" className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === "#admin" ? "text-fuchsia-400" : "text-slate-300 hover:text-fuchsia-300"}`}>{lang === 'en' ? 'Administration' : '全系统管理'}</a>
                    )}
                    {/* Custom User Pages */}
-{ systemState.navPages?.filter(p => p.isVisible).map(p => (
+                   {systemState.navPages?.filter(p => p.isVisible).map(p => (
                       <a key={p.id} href={p.isExternal ? p.externalLink : `#subpage-${p.id}`} target={p.isExternal ? "_blank" : "_self"} className={`text-sm font-semibold transition-all hover:ml-1 ${currentHash === `#subpage-${p.id}` ? "text-sky-400" : "text-slate-300 hover:text-sky-300"}`}>
                         {lang === 'en' ? p.titleEn : p.titleZh}
                       </a>
-                   )) }
+                   ))}
                  </div>
                </div>
             </div>
@@ -3476,7 +3464,7 @@ export default function App() {
                   <div className="w-6 h-6 rounded-full bg-cyan-600 flex items-center justify-center font-bold">{currentUser.fullName.charAt(0)}</div>
                 )}
                 <span className="font-semibold">{currentUser.fullName}</span>
-                <span className="text-slate-400">{currentUser.emailUsername}@{systemState.activeDomain}</span>
+                <span className="text-slate-400">({currentUser.emailUsername}@{systemState.activeDomain})</span>
                 {currentUser.role === "admin" && (
                   <span className="bg-red-500 text-white font-extrabold px-1.5 py-0.2 rounded text-[10px]">ADMIN</span>
                 )}
@@ -3675,7 +3663,7 @@ export default function App() {
                       )}
                       <div>
                         <div className="text-white text-sm font-semibold">{currentUser.fullName}</div>
-                        <div className="text-slate-400 text-xs">{currentUser.emailUsername}@{systemState.activeDomain}</div>
+                        <div className="text-slate-400 text-xs">({currentUser.emailUsername}@{systemState.activeDomain})</div>
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2">
@@ -3708,8 +3696,8 @@ export default function App() {
             </div>
           )}
 
-          </div>
-</header>
+        </div>
+      </header>
 
       {/* Primary Layout Frame block */}
       <div className="flex-grow max-w-7xl w-full mx-auto flex flex-col lg:flex-row items-stretch gap-6 p-4 sm:p-6 lg:p-8">
@@ -3779,7 +3767,7 @@ export default function App() {
               <Compass className="h-4 w-4 text-cyan-400" />
               Custom Tools:
             </span>
-{ systemState.customButtons.map((btn) => {
+            {systemState.customButtons.map((btn) => {
               // Rule checking
               if (btn.banned) return null;
               if (btn.visibility === "logined" && !currentUser) return null;
@@ -3821,7 +3809,7 @@ export default function App() {
                 <div id="guest-access-panel" className="bg-slate-950/80 backdrop-blur-md rounded-3xl p-6 border border-cyan-500/20 shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500"></div>
                   
-                  { /*  贴心问候模块 (Warm welcome message)  */ }
+                  {/* 贴心问候模块 (Warm welcome message) */}
                   <div className="mb-6 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 p-5 rounded-2xl shadow-inner">
                      <div className="font-bold text-lg text-indigo-300 mb-2 flex items-center gap-2">
                        <Sparkles className="w-5 h-5 text-amber-400" />
@@ -4066,7 +4054,7 @@ export default function App() {
                     </div>
                     {/* Category selectors */}
                     <div className="flex gap-1.5">
-{ ["all", "work", "personal", "social"].map((cat) => (
+                      {["all", "work", "personal", "social"].map((cat) => (
                         <button
                           key={cat}
                           onClick={() => setOutlookCategory(cat)}
@@ -4083,7 +4071,7 @@ export default function App() {
                   {/* Outlook Client Tri-Pane Core */}
                   <div className={`flex flex-grow overflow-hidden ${outlookTheme === "light" ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100"}`}>
                     
-                    { /*  OWA Directory Pane (Left)  */ }
+                    {/* OWA Directory Pane (Left) */}
                     <aside className="w-48 bg-slate-900 border-r border-white/10 shrink-0 p-3 flex flex-col justify-between text-xs text-slate-300 select-none">
                       <div className="space-y-4">
                         <div>
@@ -4160,8 +4148,8 @@ export default function App() {
 
                     {/* OWA Email list Pane (Middle) */}
                     {outlookFolder === "templates_signatures" ? (
+                      /* CUSTOM TEMPLATES & SIGNATURES DASHBOARD VIEW */
                       <div className="flex-grow p-6 overflow-y-auto space-y-6 text-left select-text bg-slate-900/10">
-                                 {/* CUSTOM TEMPLATES & SIGNATURES DASHBOARD VIEW */}
                         <div className="border-b border-white/10 pb-4 mb-4">
                           <h2 className="text-lg font-bold text-cyan-300">Templates & Personalized Signatures Vault</h2>
                           <p className="text-xs text-slate-400">Design custom rich text email templates and quick-insert email signatures with real-time browser preview.</p>
@@ -4172,7 +4160,7 @@ export default function App() {
                           <div className="bg-slate-950/80 border border-white/10 p-5 rounded-2xl space-y-4">
                             <div className="flex justify-between items-center">
                               <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                                <FileText className="h-4 w-4" /> Custom Email Templates {templates.length}
+                                <FileText className="h-4 w-4" /> Custom Email Templates ({templates.length})
                               </h3>
                               <button
                                 onClick={() => setEditingTemplate({
@@ -4191,7 +4179,7 @@ export default function App() {
                             {editingTemplate ? (
                               <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 space-y-3">
                                 <h4 className="text-xs font-bold text-white">
-                                  { templates.some(t => t.id === editingTemplate.id) ? "Modify Template Core" : "Draft New Template Core" }
+                                  {templates.some(t => t.id === editingTemplate.id) ? "Modify Template Core" : "Draft New Template Core"}
                                 </h4>
                                 <div className="space-y-2">
                                   <div>
@@ -4271,7 +4259,7 @@ export default function App() {
                           <div className="bg-slate-950/80 border border-white/10 p-5 rounded-2xl space-y-4">
                             <div className="flex justify-between items-center">
                               <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                                <UserCheck className="h-4 w-4" /> Personalized Signatures {signatures.length}
+                                <UserCheck className="h-4 w-4" /> Personalized Signatures ({signatures.length})
                               </h3>
                               <button
                                 onClick={() => setEditingSignature({
@@ -4290,7 +4278,7 @@ export default function App() {
                             {editingSignature ? (
                               <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 space-y-3">
                                 <h4 className="text-xs font-bold text-white">
-                                  { signatures.some(s => s.id === editingSignature.id) ? "Modify Signature Core" : "Draft New Signature Core" }
+                                  {signatures.some(s => s.id === editingSignature.id) ? "Modify Signature Core" : "Draft New Signature Core"}
                                 </h4>
                                 <div className="space-y-2">
                                   <div>
@@ -4481,7 +4469,7 @@ export default function App() {
                                 <div className="flex items-center justify-between text-xs text-slate-400">
                                   <div>
                                     Sender: <strong className="text-slate-300">{selectedEmail.senderName}</strong>
-                                    <span className="text-[10px] ml-1">{selectedEmail.senderUsername}@{selectedEmail.senderDomain}</span>
+                                    <span className="text-[10px] ml-1">({selectedEmail.senderUsername}@{selectedEmail.senderDomain})</span>
                                   </div>
                                   <div>
                                     {new Date(selectedEmail.timestamp).toLocaleString()}
@@ -4548,7 +4536,7 @@ export default function App() {
                 </div>
 
                 <div className="bg-slate-900 border border-white/5 rounded-2xl p-3 h-48 overflow-y-auto space-y-3 mb-3 text-xs">
-                  { systemState.chatMessages && systemState.chatMessages.map((msg) => (
+                  {systemState.chatMessages && systemState.chatMessages.map((msg) => (
                     <div key={msg.id} className="pb-1">
                       <strong className="text-cyan-400">{msg.sender}:</strong>
                       <span className="text-slate-200 ml-1">{msg.content}</span>
@@ -4885,6 +4873,7 @@ export default function App() {
 
             </div>
           </div>
+        </div>
         )}
 
         {/* SECTION 2: WORK SPACE BRANCH screen Layout (Vibrant Soft Blue) */}
@@ -5283,15 +5272,15 @@ export default function App() {
                               if (res.ok || res.status === 200) {
                                 setTestStatus("success");
                                 const end = Date.now();
-                                  alert(`✓ Connection confirmed! Ping metrics: ${end - start}ms. Active state synchronization matches.`);
+                                alert(`✓ Connection confirmed! Ping metrics: ${end - start}ms. Active state synchronization matches.`);
                                 localStorage.setItem("gpkos_custom_backend_url", customApiUrl.trim());
                               } else {
                                 setTestStatus("error");
-                                  alert(`✗ API server returned code ${res.status}. Please check CORS settings.`);
+                                alert(`✗ API server returned code ${res.status}. Please check CORS settings.`);
                               }
                             } catch (e: any) {
                               setTestStatus("error");
-                                  alert(`✗ Connection refused. Check if server is running and CORS is enabled. Error: ${e.message}`);
+                              alert(`✗ Connection refused. Check if server is running and CORS is enabled. Error: ${e.message}`);
                             }
                           }}
                           className="flex-grow bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-1.5 px-3 rounded-lg text-[10px] uppercase tracking-wide transition"
@@ -5345,7 +5334,7 @@ export default function App() {
                               btn.innerHTML = '资源打包中... 稍等<span class="animate-pulse">...</span>';
                               btn.disabled = true;
                               try {
-                                 const res = await fetch(`${getApiBase()}/api/download-source`);
+                                const res = await fetch(`${getApiBase()}/api/download-source`);
                                 if (!res.ok) throw new Error('Download Failed');
                                 const blob = await res.blob();
                                 const url = window.URL.createObjectURL(blob);
@@ -5565,7 +5554,7 @@ export default function App() {
                   {/* Mega Menu Panel */}
                   {gpkosActiveDropdown && (
                     <div 
-                      onClick={() => { e.stopPropagation(); }}
+                      onClick={(e) => { e.stopPropagation(); }}
                       className="absolute top-full left-0 w-full h-[50vh] bg-slate-900/95 border-b border-white/10 shadow-2xl backdrop-blur-3xl p-8 z-[100] animate-fade-in text-left overflow-y-auto cursor-default"
                     >
                       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-white">
@@ -5577,13 +5566,13 @@ export default function App() {
                             <li>
                               <button onClick={() => { 
                                 const id = 'win-' + Math.random().toString(36).substr(2, 9);
-                                setOpenedWindows(prev => [...prev,  {id, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false } ]);
+                                setOpenedWindows(prev => [...prev, { id, appId: 'ide-logs', title: 'Compiler Diagnostics', x: 850, y: 50, width: 400, height: 600, zIndex: 101, isMinimized: false, isMaximized: false }]);
                                 setFocusedWindowId(id);
                                 setGpkosActiveDropdown(null); 
                               }} className="hover:text-cyan-400 transition">📜 View Compiler Logs</button>
                             </li>
                             <li>
-                              <button onClick={() =>  {setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition flex items-center gap-2">
+                              <button onClick={() => { setGpkosEncryptionActive(!gpkosEncryptionActive); setGpkosActiveDropdown(null); }} className="hover:text-cyan-400 transition flex items-center gap-2">
                                 <span>🔒 Guard SSL Tunnel</span>
                                 <span className="text-[10px] bg-white/10 px-1 rounded">{gpkosEncryptionActive ? "ON" : "OFF"}</span>
                               </button>
@@ -5662,9 +5651,10 @@ export default function App() {
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       <Wifi className="h-3 w-3 text-emerald-400" /> Gateway: {gpkosSecureTunnelState ? "ON" : "OFF"}
                     </div>
-                    <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}</span>
+                    <span>{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                   </div>
                 </div>
+              </div>
 
                 {/* Desktop Workspace Area */}
                 <div ref={desktopRef} className="flex-grow relative overflow-hidden p-0">
@@ -5842,8 +5832,8 @@ export default function App() {
                          {/* Right Panel: Content Area */}
                          <div className="flex-1 bg-slate-950 flex flex-col overflow-hidden relative font-sans">
                             {vpsWizardOpen ? (
+                              /* Case 1: Deploy New VPS Wizard */
                               <div className="flex-1 p-5 overflow-y-auto flex flex-col justify-between">
-                                 {/* Case 1: Deploy New VPS Wizard */}
                                  <div>
                                     <h3 className="font-bold text-sm text-white tracking-wide mb-1 uppercase">Deploy Automated Virtual Host Machine</h3>
                                     <p className="text-[10px] text-slate-400 mb-4">Provision a full-fidelity sandbox container in seconds with a high-bandwidth terminal connection.</p>
@@ -5939,18 +5929,18 @@ export default function App() {
                                          
                                          // Step 1
                                          setTimeout(() => {
-                                            setVpsDeployLogs(prev => [...prev, `[ALLOC] Container assigned. Sandbox ID: gpkos-$Math.floor(Math.random()*9000+1000)}`]);
+                                            setVpsDeployLogs(prev => [...prev, `[ALLOC] Container assigned. Sandbox ID: gpkos-${Math.floor(Math.random()*9000+1000)}`]);
                                          }, 500);
 
                                          // Step 2
                                          setTimeout(() => {
-                                            setVpsDeployLogs(prev => [...prev, `[SETUP] Injecting operational files into $vpsForm.os)...` ]);
+                                            setVpsDeployLogs(prev => [...prev, `[SETUP] Injecting operational files into ${vpsForm.os}...`]);
                                          }, 1100);
 
                                          // Step 3
                                          setTimeout(() => {
-                                            const generatedIp = `103.45.$Math.floor(Math.random()*254+1}}.$Math.floor(Math.random()*254+1)}`;
-                                            setVpsDeployLogs(prev => [...prev, `[ATTACH] Network bindings mapped. Static Public IP: $generatedIp)` ]);
+                                            const generatedIp = `103.45.${Math.floor(Math.random()*254+1)}.${Math.floor(Math.random()*254+1)}`;
+                                            setVpsDeployLogs(prev => [...prev, `[ATTACH] Network bindings mapped. Static Public IP: ${generatedIp}`]);
                                             
                                             // Append Node to State
                                             const newNodeObj = {
@@ -5991,11 +5981,11 @@ export default function App() {
                                  </div>
                               </div>
                             ) : (
+                              /* Case 2: Machine Details / Interactive Active Remote Desktop Screen */
                               <div className="flex-1 flex flex-col overflow-hidden">
-                                 {/* Case 2: Machine Details / Interactive Active Remote Desktop Screen */}
                                  {!remoteSessionActive ? (
+                                    /* Connection Prompt Screen */
                                     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center font-sans">
-                                       {/* Connection Prompt Screen */}
                                        <MonitorUp className="w-12 h-12 text-blue-500 mb-3 animate-pulse opacity-60" />
                                        <h3 className="text-white font-bold text-sm uppercase tracking-wide mb-1">
                                           {selectedNodeId === 'loopback' ? 'Connect Local Screen Share' : 'Connection Standby: ' + remoteNodes.find(n => n.id === selectedNodeId)?.name}
@@ -6026,9 +6016,8 @@ export default function App() {
                                        </button>
                                     </div>
                                  ) : (
+                                    /* Active Session Desktop Screen */
                                     <div className="flex-1 flex flex-col overflow-hidden relative">
-                                    <div className="flex-1 flex flex-col overflow-hidden relative">
-                                       {/* Active Session Desktop Screen */}
                                        {/* Interactive Topbar of Active machine */}
                                        <div className="bg-slate-900 border-b border-white/5 px-3 py-1.5 flex items-center justify-between shrink-0">
                                           <div className="flex items-center gap-2">
@@ -6071,6 +6060,7 @@ export default function App() {
                                              </div>
                                           </div>
                                        ) : (
+                                          /* Virtual Linux Interactive Desktop Container */
                                           <div 
                                             className="flex-grow bg-[#0c0f17] relative flex flex-col p-3 overflow-hidden cursor-crosshair"
                                             onClick={(e) => {
@@ -6110,7 +6100,7 @@ export default function App() {
                                                      if (!cmd) return;
                                                      
                                                      // Echo Command
-                                                      setRemoteTerminalHistory(prev => [...prev, `[root@gpkos-host ~]# ${remoteTerminalCommand}` ]);
+                                                     setRemoteTerminalHistory(prev => [...prev, `[root@gpkos-host ~]# ${remoteTerminalCommand}`]);
                                                      
                                                      // Command Logic
                                                      if (cmd === 'help') {
@@ -6138,7 +6128,7 @@ export default function App() {
                                                            "     /     \\      OS: GPKOS Linux CentOS Stream 9",
                                                            "     \\_.._/       Kernel: 6.1.20-rorygpkos-virtual",
                                                            "     //  \\\\       Uptime: 2 days, 14 hours",
-                                                           "    (({ ...))      Shell: bash 5.1.16",
+                                                           "    ((    ))      Shell: bash 5.1.16",
                                                            "     \\\\  //       CPU: AMD EPYC 9654 (32 Cores) @ 2.4GHz",
                                                            "      `---`       Memory: 4.12 GB / 8.00 GB (51%)",
                                                            "                  Proxy Tunnel: GPKOS VPN Active Node"
@@ -6180,13 +6170,13 @@ export default function App() {
                                                         setRemoteTerminalHistory(prev => [
                                                            ...prev,
                                                            "--- GPKOS Node Proxy Tunnel Audit ---",
-                                                            `Local Interface Bindings: 127.0.0.1:4500 <-> ${remoteNodes.find(n => n.id === selectedNodeId)?.ip}:4500`,
+                                                           `Local Interface Bindings: 127.0.0.1:4500 <-> ${remoteNodes.find(n => n.id === selectedNodeId)?.ip}:4500`,
                                                            "Protocol: GPKOS WireGuard AES-256-GCM Handshake Secured",
                                                            "Bypass State: bypass_all_firewalls=true",
                                                            "Uptime: 2 hours, 14 minutes, 5 seconds"
                                                         ]);
                                                      } else {
-                                                         setRemoteTerminalHistory(prev => [...prev, `-bash: ${cmd}: command not found. Type 'help' to see valid commands.` ]);
+                                                        setRemoteTerminalHistory(prev => [...prev, `-bash: ${cmd}: command not found. Type 'help' to see valid commands.`]);
                                                      }
                                                      
                                                      setRemoteTerminalCommand("");
@@ -6204,18 +6194,17 @@ export default function App() {
                                                 </form>
                                              </div>
                                           </div>
-                                           )}
-                                        </div>
-                                     </div>
-                                  )
-                               )}
-                            </div>
+                                       )}
+                                    </div>
+                                 )}
+                              </div>
+                            )}
                          </div>
-                      </DraggableWindow>
-                   )}
+                      </div>                    </DraggableWindow>
+                  )}
 
                   {/* Compiler Logs Window */}
-                   {openedWindows.some(w => w.appId === 'ide-logs' && !w.isMinimized) && (
+                  {openedWindows.some(w => w.appId === 'ide-logs' && !w.isMinimized) && (
                     <DraggableWindow
                       window={openedWindows.find(w => w.appId === 'ide-logs')!}
                       isFocused={focusedWindowId === openedWindows.find(w => w.appId === 'ide-logs')?.id}
@@ -6242,7 +6231,7 @@ export default function App() {
                   )}
 
                   {/* Terminal Window Overlay */}
-                   {openedWindows.some(w => w.appId === 'terminal' && !w.isMinimized) && (
+                  {openedWindows.some(w => w.appId === 'terminal' && !w.isMinimized) && (
                     <DraggableWindow
                       window={openedWindows.find(w => w.appId === 'terminal')!}
                       isFocused={focusedWindowId === openedWindows.find(w => w.appId === 'terminal')?.id}
@@ -6285,44 +6274,46 @@ export default function App() {
                   )}
 
                   {/* DELETING START */}
-                  {gpkosActiveApp === 'maps-legacy-to-delete' && ((() => {
+                  {gpkosActiveApp === 'maps-legacy-to-delete' && (() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
 
-                      const handleProxySearchSubmit = async (e: React.FormEvent) => {
-                        e.preventDefault();
-                        if (!proxySearchQueryValue.trim()) return;
-                        setLoadingProxySearch(true);
-                        setActiveBypassUrl(null);
-                        try {
-                          const res = await fetch(`${getApiBase()}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
-                          const data = await res.json();
-                          setProxySearchResultsList(data.results || []);
-                        } catch (err) {
-                          console.error(err);
-                          alert("Secure search failed: firewall handshake error.");
-                        } finally {
-                          setLoadingProxySearch(false);
-                        }
-                      };
+                    // Proxy Search Function
+                    const handleProxySearchSubmit = async (e: React.FormEvent) => {
+                      e.preventDefault();
+                      if (!proxySearchQueryValue.trim()) return;
+                      setLoadingProxySearch(true);
+                      setActiveBypassUrl(null);
+                      try {
+                        const res = await fetch(`${getApiBase()}/api/search/proxy?q=${encodeURIComponent(proxySearchQueryValue)}`);
+                        const data = await res.json();
+                        setProxySearchResultsList(data.results || []);
+                      } catch (err) {
+                        console.error(err);
+                        alert("Secure search failed: firewall handshake error.");
+                      } finally {
+                        setLoadingProxySearch(false);
+                      }
+                    };
 
-                      const handleOpenBypassUrl = async (url: string) => {
-                        setLoadingBypass(true);
-                        setActiveBypassUrl(url);
-                        setBypassHtmlContent("");
-                        try {
-                          const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
-                          const data = await res.json();
-                          if (data.success && data.content) {
-                            setBypassHtmlContent(data.content);
-                          } else {
-                            setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
-                          }
-                        } catch (err) {
-                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out. Domestic node failed.</div>`);
-                        } finally {
-                          setLoadingBypass(false);
+                    // Reader Bypass Function
+                    const handleOpenBypassUrl = async (url: string) => {
+                      setLoadingBypass(true);
+                      setActiveBypassUrl(url);
+                      setBypassHtmlContent("");
+                      try {
+                        const res = await fetch(`${getApiBase()}/api/web/proxy?url=${encodeURIComponent(url)}`);
+                        const data = await res.json();
+                        if (data.success && data.content) {
+                          setBypassHtmlContent(data.content);
+                        } else {
+                          setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Bypass Fail: ${data.error || 'Server did not respond with decoded payload.'}</div>`);
                         }
-                      };
+                      } catch (err) {
+                        setBypassHtmlContent(`<div class="p-6 text-red-400 font-mono">Connection Handshake Timed Out. Domestic node failed.</div>`);
+                      } finally {
+                        setLoadingBypass(false);
+                      }
+                    };
 
                     // Direct Action for URL Proxy
                     const handleDirectUrlSubmit = (e: React.FormEvent) => {
@@ -6382,7 +6373,7 @@ export default function App() {
                       if (!geminiPromptText.trim()) return;
                       const userMsg = geminiPromptText;
                       setGeminiPromptText("");
-                      setGeminiChatHistoryList(prev => [...prev,  { role: "user", text: userMsg } ]);
+                      setGeminiChatHistoryList(prev => [...prev, { role: "user", text: userMsg }]);
                       setLoadingGeminiModel(true);
                       try {
                         const res = await fetch(`${getApiBase()}/api/ai/chat`, {
@@ -6394,9 +6385,9 @@ export default function App() {
                           })
                         });
                         const data = await res.json();
-                        setGeminiChatHistoryList(prev => [...prev,  { role: "ai", text: data.response || "Server responded empty." } ]);
+                        setGeminiChatHistoryList(prev => [...prev, { role: "ai", text: data.response || "Server responded empty." }]);
                       } catch (err) {
-                        setGeminiChatHistoryList(prev => [...prev,  { role: "ai", text: "Error: Could not handshake with safe Gemini API broker." } ]);
+                        setGeminiChatHistoryList(prev => [...prev, { role: "ai", text: "Error: Could not handshake with safe Gemini API broker." }]);
                       } finally {
                         setLoadingGeminiModel(false);
                       }
@@ -6423,8 +6414,8 @@ export default function App() {
                         </div>
 
                         {!isGoogleHubAuthorized ? (
+                          /* Lock Screen */
                           <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-slate-950/90 relative overflow-hidden">
-                            {/* Lock Screen */}
                             <div className="absolute inset-0 bg-radial-gradient from-fuchsia-950/20 via-transparent to-transparent opacity-50" />
                             <div className="bg-fuchsia-500/10 p-5 rounded-3xl border border-fuchsia-500/20 mb-6 animate-pulse">
                               <Lock className="w-12 h-12 text-fuchsia-400" />
@@ -6443,8 +6434,8 @@ export default function App() {
                             </button>
                           </div>
                         ) : (
+                          /* Operational Workspace Layout */
                           <div className="flex-grow flex overflow-hidden">
-                                  {/* Operational Workspace Layout */}
                             {/* Left Sidebar */}
                             <div className="w-56 bg-slate-900/50 border-r border-white/5 flex flex-col p-3 gap-1.5 shrink-0">
                               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mb-2">安全业务网关</div>
@@ -6498,8 +6489,8 @@ export default function App() {
                               {googleHubTab === "search" && (
                                 <div className="flex-grow flex flex-col p-5 overflow-hidden">
                                   {activeBypassUrl ? (
+                                    /* GFW Bypass Reader mode */
                                     <div className="flex-grow flex flex-col overflow-hidden animate-fade-in text-left">
-                                      {/* GFW Bypass Reader mode */}
                                       <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4 shrink-0">
                                         <button onClick={() => setActiveBypassUrl(null)} className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300">
                                           <ArrowLeft className="w-4 h-4"/>返回搜索列表
@@ -6521,8 +6512,8 @@ export default function App() {
                                       )}
                                     </div>
                                   ) : (
+                                    /* Standard Search UI */
                                     <div className="flex-grow flex flex-col overflow-hidden text-left">
-                                    {/* Standard Search UI */}
                                       <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">🔍 Google GFW-Secure Search与安全浏览器代理</h3>
                                       <p className="text-[11px] text-slate-400 mb-4">通过安全代理节点无缝请求全球互联网，并支持针对任何敏感目标页面的一键免翻墙极速私密阅读。</p>
                                       
@@ -6589,6 +6580,19 @@ export default function App() {
                               {/* Gmail tab */}
                               {googleHubTab === "gmail" && (() => {
                                 // Manage stars & deleted items via state-backed localStorage arrays for perfect zero-conflict persistence
+                                const [starredIds, setStarredIds] = useState<string[]>(() => {
+                                  try {
+                                    const saved = localStorage.getItem("gpkos_gmail_starred");
+                                    return saved ? JSON.parse(saved) : [];
+                                  } catch (e) { return []; }
+                                });
+                                const [deletedIds, setDeletedIds] = useState<string[]>(() => {
+                                  try {
+                                    const saved = localStorage.getItem("gpkos_gmail_deleted");
+                                    return saved ? JSON.parse(saved) : [];
+                                  } catch (e) { return []; }
+                                });
+
                                 const saveStarred = (ids: string[]) => {
                                   setStarredIds(ids);
                                   localStorage.setItem("gpkos_gmail_starred", JSON.stringify(ids));
@@ -6883,8 +6887,8 @@ export default function App() {
                                     </div>
 
                                     {!googleToken ? (
+                                      /* Google login overlay featuring tabbed selector: Login or Sign Up account creation */
                                       <div className="flex-grow flex items-center justify-center py-4 overflow-y-auto w-full">
-                                        {/* Google login overlay featuring tabbed selector: Login or Sign Up account creation */}
                                         <div className="bg-slate-900/60 border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative overflow-hidden flex flex-col gap-6">
                                           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-amber-500 to-cyan-500" />
                                           
@@ -6919,9 +6923,9 @@ export default function App() {
                                           </div>
 
                                           {googleLoginMode === "signin" ? (
+                                            /* Sign In view with Preset Auto handshakes */
                                             <form onSubmit={handleGoogleSignInSubmit} className="space-y-4">
                                               <div>
-                                              {/* Sign In view with Preset Auto handshakes */}
                                                 <label className="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1 block">Google 邮箱地址 (Gmail Address)</label>
                                                 <input 
                                                   type="text"
@@ -6973,8 +6977,8 @@ export default function App() {
                                               </button>
                                             </form>
                                           ) : (
+                                            /* Registration Sign Up view */
                                             <form onSubmit={handleGoogleSignUpSubmit} className="space-y-3 max-h-[300px] overflow-y-auto pr-1 text-left">
-                                            {/* Registration Sign Up view */}
                                               <div className="grid grid-cols-2 gap-2">
                                                 <div>
                                                   <label className="text-[9px] uppercase text-slate-400 font-bold block mb-1">姓 (Last Name)</label>
@@ -7063,9 +7067,9 @@ export default function App() {
                                         </div>
                                       </div>
                                     ) : (
+                                      /* Fully Featured State-Driven Gmail Interactive Sandbox Client Suite */
                                       <div className="flex-grow flex flex-col md:flex-row overflow-hidden border border-white/5 rounded-2xl bg-slate-950 shadow-inner">
                                         
-                                        {/* Fully Featured State-Driven Gmail Interactive Sandbox Client Suite */}
                                         {/* Sub-layout: 1. Gmail Left controls & signature hub */}
                                         <div className="w-full md:w-44 bg-slate-900/40 border-b md:border-b-0 md:border-r border-white/5 flex flex-col p-2.5 gap-1.5 shrink-0 select-none">
                                           
@@ -7080,9 +7084,9 @@ export default function App() {
                                           <span className="text-[9px] uppercase tracking-wider font-extrabold text-slate-500 px-2">Folders</span>
 
                                           {[
-                                             { id: "inbox", label: "收件箱 (Inbox)", icon: Mail, badgeColor: "bg-cyan-500/10 text-cyan-400" },
-                                             { id: "starred", label: "星标邮件 (Starred)", icon: Star, badgeColor: "bg-amber-500/10 text-amber-400" },
-                                             { id: "sent", label: "已发送 (Sent)", icon: Send, badgeColor: "bg-purple-500/10 text-purple-400" }
+                                            { id: "inbox", label: "收件箱 (Inbox)", icon: Mail, badgeColor: "bg-cyan-500/10 text-cyan-400" },
+                                            { id: "starred", label: "星标邮件 (Starred)", icon: Star, badgeColor: "bg-amber-500/10 text-amber-400" },
+                                            { id: "sent", label: "已发送 (Sent)", icon: Send, badgeColor: "bg-purple-500/10 text-purple-400" }
                                           ].map(tab => {
                                             const Icon = tab.icon;
                                             
@@ -7211,12 +7215,12 @@ export default function App() {
                                               {/* Mail Headers box */}
                                               <div className="border-b border-white/5 pb-3">
                                                 <div className="flex items-start justify-between gap-4 mb-2">
-                                                  <h4 className="text-sm font-extrabold text-white leading-normal leading-snug">gmailSelectedEmail.subject || "(No Subject)")</h4>
+                                                  <h4 className="text-sm font-extrabold text-white leading-normal leading-snug">{gmailSelectedEmail.subject || "(No Subject)"}</h4>
                                                   
                                                   <div className="flex items-center gap-1.5 shrink-0">
                                                     <button 
                                                       onClick={(e) => handleToggleStar(gmailSelectedEmail.id, e)}
-                                                        className={`px-2 py-0.5 rounded border text-[9px] font-bold ${starredIds.includes(gmailSelectedEmail.id) ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-white/10 text-slate-400"}`}
+                                                      className={`px-2 py-0.5 rounded border text-[9px] font-bold ${starredIds.includes(gmailSelectedEmail.id) ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-white/10 text-slate-400"}`}
                                                     >
                                                       ★ Starred
                                                     </button>
@@ -7338,10 +7342,9 @@ export default function App() {
                                       </div>
                                     )}
 
-                                    </div>
-                                  )()}
-                                )}
-
+                                  </div>
+                                </div>
+                              })() }
                               {/* Maps tab */}
                               {googleHubTab === "maps" && (
                                 <div className="flex-grow flex flex-col overflow-hidden text-left h-full">
@@ -7534,7 +7537,7 @@ export default function App() {
                                                       <span className="text-[10px] text-slate-500 font-mono">FROM: <strong className="text-purple-400">{msg.sender}</strong></span>
                                                       <span className="text-[10px] text-slate-500 font-mono">TO: <strong className="text-cyan-400">{msg.receiver}</strong></span>
                                                     </div>
-                                                     <span className="text-[9px] text-slate-600 font-mono">{new Date(msg.timestamp).toLocaleString()}</span>
+                                                    <span className="text-[9px] text-slate-600 font-mono">{new Date(msg.timestamp).toLocaleString()}</span>
                                                  </div>
                                                  
                                                  {decryptedMessageId === msg.id ? (
@@ -7592,7 +7595,7 @@ export default function App() {
                         )}
                       </div>
                     );
-                  })())}
+                  })()}
 
                   {/* Google Play Store */}
                   {gpkosActiveApp === 'google-play' && (() => {
@@ -7639,7 +7642,7 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Gmail App */}
                   {gpkosActiveApp === 'gmail' && (() => {
@@ -7700,14 +7703,14 @@ export default function App() {
                                        <p className="text-slate-400 text-xs line-clamp-2 leading-relaxed">{mail.snippet}</p>
                                      </div>
                                    ))
-                                  )}
+                                 )}
                                </div>
                              </div>
                            )}
                         </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Gemini app */}
                   {gpkosActiveApp === 'gemini' && (() => {
@@ -7744,7 +7747,7 @@ export default function App() {
                               </div>
                            </div>
                         </div>
-{/* Gemini input bar */}
+                        {/* Gemini input bar */}
                         <div className="p-6 bg-black/40 border-t border-white/5">
                            <div className="max-w-2xl mx-auto relative group">
                               <input 
@@ -7759,7 +7762,7 @@ export default function App() {
                         </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Global Secure Bridge App */}
                   {gpkosActiveApp === 'global-bridge' && (() => {
@@ -7781,7 +7784,7 @@ export default function App() {
                         </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Google Maps App */}
                   {gpkosActiveApp === 'maps' && (() => {
@@ -7818,8 +7821,9 @@ export default function App() {
                               </div>
                            </div>
                         </div>
+                      </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Google Drive App */}
                   {gpkosActiveApp === 'drive' && (() => {
@@ -7868,7 +7872,7 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Google Calendar App */}
                   {gpkosActiveApp === 'calendar' && (() => {
@@ -7906,7 +7910,7 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Google Photos App */}
                   {gpkosActiveApp === 'photos' && (() => {
@@ -7936,7 +7940,7 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* YouTube App */}
                   {gpkosActiveApp === 'youtube' && (() => {
@@ -7978,7 +7982,7 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
+                  })() }
 
                   {/* Google Contacts App */}
                   {gpkosActiveApp === 'contacts' && (() => {
@@ -8020,7 +8024,8 @@ export default function App() {
                          </div>
                       </div>
                     );
-                  })()}
+                  })()) }
+
                   {/* Mobile Search Window */}
                   {gpkosActiveApp === 'mobile-search' && (() => {
                     const isGoogleHubAuthorized = currentUser?.emailUsername === 'marvis_zhou2014' || currentUser?.emailUsername === 'marvis_zhou' || (currentUser && (systemState.aiAuthorizedUsers || []).includes(currentUser.emailUsername));
@@ -8174,17 +8179,18 @@ export default function App() {
                                                   <span className="font-bold text-xs text-cyan-200 tracking-wide">Docs Base</span>
                                                   <span className="text-[9px] text-cyan-400/60 mt-1 font-mono">REACT</span>
                                                </div>
-                                              </div>
+                                             </div>
                                            </div>
-                                          </div>
-                                       )
-                                   )}
-                                </div>
-                             </div>
-                          </div>
-                       </div>
-                );
-             })()}
+                                        )
+                                     )}
+                                  </div>
+                               )}
+                            </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })() }
 
                 {/* Main Dynamic Workspace rendering */}
                 <AnimatePresence mode="popLayout">
@@ -8364,10 +8370,10 @@ export default function App() {
                               <h4 className="font-bold text-white text-xs mb-2">📈 多端接入数据链路与传输质量保障 (QoS Assurance)</h4>
                               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                                 {[
-                                   { name: "电脑 PC Client", status: "优 (A+)", rate: "148.5 M", jitter: "0.12ms", loss: "0.0%" },
-                                   { name: "手机 Mobile", status: "优 (A)", rate: "62.4 M", jitter: "0.95ms", loss: "0.02%" },
-                                   { name: "平板 Tablet", status: "优 (A+)", rate: "92.0 M", jitter: "0.41ms", loss: "0.0%" },
-                                   { name: "服务器 Server", status: "极佳 (S)", rate: "940.0 M", jitter: "0.03ms", loss: "0.0%" }
+                                  { name: "电脑 PC Client", status: "优 (A+)", rate: "148.5 M", jitter: "0.12ms", loss: "0.0%" },
+                                  { name: "手机 Mobile", status: "优 (A)", rate: "62.4 M", jitter: "0.95ms", loss: "0.02%" },
+                                  { name: "平板 Tablet", status: "优 (A+)", rate: "92.0 M", jitter: "0.41ms", loss: "0.0%" },
+                                  { name: "服务器 Server", status: "极佳 (S)", rate: "940.0 M", jitter: "0.03ms", loss: "0.0%" }
                                 ].map((m, idx) => (
                                   <div key={idx} className="bg-black/40 border border-white/5 p-2 rounded-lg text-left text-[9px] font-mono flex justify-between items-center">
                                     <div>
@@ -8804,7 +8810,7 @@ export default function App() {
                                   <div className="bg-emerald-950/70 border-b border-emerald-500/15 px-3 py-1 flex items-center justify-between text-[8px] text-emerald-400 shrink-0">
                                     <div className="flex items-center gap-1 font-medium">
                                       <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
-                                       <span>SHIELD ACTIVE: Traffic routed over {vpnNode.toUpperCase()} Node. Spoofed user-agent headers block AI-crawler alerts. No account records logged.</span>
+                                      <span>SHIELD ACTIVE: Traffic routed over {vpnNode.toUpperCase()} Node. Spoofed user-agent headers block AI-crawler alerts. No account records logged.</span>
                                     </div>
                                     <a 
                                       href={vpnBrowserActiveUrl} 
@@ -8818,16 +8824,16 @@ export default function App() {
 
                                   {/* Webview Iframe Display area */}
                                   <div className="flex-grow bg-white relative">
-                                      {vpnBrowserActiveUrl ? (
-                                        <iframe
-                                          src={`/api/web/proxy-html?url=${encodeURIComponent(vpnBrowserActiveUrl)}`}
-                                          className="w-full h-full border-0 bg-white"
-                                          title="Stealth VPN Private Browser"
-                                          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
-                                          referrerPolicy="no-referrer"
-                                          allowFullScreen
-                                        />
-                                      ) : (
+                                    {vpnBrowserActiveUrl ? (
+                                      <iframe
+                                        src={`/api/web/proxy-html?url=${encodeURIComponent(vpnBrowserActiveUrl)}`}
+                                        className="w-full h-full border-0 bg-white"
+                                        title="Stealth VPN Private Browser"
+                                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
+                                        referrerPolicy="no-referrer"
+                                        allowFullScreen
+                                      />
+                                    ) : (
                                       <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center text-center p-4">
                                         <Globe className="w-8 h-8 text-slate-600 animate-spin mb-2" />
                                         <p className="text-slate-400 text-[10px] font-mono">Bypassing local node gateways...</p>
@@ -9035,9 +9041,9 @@ export default function App() {
                                       e.preventDefault();
                                       if (!videoCommentInput.trim()) return;
                                       setVideoComments(prev => [
-                                          { user: "周锦淇 (Admin)", text: videoCommentInput.trim(), date: "刚刚" },
+                                        { user: "周锦淇 (Admin)", text: videoCommentInput.trim(), date: "刚刚" },
                                         ...prev
- ]);
+                                      ]);
                                       setVideoCommentInput("");
                                     }}
                                     className="flex gap-2 mb-2"
@@ -9130,7 +9136,7 @@ export default function App() {
                               )}
 
                               <div className="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
-                               {videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).map(vid => (
+                                {videoLibrary.filter(v => v.title.toLowerCase().includes(videoSearchQuery.toLowerCase())).map(vid => (
                                   <button 
                                     key={vid.id}
                                     onClick={() => {
@@ -9151,32 +9157,31 @@ export default function App() {
                                   <div className="text-center p-4">
                                     <p className="text-[10px] text-slate-500 font-mono">No videos found.</p>
                                   </div>
-                               )}
-                             </div>
-                           </div>
-                         </div>
-                       </div>
-                     )}
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {win.appId === 'gmail' && (
                          <GmailApp 
                             currentUser={currentUser}
                             mockEmailsList={emails}
                             setMockEmailsList={setEmails}
                             installedApps={[]}
-                             setInstalledApps={() => {}}
-                             kernelStats={{}}
-                             desktopWallpaper=""
-                             setDesktopWallpaper={() => {}}
-                             dockAutohide={false}
-                             setDockAutohide={() => {}}
+                            setInstalledApps={() => {}}
+                            kernelStats={{}}
+                            desktopWallpaper=""
+                            setDesktopWallpaper={() => {}}
+                            dockAutohide={false}
+                            setDockAutohide={() => {}}
                             openGPKOSApp={(id) => launchApp(id, id === 'outlook' ? 'Outlook Mail' : 'Application')}
                             setGpkosWindows={setOpenedWindows}
                             setEmails={setEmails}
                          />
                       )}
                       {/* Fallback for other apps */}
-                       {/* Fallback for other apps */}
-                       {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace', 'vpn', 'video-player'].includes(win.appId) && (
+                      {!['maps', 'drive', 'settings', 'global-bridge', 'gmail', 'profile', 'marketplace', 'vpn', 'video-player'].includes(win.appId) && (
                         <div className="flex items-center justify-center h-full text-slate-500 font-bold uppercase tracking-widest bg-slate-900/50">
                            {win.title} Module Loaded
                         </div>
@@ -9267,9 +9272,11 @@ export default function App() {
                        <span className="text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Admin Tools</span>
                     </button>
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
-         </div>
+          </div>
+        </div>
       )}
 
         {/* SECTION 5: REMOTE DESKTOP SCREEN COLLABORATION screen */}
@@ -9436,11 +9443,13 @@ export default function App() {
                       <strong>Security Scan Pass:</strong> Video is verified and contains no malicious content parameters.
                     </p>
                   </div>
-               </div>
+                </div>
+              </div>
+
             </div>
-         </div>
-      </div>
-   )}
+
+          </div>
+        )}
 
         {/* SECTION 7: FRIENDSHIP DIRECTORY / YEARBOOK screen */}
         {currentHash === "#friendship" && (
@@ -9572,7 +9581,7 @@ export default function App() {
                               <p className="text-slate-300 line-clamp-2 mt-1 italic">"{m.content}"</p>
                             </div>
                           </div>
-                          ))}
+                        ))}
                       </div>
                     )}
                   </div>
@@ -9682,7 +9691,7 @@ export default function App() {
                           <h4 className="text-md font-bold text-white mt-1.5">{art.title}</h4>
                         </div>
                         <span className="text-[10px] text-zinc-500">
-                           {new Date(art.timestamp).toLocaleString()}
+                          {new Date(art.timestamp).toLocaleString()}
                         </span>
                       </div>
 
@@ -9694,14 +9703,14 @@ export default function App() {
                           className="flex items-center gap-1.5 text-slate-400 hover:text-rose-400 transition"
                         >
                           <ThumbsUp className="h-4 w-4" />
-                          <span>Likes {art.likes || 0}</span>
+                          <span>Likes ({art.likes || 0})</span>
                         </button>
-                        <span className="text-zinc-500">Author: {art.author} ({art.authorEmail}))</span>
+                        <span className="text-zinc-500">Author: {art.author} ({art.authorEmail})</span>
                       </div>
 
                       {/* Comments feed block info */}
                       <div className="bg-slate-950 p-3 rounded-xl space-y-2 border border-white/5 text-[11px]">
-                        <span className="font-bold text-slate-400 block border-b border-white/5 pb-1">Answers {art.comments?.length || 0}</span>
+                        <span className="font-bold text-slate-400 block border-b border-white/5 pb-1">Answers ({art.comments?.length || 0})</span>
                         
                         {art.comments && art.comments.map((comm) => (
                           <div key={comm.id} className="pb-1 border-b border-white/5">
@@ -9848,15 +9857,14 @@ export default function App() {
 
         {/* Dynamic Branch Pages mapping */}
         {systemState.navPages?.filter(p => !p.isExternal && p.isVisible).map(p => (
-          currentHash === '#subpage-' + p.id && <React.Fragment key={p.id}><DynamicSubPage page={p} lang={lang} /></React.Fragment>
+          currentHash === `#subpage-${p.id}` && <React.Fragment key={p.id}><DynamicSubPage page={p} lang={lang} /></React.Fragment>
         ))}
+
         </div>
-      )}
-    </div>
-  </div>
+      </div>
 
-
-      <footer className="mt-auto border-t border-white/10 shrink-0 text-center text-xs text-slate-400 bg-black/60 backdrop-blur-xl relative z-40">
+      {/* Footer copyright & Aesthetic Controls */}
+      <footer id="main-footer" className="mt-auto border-t border-white/10 shrink-0 text-center text-xs text-slate-400 bg-black/60 backdrop-blur-xl relative z-40">
         <div className="flex flex-wrap items-center justify-center gap-2 p-2 border-b border-white/5 bg-slate-900/50">
           <span className="font-bold text-slate-300">Theme:</span>
           <select 
@@ -9895,8 +9903,193 @@ export default function App() {
       </footer>
 
       {/* Admin Visual Editor Toggle and Popup */}
+      {currentUser?.role === 'admin' && (
+        <>
+          <button 
+             onClick={() => setAdminEditMode(!adminEditMode)}
+             className={`fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-2xl transition-all ${adminEditMode ? 'bg-fuchsia-500 text-slate-900 shadow-fuchsia-500/50 hover:bg-fuchsia-400 animate-pulse' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+             title="Toggle Visual Layout Engine"
+          >
+             {adminEditMode ? <Settings className="w-5 h-5 animate-spin"/> : <Settings className="w-5 h-5"/>}
+          </button>
+          
+          {adminEditMode && adminStylePopup && (
+             <div 
+               className="fixed z-[999] bg-slate-900 border border-fuchsia-500/50 shadow-2xl rounded-2xl w-64 animate-fade-in text-left overflow-hidden flex flex-col"
+               style={{ left: Math.min(adminStylePopup.x + 10, window.innerWidth - 270), top: Math.min(adminStylePopup.y + 10, window.innerHeight - 300) }}
+             >
+                <div className="bg-slate-950 p-2.5 border-b border-fuchsia-500/20 flex items-center justify-between">
+                   <div className="text-xs font-bold text-fuchsia-400 flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Recommended Styles</div>
+                   <button onClick={() => setAdminStylePopup(null)} className="text-slate-400 hover:text-white"><Terminal className="w-3.5 h-3.5"/></button>
+                </div>
+                <div className="p-2 space-y-1">
+                   {['Typewriter Effect 🪄', 'Gradient Text 🌈', 'Neon Glow 🔆', 'Slide Up Fade 🚀'].map(styleAction => (
+                     <button 
+                        key={styleAction}
+                        onClick={() => {
+                          const target = adminStylePopup.target;
+                          if (target) {
+                            if (styleAction.includes('Typewriter')) {
+                              target.style.overflow = "hidden";
+                              target.style.whiteSpace = "nowrap";
+                              target.style.animation = "typing 2s steps(40, end)";
+                            } else if (styleAction.includes('Gradient')) {
+                              target.className += " bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-cyan-500";
+                            } else if (styleAction.includes('Neon')) {
+                              target.style.textShadow = "0 0 10px rgba(16,185,129,0.8), 0 0 20px rgba(16,185,129,0.8)";
+                              target.className += " text-emerald-400";
+                            } else if (styleAction.includes('Slide')) {
+                              target.className += " animate-fade-in";
+                            }
+                          }
+                          setAdminStylePopup(null);
+                        }}
+                        className="w-full text-left p-2 rounded text-xs text-slate-300 hover:bg-fuchsia-500/20 hover:text-white transition font-medium"
+                     >
+                       {styleAction}
+                     </button>
+                   ))}
+                   <div className="border-t border-white/5 my-1" />
+                   <button 
+                     onClick={() => {
+                         setAdminStylePopup(null);
+                         setAdminEditMode(false);
+                         setIframeLoading(true);
+                         setActiveBypassUrl("https://aistudio.google.com");
+                         setCurrentHash("#rory-gpkos");
+                         setGpkosActiveApp("remote");
+                     }}
+                     className="w-full text-left p-2 rounded text-xs text-emerald-400 hover:bg-emerald-500/20 font-bold flex items-center gap-2"
+                   >
+                     🚀 Gemini AI 改
+                   </button>
+                </div>
+             </div>
+          )}
+        </>
+      )}
+
+      {/* Handshake Success Overlay */}
+      <AnimatePresence>
+        {isHandshaking && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-8 text-center"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="max-w-md w-full bg-slate-900 border border-cyan-500/30 p-8 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.15)] flex flex-col items-center"
+            >
+              <div className="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center mb-6 relative shadow-inner">
+                 <Shield className="w-10 h-10 text-cyan-400" />
+                 <motion.div 
+                   animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                   transition={{ duration: 2, repeat: Infinity }}
+                   className="absolute inset-0 rounded-full border-2 border-cyan-500/50"
+                 />
+              </div>
+              <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter mb-2 italic underline decoration-cyan-500 underline-offset-8 font-serif">HF Space Tunnel Established</h2>
+              <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-6 px-4">Global Handshake Complete (1000/1000 Tests Passed)</p>
+              <div className="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-2 mb-6 shadow-inner font-mono text-[10px]">
+                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
+                    <span>Protocol</span>
+                    <span className="text-cyan-500 italic">HF-Mutual TLS 1.3</span>
+                 </div>
+                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
+                    <span>Exit Bridge</span>
+                    <span className="text-green-500">HF-Space-Relay-Tokyo</span>
+                 </div>
+                 <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500">
+                    <span>Validation</span>
+                    <span className="text-emerald-400">1000 Cycles Verified</span>
+                 </div>
+              </div>
+              <p className="text-[10px] text-slate-500 italic opacity-80 max-w-xs text-center">Connected to Hugging Face global node... Data encryption active.</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* GPKOS Kernel-Level Self-Healing Core Loader */}
+      {isSelfHealing && (
+        <div className="fixed inset-0 bg-black/95 z-[99999] flex flex-col items-center justify-center p-6 select-none font-mono">
+          <div className="max-w-xl w-full bg-slate-950 border border-rose-500/30 p-8 rounded-3xl shadow-[0_0_50px_rgba(244,63,94,0.15)] flex flex-col gap-6 relative overflow-hidden">
+            {/* Spinning scanning circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl animate-pulse"></div>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-full border-2 border-rose-500/20 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full border-2 border-rose-500 border-t-transparent animate-spin"></div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-rose-400 text-sm font-black uppercase tracking-[0.2em] mb-1">GPKOS Kernel Repair</h3>
+                <p className="text-[10px] text-slate-500">一键极客自修复引擎激活 - 沙箱完整性重组中</p>
+              </div>
+              <div className="ml-auto text-right">
+                <span className="text-rose-500 text-2xl font-black">{selfHealingProgress}%</span>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full bg-slate-900 border border-white/5 h-2 rounded-full overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-rose-500 to-amber-500 h-full transition-all duration-300"
+                style={{ width: `${selfHealingProgress}%` }}
+              />
+            </div>
+
+            {/* Diagnostics terminal logs */}
+            <div className="bg-black/80 border border-white/5 rounded-2xl p-4 h-48 overflow-y-auto flex flex-col gap-1.5 text-[9px] font-mono leading-relaxed text-slate-400 select-text selection:bg-rose-500/30">
+              {selfHealingLogs.map((log, index) => {
+                let colorClass = "text-slate-400";
+                if (log.startsWith("[OK]")) colorClass = "text-emerald-400 font-bold";
+                if (log.startsWith("[WARN]")) colorClass = "text-amber-400 font-bold animate-pulse";
+                if (log.startsWith("[SYS]")) colorClass = "text-rose-400 font-bold";
+                return (
+                  <div key={index} className={`${colorClass} whitespace-pre-wrap`}>
+                    {log}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-between items-center text-[8px] text-slate-600 font-bold uppercase tracking-widest px-1">
+              <span>Kernel: v4.2.0-GPKOS</span>
+              <span className="animate-pulse">Checking files integrity...</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Self-Healing Success Dialogue Modal */}
+      {showSelfHealingSuccess && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-emerald-500/20 p-8 rounded-3xl max-w-sm w-full text-center shadow-[0_0_50px_rgba(16,185,129,0.15)] animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-950/20">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950">
+                ✓
+              </div>
+            </div>
+            <h4 className="text-white text-base font-black uppercase tracking-wider mb-2">系统自修复完成</h4>
+            <p className="text-xs text-slate-400 leading-relaxed mb-6">
+              极客系统一键自修复引擎执行成功！<br />
+              所有系统文件完整性校验 100% 通过，磨砂毛玻璃硬件加速与内置壁纸已重置回超高可用稳定参数。
+            </p>
+            <button 
+              onClick={() => setShowSelfHealingSuccess(false)}
+              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-widest rounded-xl transition active:scale-95 shadow-lg shadow-emerald-950/30"
+            >
+              回到系统 (Back to OS)
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
-
-export default App;
